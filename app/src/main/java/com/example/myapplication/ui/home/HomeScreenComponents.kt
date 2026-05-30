@@ -1,7 +1,12 @@
 package com.example.myapplication.ui.home
 
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,7 +19,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +40,7 @@ fun SearchSection(modifier: Modifier = Modifier) {
 
 @Composable
 fun SearchRow(label: String) {
+    var text by remember { mutableStateOf("") }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -51,8 +56,8 @@ fun SearchRow(label: String) {
         }
         Spacer(modifier = Modifier.width(8.dp))
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = text,
+            onValueChange = { text = it },
             modifier = Modifier
                 .weight(1f)
                 .height(56.dp),
@@ -66,8 +71,38 @@ fun SearchRow(label: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimeSection(modifier: Modifier = Modifier) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
+    val formatter = remember { SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY) }
+    var selectedDateText by remember { mutableStateOf(formatter.format(Date())) }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        selectedDateText = formatter.format(Date(it))
+                    }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Abbrechen")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -76,26 +111,60 @@ fun DateTimeSection(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
+                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                .clickable { showDatePicker = true },
             contentAlignment = Alignment.Center
         ) {
             Text("Datum")
         }
         Box(
             modifier = Modifier
-                .width(80.dp)
+                .width(110.dp)
                 .height(48.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
+                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
+                .clickable { showDatePicker = true },
             contentAlignment = Alignment.Center
         ) {
-            Text("1.1.1111")
+            Text(selectedDateText)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArrivalDepartureSection(modifier: Modifier = Modifier) {
     var isArrival by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    
+    val calendar = Calendar.getInstance()
+    val timePickerState = rememberTimePickerState(
+        initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+        initialMinute = calendar.get(Calendar.MINUTE),
+        is24Hour = true
+    )
+
+    var selectedTimeText by remember { 
+        mutableStateOf(String.format("%02d:%02d", timePickerState.hour, timePickerState.minute)) 
+    }
+
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    selectedTimeText = String.format("%02d:%02d", timePickerState.hour, timePickerState.minute)
+                    showTimePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) { Text("Abbrechen") }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
+    }
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -125,7 +194,10 @@ fun ArrivalDepartureSection(modifier: Modifier = Modifier) {
         }
 
         Button(
-            onClick = { },
+            onClick = {
+                val now = Calendar.getInstance()
+                selectedTimeText = String.format("%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE))
+            },
             modifier = Modifier
                 .weight(0.8f)
                 .height(48.dp),
@@ -140,10 +212,11 @@ fun ArrivalDepartureSection(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .weight(0.7f)
                 .height(48.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(24.dp)),
+                .border(1.dp, Color.Black, RoundedCornerShape(24.dp))
+                .clickable { showTimePicker = true },
             contentAlignment = Alignment.Center
         ) {
-            Text("MM:HH")
+            Text(selectedTimeText)
         }
     }
 }
