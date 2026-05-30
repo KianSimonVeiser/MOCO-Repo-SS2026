@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
-// --- Datenmodelle ---
+//Datenmodelle
 data class TrainData(val name: String, val color: Color)
 data class ConnectionData(
     val depTime: String,
@@ -54,7 +54,7 @@ fun ConnectionSelectionScreen() {
         bottomBar = { BottomNavigation() },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        // Beispiel-Daten basierend auf deinem Wireframe
+        // Beispiel-Daten basierend auf Wireframe
         val connections = listOf(
             ConnectionData("MM:HH", "MM:HH", 9.4, listOf(TrainData("RB1", Color(0xFFE2104E)), TrainData("ICE 2", Color.Gray))),
             ConnectionData("MM:HH", "MM:HH", 2.3, listOf(TrainData("RB2", Color(0xFFE2104E)), TrainData("ICE 3", Color.Gray), TrainData("IC1", Color(0xFF009FE3))), isLate = true),
@@ -152,7 +152,7 @@ fun SearchHeader() {
                         onClick = {},
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color.Black), // Schwarze Umrandung
+                        border = BorderStroke(1.dp, Color.Black),
                         colors = ButtonDefaults.outlinedButtonColors(
                             containerColor = Color.White,
                             contentColor = Color.Black
@@ -169,10 +169,11 @@ fun SearchHeader() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ConnectionCard(connection: ConnectionData) {
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = Color.White)
+        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color.Black)
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
