@@ -10,7 +10,9 @@ data class Connection(
 data class ConnectionSegment(
     val departureStop: Stop,
     val arrivalStop: Stop,
-    val train: Train
+    val train: Train,
+    val currentProgress: Float,
+    val punctualityScore: Float? = null
 )
 
 data class Stop(
