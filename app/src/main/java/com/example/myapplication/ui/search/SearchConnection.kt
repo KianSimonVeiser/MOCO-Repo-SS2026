@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.ui.search
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,7 +35,7 @@ data class ConnectionData(
     val isLate: Boolean = false
 )
 
-class Verbindungssuche : ComponentActivity() {
+class SearchConnection : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
