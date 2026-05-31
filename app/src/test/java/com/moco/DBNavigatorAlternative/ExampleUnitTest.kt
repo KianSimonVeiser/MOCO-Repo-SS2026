@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.moco.DBNavigatorAlternative
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.search
+package com.moco.DBNavigatorAlternative.ui.search
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.moco.DBNavigatorAlternative.ui.theme.MyApplicationTheme
 
 //Datenmodelle
 data class TrainData(val name: String, val color: Color)

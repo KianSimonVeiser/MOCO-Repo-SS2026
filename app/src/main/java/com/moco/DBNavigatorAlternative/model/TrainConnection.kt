@@ -1,4 +1,4 @@
-package com.example.myapplication.model
+package com.moco.DBNavigatorAlternative.model
 
 data class Connection(
     val id: String,

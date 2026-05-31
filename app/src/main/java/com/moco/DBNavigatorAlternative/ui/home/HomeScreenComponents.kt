@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.home
+package com.moco.DBNavigatorAlternative.ui.home
 
 import java.text.SimpleDateFormat
 import java.util.Calendar

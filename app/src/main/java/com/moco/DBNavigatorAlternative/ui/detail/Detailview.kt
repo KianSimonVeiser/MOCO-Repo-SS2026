@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.detail
+package com.moco.DBNavigatorAlternative.ui.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,11 +47,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.model.Connection
-import com.example.myapplication.model.ConnectionSegment
-import com.example.myapplication.model.Stop
-import com.example.myapplication.model.Train
-import com.example.myapplication.model.TrainType
+import com.moco.DBNavigatorAlternative.model.Connection
+import com.moco.DBNavigatorAlternative.model.ConnectionSegment
+import com.moco.DBNavigatorAlternative.model.Stop
+import com.moco.DBNavigatorAlternative.model.Train
+import com.moco.DBNavigatorAlternative.model.TrainType
 import androidx.compose.ui.graphics.lerp
 
 val testconnection = Connection(
