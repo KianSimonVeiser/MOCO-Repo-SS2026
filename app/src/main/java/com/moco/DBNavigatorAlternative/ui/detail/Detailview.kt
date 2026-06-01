@@ -54,6 +54,9 @@ import com.moco.DBNavigatorAlternative.model.Stop
 import com.moco.DBNavigatorAlternative.model.Train
 import com.moco.DBNavigatorAlternative.model.TrainType
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import com.moco.DBNavigatorAlternative.model.Comment
 
 val testconnection = Connection(
@@ -116,23 +119,23 @@ val testconnection = Connection(
         ConnectionSegment(
             id = "3",
             departureStop = Stop(
-                id = "KAS",
-                name = "Kassel-Wilhelmshöhe",
-                time = "16:00",
-                platform = "5"
+                id = "BER",
+                name = "Berlin-HBF",
+                time = "18:00",
+                platform = "6"
             ),
 
             arrivalStop = Stop(
-                id = "BER",
-                name = "Berlin Hbf",
-                time = "17:30",
+                id = "MUN",
+                name = "München HBF",
+                time = "23:30",
                 platform = "11"
             ),
 
             train = Train(
-                id = "re21",
-                type = TrainType.RE,
-                line = "RE 21"
+                id = "ic12",
+                type = TrainType.IC,
+                line = "IC 21"
             ),
             currentProgress = 0f,
             punctualityScore = 6.0f
@@ -467,7 +470,7 @@ fun DetailScreen(
                     Card(
                         modifier = Modifier
                             .width(350.dp)
-                            .height(90.dp),
+                            .height(60.dp),
                         onClick = {
                             showCommentSheet = true
                         }
@@ -483,7 +486,17 @@ fun DetailScreen(
                                 verticalAlignment = Alignment.Top,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(text = "Kommentare")
+                                Text(
+                                    buildAnnotatedString {
+                                        withStyle(
+                                            style = SpanStyle(color = Color.Blue)
+                                        ) {
+                                            append("X")
+                                        }
+                                        append(" Kommentare")
+                                    },
+                                    fontSize = 20.sp
+                                )
                             }
                         }
                     }
@@ -496,7 +509,7 @@ fun DetailScreen(
                 onDismissRequest = {
                     showCommentSheet = false
                 },
-                sheetState = sheetState
+                sheetState = sheetState,
             ) {
                 Column(
                     modifier = Modifier
