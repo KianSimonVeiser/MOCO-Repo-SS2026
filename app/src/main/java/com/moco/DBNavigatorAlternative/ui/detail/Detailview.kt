@@ -1,6 +1,7 @@
 package com.moco.DBNavigatorAlternative.ui.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -353,6 +356,10 @@ fun DetailScreen(
         mutableStateOf(false)
     }
 
+    var showWarningSheet by remember {
+        mutableStateOf(false)
+    }
+
     val commentCount = testComments.size
 
     Scaffold (
@@ -500,6 +507,53 @@ fun DetailScreen(
                                     fontSize = 20.sp
                                 )
                             }
+                        }
+                    }
+                }
+            }
+        }
+        //hier Warnung für Verbindung nicht erreichbar
+        if (!showWarningSheet) {
+            showCommentSheet = false
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showWarningSheet = false
+                },
+                sheetState = sheetState,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Warning",
+                            tint = Color.Red
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = "Sie werden Ihre Verbindung nicht erreichen!",
+                            color = Color.Red
+                        )
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .padding(30.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Card {
+                            Text(
+                                text = "Alternativen suchen",
+                                modifier = Modifier.padding(16.dp),
+                                fontSize = 20.sp
+                            )
                         }
                     }
                 }
