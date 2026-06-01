@@ -353,6 +353,8 @@ fun DetailScreen(
         mutableStateOf(false)
     }
 
+    val commentCount = testComments.size
+
     Scaffold (
         topBar = {
             TopAppBar(
@@ -491,7 +493,7 @@ fun DetailScreen(
                                         withStyle(
                                             style = SpanStyle(color = Color.Blue)
                                         ) {
-                                            append("X")
+                                            append("$commentCount")
                                         }
                                         append(" Kommentare")
                                     },
@@ -517,8 +519,15 @@ fun DetailScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Kommentare",
-                        style = MaterialTheme.typography.titleLarge
+                        buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(color = Color.Blue)
+                            ) {
+                                append("$commentCount")
+                            }
+                            append(" Kommentare")
+                        },
+                        fontSize = 20.sp
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
