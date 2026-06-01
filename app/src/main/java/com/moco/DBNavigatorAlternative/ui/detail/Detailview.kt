@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,6 +54,7 @@ import com.moco.DBNavigatorAlternative.model.Stop
 import com.moco.DBNavigatorAlternative.model.Train
 import com.moco.DBNavigatorAlternative.model.TrainType
 import androidx.compose.ui.graphics.lerp
+import com.moco.DBNavigatorAlternative.model.Comment
 
 val testconnection = Connection(
     id = "conn001",
@@ -62,6 +64,8 @@ val testconnection = Connection(
     segments = listOf(
 
         ConnectionSegment(
+            id = "1",
+
             departureStop = Stop(
                 id = "FFM",
                 name = "Frankfurt Hbf",
@@ -86,6 +90,7 @@ val testconnection = Connection(
         ),
 
         ConnectionSegment(
+            id = "2",
             departureStop = Stop(
                 id = "KAS",
                 name = "Kassel-Wilhelmshöhe",
@@ -109,6 +114,7 @@ val testconnection = Connection(
         ),
 
         ConnectionSegment(
+            id = "3",
             departureStop = Stop(
                 id = "KAS",
                 name = "Kassel-Wilhelmshöhe",
@@ -131,6 +137,27 @@ val testconnection = Connection(
             currentProgress = 0f,
             punctualityScore = 6.0f
         )
+    )
+)
+
+val testComments = listOf(
+    Comment(
+        id = "1",
+        userId = "user1",
+        segmentId = "1",
+        content = "Dieser Abschnitt ist häufig verspätet."
+    ),
+    Comment(
+        id = "2",
+        userId = "user2",
+        segmentId = "2",
+        content = "Hier ist der Umstieg manchmal knapp."
+    ),
+    Comment(
+        id = "3",
+        userId = "user3",
+        segmentId = "3",
+        content = "Auf diesem Abschnitt gibt es öfter Gleisänderungen."
     )
 )
 
@@ -319,7 +346,7 @@ fun DetailScreen(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    var showBottomSheet by remember {
+    var showCommentSheet by remember {
         mutableStateOf(false)
     }
 
@@ -442,7 +469,7 @@ fun DetailScreen(
                             .width(350.dp)
                             .height(90.dp),
                         onClick = {
-                            showBottomSheet = true
+                            showCommentSheet = true
                         }
                     ) {
                         Box(
@@ -464,17 +491,48 @@ fun DetailScreen(
             }
         }
 
-        if (showBottomSheet) {
+        if (showCommentSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
-                    showBottomSheet = false
+                    showCommentSheet = false
                 },
                 sheetState = sheetState
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    Text("Kommentarsektion")
+                    Text(
+                        text = "Kommentare",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    testComments.forEach { comment ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp)
+                            ) {
+                                Text(
+                                    text = comment.content,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Text(
+                                    text = "Abschnitt ${comment.segmentId} · ${comment.userId}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

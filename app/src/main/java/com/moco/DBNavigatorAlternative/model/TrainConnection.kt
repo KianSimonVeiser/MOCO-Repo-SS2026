@@ -8,6 +8,7 @@ data class Connection(
 )
 
 data class ConnectionSegment(
+    val id: String,
     val departureStop: Stop,
     val arrivalStop: Stop,
     val train: Train,
