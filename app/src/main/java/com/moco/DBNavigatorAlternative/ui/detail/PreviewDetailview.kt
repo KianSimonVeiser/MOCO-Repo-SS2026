@@ -14,6 +14,7 @@ private val previewConnection = Connection(
     transferCount = 1,
     segments = listOf(
         ConnectionSegment(
+            id = "seg1",
             departureStop = Stop(
                 id = "FFM",
                 name = "Frankfurt Hbf",
@@ -35,6 +36,7 @@ private val previewConnection = Connection(
             punctualityScore = 9.392809f
         ),
         ConnectionSegment(
+            id = "seg2",
             departureStop = Stop(
                 id = "KAS",
                 name = "Kassel-Wilhelmshöhe",
@@ -55,6 +57,7 @@ private val previewConnection = Connection(
             currentProgress = 0.9f
         ),
         ConnectionSegment(
+            id = "seg3",
             departureStop = Stop(
                 id = "KAS",
                 name = "Kassel-Wilhelmshöhe",

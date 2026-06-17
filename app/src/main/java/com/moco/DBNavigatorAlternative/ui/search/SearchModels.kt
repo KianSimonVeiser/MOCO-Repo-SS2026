@@ -1,75 +1,30 @@
 package com.moco.DBNavigatorAlternative.ui.search
 
-import androidx.compose.ui.graphics.Color
+import com.moco.DBNavigatorAlternative.model.*
 
-data class TrainData(
-    val name: String,
-    val color: Color
-)
+// UI-spezifische Erweiterungen für das zentrale Modell aus TrainConnection.kt
+val Connection.displayScore: Double
+    get() = segments.firstOrNull()?.punctualityScore?.toDouble() ?: 0.0
 
-data class ConnectionData(
-    val depTime: String,
-    val arrTime: String,
-    val score: Double,
-    val trains: List<TrainData>,
-    val showBindingHint: Boolean = false,
-    val isLate: Boolean = false
-)
+val Connection.isLate: Boolean
+    get() = displayScore < 4.0
 
-val previewConnections = listOf(
-    ConnectionData(
-        depTime = "MM:HH",
-        arrTime = "MM:HH",
-        score = 9.4,
-        trains = listOf(
-            TrainData(
-                name = "RB1",
-                color = Color(0xFFE2104E)
-            ),
-            TrainData(
-                name = "ICE 2",
-                color = Color.Gray
-            )
-        )
-    ),
-    ConnectionData(
-        depTime = "MM:HH",
-        arrTime = "MM:HH",
-        score = 2.3,
-        trains = listOf(
-            TrainData(
-                name = "RB2",
-                color = Color(0xFFE2104E)
-            ),
-            TrainData(
-                name = "ICE 3",
-                color = Color.Gray
-            ),
-            TrainData(
-                name = "IC1",
-                color = Color(0xFF009FE3)
-            )
-        ),
-        isLate = true
-    ),
-    ConnectionData(
-        depTime = "MM:HH",
-        arrTime = "MM:HH",
-        score = 5.4,
-        trains = listOf(
-            TrainData(
-                name = "RB2",
-                color = Color(0xFFE2104E)
-            ),
-            TrainData(
-                name = "ICE 5",
-                color = Color.Gray
-            ),
-            TrainData(
-                name = "SB 3",
-                color = Color(0xFF951A81)
-            )
-        ),
-        showBindingHint = true
+val Connection.shouldShowBindingHint: Boolean
+    get() = displayScore in 5.0..6.0
+
+// Mock-Daten für die Anzeige in Previews
+fun getMockConnections(): List<Connection> {
+    return listOf(
+        createMockConnection("1", "RB1", TrainType.RB, "ICE 2", TrainType.ICE, 9.4f),
+        createMockConnection("2", "RB2", TrainType.RB, "ICE 3", TrainType.ICE, 2.3f),
+        createMockConnection("3", "RB2", TrainType.RB, "ICE 5", TrainType.ICE, 5.4f)
     )
-)
+}
+
+private fun createMockConnection(id: String, l1: String, t1: TrainType, l2: String, t2: TrainType, score: Float): Connection {
+    val segments = listOf(
+        ConnectionSegment("s1", Stop("st1", "A", "10:00"), Stop("st2", "B", "11:00"), Train("t1", t1, l1), 0f, score),
+        ConnectionSegment("s2", Stop("st2", "B", "11:15"), Stop("st3", "C", "12:30"), Train("t2", t2, l2), 0f, score)
+    )
+    return Connection(id, segments, 150, 1)
+}
