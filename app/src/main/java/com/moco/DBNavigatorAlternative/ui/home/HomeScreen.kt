@@ -26,9 +26,6 @@ private fun HomeScreenContent() {
             AppTopBar(
                 title = "DB-Navigator Alternative"
             )
-        },
-        bottomBar = {
-            AppBottomBar()
         }
     ) { innerPadding ->
 

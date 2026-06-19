@@ -50,10 +50,8 @@ fun DetailScreen(
                     )
                 }
             )
-        },
-        bottomBar = {
-            AppBottomBar()
         }
+
     ) { innerPadding ->
 
         Box(
