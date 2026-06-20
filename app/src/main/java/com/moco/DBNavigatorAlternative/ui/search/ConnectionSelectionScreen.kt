@@ -23,9 +23,7 @@ fun ConnectionSelectionScreen() {
                 title = "Verbindungen"
             )
         },
-        bottomBar = {
-            AppBottomBar()
-        },
+
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
 
