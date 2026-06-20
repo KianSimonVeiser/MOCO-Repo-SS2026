@@ -34,7 +34,7 @@ import com.moco.DBNavigatorAlternative.model.TrainType
             ),
             currentProgress = 1f,
             punctualityScore = 9.392809f,
-            id="example1"
+            //id="example1"
         ),
         ConnectionSegment(
             id = "seg002",
@@ -56,7 +56,7 @@ import com.moco.DBNavigatorAlternative.model.TrainType
                 line = "RE 21"
             ),
             currentProgress = 0.9f,
-            id= "example2"
+            //id= "example2"
         ),
         ConnectionSegment(
             id = "seg003",
@@ -79,7 +79,7 @@ import com.moco.DBNavigatorAlternative.model.TrainType
             ),
             currentProgress = 0f,
             punctualityScore = 6.0f,
-            id="example3"
+            //id="example3"
         )
     )
 )

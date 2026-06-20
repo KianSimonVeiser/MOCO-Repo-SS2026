@@ -15,7 +15,7 @@ import com.moco.DBNavigatorAlternative.ui.home.HomeScreen
 import com.moco.DBNavigatorAlternative.ui.search.ConnectionSelectionScreen
 import com.moco.DBNavigatorAlternative.ui.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.ui.detail.previewConnection
-
+import com.moco.DBNavigatorAlternative.ui.profile.ProfileScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController() //zentrales steuerelement für die navigation
@@ -44,11 +44,8 @@ fun AppNavigation() {
             composable("home") { HomeScreen() }
             composable("search") { ConnectionSelectionScreen() }
             composable("detail") { DetailScreen(connection = previewConnection) }
-            composable("profile") {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Profil (Noch nicht fertig)")
+            composable("profile") { ProfileScreen() }
                 }
             }
         }
-    }
-}
+
