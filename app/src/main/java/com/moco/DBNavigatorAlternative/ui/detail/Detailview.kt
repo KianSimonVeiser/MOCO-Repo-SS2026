@@ -1,5 +1,6 @@
 package com.moco.DBNavigatorAlternative.ui.detail
 
+import CommentsBottomSheet
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.moco.DBNavigatorAlternative.model.Comment
 import com.moco.DBNavigatorAlternative.model.Connection
 import com.moco.DBNavigatorAlternative.ui.generalUse.AppBottomBar
 import com.moco.DBNavigatorAlternative.ui.generalUse.AppTopBar
@@ -25,7 +27,8 @@ import com.moco.DBNavigatorAlternative.ui.generalUse.AppTopBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
-    connection: Connection
+    connection: Connection,
+    comments: List<Comment>
 ) {
     val sheetState = rememberModalBottomSheetState()
 
@@ -87,7 +90,10 @@ fun DetailScreen(
                 },
                 sheetState = sheetState
             ) {
-                CommentsBottomSheet()
+                CommentsBottomSheet(
+                    comments,
+                    connectionSegments = connection
+                    )
             }
         }
     }
