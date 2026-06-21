@@ -11,6 +11,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Der Bildschirm für den angemeldeten Benutzer.
+ * Zeigt die Profilinformationen und ermöglicht die Abmeldung.
+ * Implementiert das Design gemäß dem Wireframe "Angemeldet.png".
+ * 
+ * @param username Der anzuzeigende Nutzername des angemeldeten Benutzers.
+ * @param email Die anzuzeigende E-Mail-Adresse des angemeldeten Benutzers.
+ * @param onLogoutClick Callback für die Abmeldung.
+ */
 @Composable
 fun LoggedInScreen(
     username: String,
@@ -23,12 +32,13 @@ fun LoggedInScreen(
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Großer Titel zur Bestätigung des Login-Status
         Spacer(modifier = Modifier.height(100.dp))
         Text("Angemeldet", style = MaterialTheme.typography.headlineLarge)
         
         Spacer(modifier = Modifier.height(40.dp))
         
-        // Nutzer Informationen
+        // Sektion zur Anzeige der Nutzerinformationen (Nutzername und E-Mail)
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -44,6 +54,7 @@ fun LoggedInScreen(
         
         Spacer(modifier = Modifier.height(64.dp))
 
+        // Grauer Abmelde-Button laut Design-Vorgabe
         ProfileButton(
             text = "Abmelden",
             color = Color(0xFFD9D9D9),
