@@ -8,7 +8,7 @@ import com.moco.DBNavigatorAlternative.model.Stop
 import com.moco.DBNavigatorAlternative.model.Train
 import com.moco.DBNavigatorAlternative.model.TrainType
 
-private val previewConnection = Connection(
+ val previewConnection = Connection(  //nicht private weil die navigation zugriff braucht
     id = "conn001",
     totalDurationMinutes = 180,
     transferCount = 1,
@@ -33,7 +33,8 @@ private val previewConnection = Connection(
                 line = "ICE 572"
             ),
             currentProgress = 1f,
-            punctualityScore = 9.392809f
+            punctualityScore = 9.392809f,
+            //id="example1"
         ),
         ConnectionSegment(
             id = "seg002",
@@ -54,7 +55,8 @@ private val previewConnection = Connection(
                 type = TrainType.RE,
                 line = "RE 21"
             ),
-            currentProgress = 0.9f
+            currentProgress = 0.9f,
+            //id= "example2"
         ),
         ConnectionSegment(
             id = "seg003",
@@ -76,7 +78,8 @@ private val previewConnection = Connection(
                 line = "RE 21"
             ),
             currentProgress = 0f,
-            punctualityScore = 6.0f
+            punctualityScore = 6.0f,
+            //id="example3"
         )
     )
 )

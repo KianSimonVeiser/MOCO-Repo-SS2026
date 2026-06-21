@@ -26,7 +26,6 @@ fun ProfileScreen() {
         topBar = { 
             CustomProfileTopBar(title = if (screenState == "registration") "Registrierung" else "Profil") 
         },
-        bottomBar = { AppBottomBar() }
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when (screenState) {
