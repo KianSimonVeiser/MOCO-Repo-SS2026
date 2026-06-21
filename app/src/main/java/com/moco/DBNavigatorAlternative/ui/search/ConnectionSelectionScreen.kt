@@ -12,21 +12,28 @@ import com.moco.DBNavigatorAlternative.ui.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.ui.generalUse.AppBottomBar
 import com.moco.DBNavigatorAlternative.ui.generalUse.AppTopBar
 
+/**
+ * Der Hauptbildschirm für die Verbindungsauswahl.
+ * Er verwaltet den Wechsel zwischen der Suchergebnisliste und der Detailansicht einer Verbindung.
+ */
 @Composable
 fun ConnectionSelectionScreen() {
+    // Abrufen der Mock-Daten für die Anzeige
     val connections = getMockConnections()
+    
+    // Status für die aktuell ausgewählte Verbindung (null = Liste wird angezeigt)
     var selectedConnection by remember { mutableStateOf<Connection?>(null) }
 
     if (selectedConnection != null) {
-        // Zeige Detailansicht, wenn eine Verbindung ausgewählt wurde
+        // Zeige die Detailansicht, wenn eine Verbindung ausgewählt wurde
         DetailScreen(connection = selectedConnection!!)
         
-        // Erlaube Zurückgehen zur Liste
+        // Fängt den Zurück-Button ab, um zur Liste zurückzukehren statt die App zu schließen
         BackHandler {
             selectedConnection = null
         }
     } else {
-        // Zeige die Liste der Verbindungen
+        // Standardansicht: Liste der Suchergebnisse
         Scaffold(
             topBar = { AppTopBar(title = "Verbindungen") },
             bottomBar = { AppBottomBar() }
@@ -36,9 +43,12 @@ fun ConnectionSelectionScreen() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
+                // Der Suchbereich wird als erstes Element in der Liste mitgescrollt
                 item {
                     SearchHeader()
                 }
+                
+                // Dynamische Liste der Zugverbindungen
                 items(connections) { connection ->
                     ConnectionCard(
                         connection = connection,
