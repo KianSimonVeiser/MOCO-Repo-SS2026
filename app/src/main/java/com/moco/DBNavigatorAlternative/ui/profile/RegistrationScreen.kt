@@ -21,7 +21,9 @@ fun RegistrationScreen(
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(80.dp))
+        ProfileInputField(placeholder = "Nutzername")
+        Spacer(modifier = Modifier.height(12.dp))
         ProfileInputField(placeholder = "E-Mail")
         Spacer(modifier = Modifier.height(12.dp))
         ProfileInputField(placeholder = "Passwort", isPassword = true)

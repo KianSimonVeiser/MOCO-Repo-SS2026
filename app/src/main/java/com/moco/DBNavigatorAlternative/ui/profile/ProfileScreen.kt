@@ -46,6 +46,8 @@ fun ProfileScreen() {
                     onBackToLogin = { screenState = "login" }
                 )
                 "loggedIn" -> LoggedInScreen(
+                    username = "Max Mustermann",
+                    email = "max@mustermann.de",
                     onLogoutClick = { 
                         popupMessage = "Erfolgreich Abgemeldet"
                         screenState = "login" 
@@ -92,8 +94,4 @@ fun CustomProfileTopBar(title: String) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen()
-}
+
