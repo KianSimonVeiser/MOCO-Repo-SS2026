@@ -14,9 +14,15 @@ import com.moco.DBNavigatorAlternative.model.*
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ConnectionCard(connection: Connection) {
+fun ConnectionCard(
+    connection: Connection,
+    onClick: () -> Unit
+) {
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
