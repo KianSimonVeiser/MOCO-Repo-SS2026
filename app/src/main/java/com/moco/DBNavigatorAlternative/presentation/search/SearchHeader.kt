@@ -22,7 +22,7 @@ import com.moco.DBNavigatorAlternative.presentation.home.DateTimeSection
  * Stattdessen gibt es Optionen für "Früher" und "Später".
  */
 @Composable
-fun SearchHeader() {
+fun SearchHeader(viewModel: SearchViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -31,10 +31,21 @@ fun SearchHeader() {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Eingabebereich für Start und Ziel
-        SearchSection()
+        SearchSection(
+            fromValue = viewModel.from,
+            toValue = viewModel.to,
+            onFromChange = { viewModel.onFromChanged(it) },
+            onToChange = { viewModel.onToChanged(it) }
+        )
         
         // Auswahl für Datum und Uhrzeit
-        DateTimeSection()
+        DateTimeSection(
+            dateText = viewModel.date,
+            showDatePicker = viewModel.showDatePicker,
+            onDateClick = { viewModel.toggleDatePicker(true) },
+            onDateSelected = { viewModel.onDateSelected(it) },
+            onDismiss = { viewModel.toggleDatePicker(false) }
+        )
 
         // Früher / Später Optionen
         Row(

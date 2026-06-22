@@ -49,7 +49,7 @@ fun ConnectionSelectionScreen() {
             ) {
                 // Der Suchbereich wird als erstes Element in der Liste mitgescrollt
                 item {
-                    SearchHeader()
+                    SearchHeader(viewModel = viewModel)
                 }
                 
                 // Dynamische Liste der Zugverbindungen
