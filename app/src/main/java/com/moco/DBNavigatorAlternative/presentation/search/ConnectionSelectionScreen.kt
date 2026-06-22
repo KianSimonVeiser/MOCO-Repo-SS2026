@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.presentation.detail.previewCommentList
-import com.moco.DBNavigatorAlternative.presentation.generalUse.AppBottomBar
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 
 /**
@@ -39,8 +38,7 @@ fun ConnectionSelectionScreen() {
     } else {
         // Standardansicht: Liste der Suchergebnisse
         Scaffold(
-            topBar = { AppTopBar(title = "Verbindungen") },
-            bottomBar = { AppBottomBar() }
+            topBar = { AppTopBar(title = "Verbindungen") }
         ) { innerPadding ->
             LazyColumn(
                 modifier = Modifier
