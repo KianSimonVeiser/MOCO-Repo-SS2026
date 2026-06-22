@@ -18,19 +18,20 @@ import com.moco.DBNavigatorAlternative.ui.generalUse.AppTopBar
  */
 @Composable
 fun ConnectionSelectionScreen() {
-    // Abrufen der Mock-Daten für die Anzeige
-    val connections = getMockConnections()
-    
-    // Status für die aktuell ausgewählte Verbindung (null = Liste wird angezeigt)
-    var selectedConnection by remember { mutableStateOf<Connection?>(null) }
+    // ViewModel-Instanz über remember erhalten (einfaches MVVM-Pattern)
+    val viewModel = remember { SearchViewModel() }
+
+    // Status der UI aus dem ViewModel beziehen
+    val connections = viewModel.connections
+    val selectedConnection = viewModel.selectedConnection
 
     if (selectedConnection != null) {
         // Zeige die Detailansicht, wenn eine Verbindung ausgewählt wurde
-        DetailScreen(connection = selectedConnection!!)
+        DetailScreen(connection = selectedConnection)
         
         // Fängt den Zurück-Button ab, um zur Liste zurückzukehren statt die App zu schließen
         BackHandler {
-            selectedConnection = null
+            viewModel.onConnectionSelected(null)
         }
     } else {
         // Standardansicht: Liste der Suchergebnisse
@@ -52,7 +53,7 @@ fun ConnectionSelectionScreen() {
                 items(connections) { connection ->
                     ConnectionCard(
                         connection = connection,
-                        onClick = { selectedConnection = connection }
+                        onClick = { viewModel.onConnectionSelected(connection) }
                     )
                 }
             }

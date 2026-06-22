@@ -2,20 +2,24 @@ package com.moco.DBNavigatorAlternative.ui.search
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.ui.home.SearchSection
 import com.moco.DBNavigatorAlternative.ui.home.DateTimeSection
-import com.moco.DBNavigatorAlternative.ui.home.ArrivalDepartureSection
-import com.moco.DBNavigatorAlternative.ui.home.SearchButton
-import com.moco.DBNavigatorAlternative.ui.home.TicketOptionSection
 
 /**
  * Der SearchHeader bündelt alle UI-Komponenten für die Verbindungssuche.
- * Er integriert die Sektionen für Start/Ziel, Datum/Uhrzeit, Reisende und Ticket-Optionen.
+ * Er integriert die Sektionen für Start/Ziel und Datum/Uhrzeit.
+ * Der Suchen-Button wurde entfernt, da die Suche automatisch aktualisiert.
+ * Stattdessen gibt es Optionen für "Früher" und "Später".
  */
 @Composable
 fun SearchHeader() {
@@ -31,14 +35,32 @@ fun SearchHeader() {
         
         // Auswahl für Datum und Uhrzeit
         DateTimeSection()
-        
-        // Auswahl zwischen Abfahrt und Ankunft
-        ArrivalDepartureSection()
-        
-        // Optionen für Reisende und Ticket-Klassen
-        TicketOptionSection()
-        
-        // Button zum Auslösen der Suche
-        SearchButton()
+
+        // Früher / Später Optionen
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = { /* Frühere Verbindungen laden */ },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Text("Früher")
+            }
+            Button(
+                onClick = { /* Spätere Verbindungen laden */ },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Text("Später")
+            }
+        }
     }
 }
