@@ -1,4 +1,5 @@
-import androidx.compose.foundation.lazy.items
+package com.moco.DBNavigatorAlternative.presentation.detail
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -16,36 +18,25 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.domain.model.Comment
 import com.moco.DBNavigatorAlternative.domain.model.Connection
-import com.moco.DBNavigatorAlternative.presentation.detail.CommentRow
-
 
 @Composable
 fun CommentsBottomSheet(
     comments: List<Comment>,
-    connectionSegments: Connection,
+    connection: Connection,
+    newCommentText: String,
+    selectedSegmentId: String,
+    segmentMenuExpanded: Boolean,
+    onCommentTextChanged: (String) -> Unit,
+    onSegmentMenuClick: () -> Unit,
+    onSegmentMenuDismiss: () -> Unit,
+    onSegmentSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var newCommentText by remember {
-        mutableStateOf("")
-    }
-
-    var selectedSegmentId by remember {
-        mutableStateOf(connectionSegments.segments.firstOrNull()?.id.orEmpty())
-    }
-
-    var segmentMenuExpanded by remember {
-        mutableStateOf(false)
-    }
-
-    val selectedSegment = connectionSegments.segments.firstOrNull { segment ->
+    val selectedSegment = connection.segments.firstOrNull { segment ->
         segment.id == selectedSegmentId
     }
 
@@ -89,7 +80,7 @@ fun CommentsBottomSheet(
         ) {
             OutlinedTextField(
                 value = newCommentText,
-                onValueChange = { newCommentText = it },
+                onValueChange = onCommentTextChanged,
                 label = {
                     Text("Kommentar schreiben")
                 },
@@ -100,9 +91,7 @@ fun CommentsBottomSheet(
 
             Box {
                 OutlinedButton(
-                    onClick = {
-                        segmentMenuExpanded = true
-                    }
+                    onClick = onSegmentMenuClick
                 ) {
                     Text(
                         text = selectedSegment?.train?.line
@@ -112,11 +101,9 @@ fun CommentsBottomSheet(
 
                 DropdownMenu(
                     expanded = segmentMenuExpanded,
-                    onDismissRequest = {
-                        segmentMenuExpanded = false
-                    }
+                    onDismissRequest = onSegmentMenuDismiss
                 ) {
-                    connectionSegments.segments.forEach { segment ->
+                    connection.segments.forEach { segment ->
                         DropdownMenuItem(
                             text = {
                                 Text(
@@ -124,8 +111,7 @@ fun CommentsBottomSheet(
                                 )
                             },
                             onClick = {
-                                selectedSegmentId = segment.id
-                                segmentMenuExpanded = false
+                                onSegmentSelected(segment.id)
                             }
                         )
                     }

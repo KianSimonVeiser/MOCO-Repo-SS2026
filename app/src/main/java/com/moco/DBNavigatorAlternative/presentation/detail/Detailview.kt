@@ -1,6 +1,5 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
-import CommentsBottomSheet
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,31 +12,57 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.domain.model.Comment
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     connection: Connection,
-    comments: List<Comment>
+    comments: List<Comment>,
+    viewModel: DetailViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(connection) {
+        viewModel.setConnection(connection)
+    }
+
+    DetailScreenContent(
+        connection = connection,
+        comments = comments,
+        uiState = uiState,
+        onWarningEnabledChanged = viewModel::onWarningEnabledChanged,
+        onCommentsClick = viewModel::showCommentSheet,
+        onDismissCommentSheet = viewModel::hideCommentSheet,
+        onCommentTextChanged = viewModel::onCommentTextChanged,
+        onSegmentMenuClick = viewModel::showSegmentMenu,
+        onSegmentMenuDismiss = viewModel::hideSegmentMenu,
+        onSegmentSelected = viewModel::onSegmentSelected
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailScreenContent(
+    connection: Connection,
+    comments: List<Comment>,
+    uiState: DetailUiState,
+    onWarningEnabledChanged: (Boolean) -> Unit,
+    onCommentsClick: () -> Unit,
+    onDismissCommentSheet: () -> Unit,
+    onCommentTextChanged: (String) -> Unit,
+    onSegmentMenuClick: () -> Unit,
+    onSegmentMenuDismiss: () -> Unit,
+    onSegmentSelected: (String) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
-
-    var showCommentSheet by remember {
-        mutableStateOf(false)
-    }
-
-    var saveConnectionChecked by remember {
-        mutableStateOf(true)
-    }
 
     Scaffold(
         topBar = {
@@ -45,15 +70,12 @@ fun DetailScreen(
                 title = "Verbindung speichern",
                 actions = {
                     Switch(
-                        checked = saveConnectionChecked,
-                        onCheckedChange = {
-                            saveConnectionChecked = it
-                        }
+                        checked = uiState.isWarningEnabled,
+                        onCheckedChange = onWarningEnabledChanged
                     )
                 }
             )
         }
-
     ) { innerPadding ->
 
         Box(
@@ -76,23 +98,26 @@ fun DetailScreen(
 
             DetailOverlayCards(
                 historicalPunctualityScore = 3.5f,
-                onCommentsClick = {
-                    showCommentSheet = true
-                }
+                onCommentsClick = onCommentsClick
             )
         }
 
-        if (showCommentSheet) {
+        if (uiState.isCommentSheetVisible) {
             ModalBottomSheet(
-                onDismissRequest = {
-                    showCommentSheet = false
-                },
+                onDismissRequest = onDismissCommentSheet,
                 sheetState = sheetState
             ) {
                 CommentsBottomSheet(
-                    comments,
-                    connectionSegments = connection
-                    )
+                    comments = comments,
+                    connection = connection,
+                    newCommentText = uiState.newCommentText,
+                    selectedSegmentId = uiState.selectedSegmentId,
+                    segmentMenuExpanded = uiState.isSegmentMenuExpanded,
+                    onCommentTextChanged = onCommentTextChanged,
+                    onSegmentMenuClick = onSegmentMenuClick,
+                    onSegmentMenuDismiss = onSegmentMenuDismiss,
+                    onSegmentSelected = onSegmentSelected
+                )
             }
         }
     }
