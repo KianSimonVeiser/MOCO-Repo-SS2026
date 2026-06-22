@@ -1,36 +1,53 @@
 package com.moco.DBNavigatorAlternative.presentation.home
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * TICKET-FILTER OPTIONEN
+ * Erlaubt dem Nutzer, die Ergebnisse z.B. nach Deutschlandticket-Verbindungen zu filtern.
+ */
 @Composable
 fun TicketOptionSection(
-    onlyDTicket: Boolean,
-    onToggle: (Boolean) -> Unit,
+    onlyDTicket: Boolean,       // Status des Schalters (Ein/Aus)
+    onToggle: (Boolean) -> Unit,// Funktion zum Ändern des Status
     modifier: Modifier = Modifier
 ) {
-    Row(
+    // Eine ElevatedCard gruppiert den Text und den Schalter
+    ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        shape = MaterialTheme.shapes.medium
     ) {
-        Box(
-            modifier = Modifier.weight(1f).height(48.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center
-        ) { Text("Nur D-Ticket Verbindungen") }
-
-        Switch(
-            checked = onlyDTicket,
-            onCheckedChange = onToggle,
-            colors = SwitchDefaults.colors(checkedThumbColor = Color.Black)
-        )
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween // Text links, Switch rechts
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                // Hauptüberschrift der Option
+                Text(
+                    text = "Nur D-Ticket",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                // Eine erklärende Unterzeile (Supporting Text)
+                Text(
+                    text = "Verbindungen mit Deutschlandticket filtern",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            // Der Material 3 Switch (Schiebeschalter)
+            Switch(
+                checked = onlyDTicket,
+                onCheckedChange = onToggle
+            )
+        }
     }
 }
