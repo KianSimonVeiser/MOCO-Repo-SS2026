@@ -1,76 +1,65 @@
 package com.moco.DBNavigatorAlternative.presentation.home
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
+/**
+ * DIE FAVORITEN-LISTE
+ * Zeigt gespeicherte Verbindungen in einer übersichtlichen Karte an.
+ */
 @Composable
-fun FavoritesSection(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
+fun FavoritesSection(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        // Große Überschrift für die Favoriten
         Text(
             text = "Meine Favoriten",
-            fontSize = 20.sp,
-            modifier = Modifier.padding(vertical = 16.dp)
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-
-        FavoriteItem("Verbindung 1")
-        FavoriteItem("Verbindung 2")
-        FavoriteItem("Verbindung 3")
-        FavoriteItem("Verbindung 4")
+        
+        // Eine ElevatedCard fasst alle Favoriten-Einträge zusammen
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Column {
+                // Einzelne Favoriten-Einträge mit Trennlinien dazwischen
+                FavoriteItem("Darmstadt Hbf → Frankfurt Hbf")
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                
+                FavoriteItem("Berlin Hbf → München Hbf")
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                
+                FavoriteItem("Hamburg Hbf → Köln Hbf")
+            }
+        }
     }
 }
 
+/**
+ * EIN EINZELNER FAVORIT
+ * Nutzt das Material 3 'ListItem', um Text und Icon perfekt auszurichten.
+ */
 @Composable
-private fun FavoriteItem(
-    text: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = null,
-            modifier = Modifier.size(48.dp),
-            tint = Color(0xFFFFD700)
-        )
-
-        Spacer(
-            modifier = Modifier.width(16.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .border(1.dp, Color.Black, RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text)
-        }
-    }
+fun FavoriteItem(text: String) {
+    ListItem(
+        // Der Name der Verbindung
+        headlineContent = { Text(text) },
+        // Das Stern-Icon links (Gold gefärbt)
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = Color(0xFFFFD700)
+            )
+        },
+        // Wir machen den Hintergrund transparent, da die Karte schon eine Farbe hat
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+    )
 }
