@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.ui.profile
+package com.moco.DBNavigatorAlternative.presentation.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +39,7 @@ fun ProfileInputField(placeholder: String, isPassword: Boolean = false) {
             .fillMaxWidth()
             .height(56.dp)
             .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color(0xFFD9D9D9),
             focusedContainerColor = Color(0xFFD9D9D9),
@@ -147,7 +149,7 @@ fun EmailInputDialog(
                 Text(
                     "Passwort zurücksetzen", 
                     fontSize = 20.sp, 
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 

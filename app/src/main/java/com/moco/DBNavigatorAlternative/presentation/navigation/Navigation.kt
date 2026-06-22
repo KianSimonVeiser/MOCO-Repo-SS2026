@@ -1,12 +1,8 @@
 package com.moco.DBNavigatorAlternative.presentation.generalUse
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,7 +12,7 @@ import com.moco.DBNavigatorAlternative.presentation.search.ConnectionSelectionSc
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.presentation.detail.previewConnection
 import com.moco.DBNavigatorAlternative.presentation.detail.previewCommentList
-import com.moco.DBNavigatorAlternative.ui.profile.ProfileScreen
+import com.moco.DBNavigatorAlternative.presentation.profile.ProfileScreen
 
 @Composable
 fun AppNavigation() {

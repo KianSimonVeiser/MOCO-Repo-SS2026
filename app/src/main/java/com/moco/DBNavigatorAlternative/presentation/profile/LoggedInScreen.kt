@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.ui.profile
+package com.moco.DBNavigatorAlternative.presentation.profile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
