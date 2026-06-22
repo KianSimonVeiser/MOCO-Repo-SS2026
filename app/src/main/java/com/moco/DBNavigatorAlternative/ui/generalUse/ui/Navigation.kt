@@ -15,6 +15,7 @@ import com.moco.DBNavigatorAlternative.ui.home.HomeScreen
 import com.moco.DBNavigatorAlternative.ui.search.ConnectionSelectionScreen
 import com.moco.DBNavigatorAlternative.ui.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.ui.detail.previewConnection
+import com.moco.DBNavigatorAlternative.ui.detail.previewCommentList
 
 @Composable
 fun AppNavigation() {
@@ -43,7 +44,10 @@ fun AppNavigation() {
         ) {
             composable("home") { HomeScreen() }
             composable("search") { ConnectionSelectionScreen() }
-            composable("detail") { DetailScreen(connection = previewConnection) }
+            composable("detail") { DetailScreen(
+                connection = previewConnection,
+                comments = previewCommentList
+            ) }
             composable("profile") {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Profil (Noch nicht fertig)")

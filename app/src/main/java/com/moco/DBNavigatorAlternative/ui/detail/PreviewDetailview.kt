@@ -9,7 +9,6 @@ import com.moco.DBNavigatorAlternative.model.Stop
 import com.moco.DBNavigatorAlternative.model.Train
 import com.moco.DBNavigatorAlternative.model.TrainType
 import com.moco.DBNavigatorAlternative.model.User
-
  val previewConnection = Connection(  //nicht private weil die navigation zugriff braucht
     id = "conn001",
     totalDurationMinutes = 180,
@@ -35,8 +34,7 @@ import com.moco.DBNavigatorAlternative.model.User
                 line = "ICE 572"
             ),
             currentProgress = 1f,
-            punctualityScore = 9.392809f,
-            id="example1"
+            punctualityScore = 9.392809f
         ),
         ConnectionSegment(
             id = "cs2",
@@ -57,8 +55,7 @@ import com.moco.DBNavigatorAlternative.model.User
                 type = TrainType.RE,
                 line = "RE 21"
             ),
-            currentProgress = 0.9f,
-            id= "example2"
+            currentProgress = 0.9f
         ),
         ConnectionSegment(
             id = "cs3",
@@ -80,8 +77,7 @@ import com.moco.DBNavigatorAlternative.model.User
                 line = "RE 21"
             ),
             currentProgress = 0f,
-            punctualityScore = 6.0f,
-            id="example3"
+            punctualityScore = 6.0f
         )
     )
 )
@@ -96,7 +92,7 @@ private val user2 = User(
     "Peter2"
 )
 
-private val commentList = listOf(
+val previewCommentList = listOf(
     Comment(
         id = "1",
         user = user1,
@@ -116,6 +112,6 @@ private val commentList = listOf(
 fun DetailScreenPreview() {
     DetailScreen(
         connection = previewConnection,
-        comments = commentList
+        comments = previewCommentList
     )
 }
