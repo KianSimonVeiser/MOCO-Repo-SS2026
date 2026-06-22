@@ -84,12 +84,14 @@ import com.moco.DBNavigatorAlternative.domain.model.User
 
 private val user1 = User(
     "us1",
-    "Peter"
+    "Peter",
+    email = "perter@lurstig.gmx.microsoft"
 )
 
 private val user2 = User(
     "us3",
-    "Peter2"
+    "Peter2",
+    email = "perter2@lurstig3.gmx.microsoft"
 )
 
 val previewCommentList = listOf(
