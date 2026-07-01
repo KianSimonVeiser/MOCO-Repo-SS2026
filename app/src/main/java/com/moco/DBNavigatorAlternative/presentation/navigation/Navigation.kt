@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.presentation.generalUse
+package com.moco.DBNavigatorAlternative.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.moco.DBNavigatorAlternative.presentation.generalUse.AppBottomBar
 import com.moco.DBNavigatorAlternative.presentation.home.HomeScreen
 import com.moco.DBNavigatorAlternative.presentation.search.ConnectionSelectionScreen
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
@@ -14,15 +15,15 @@ import com.moco.DBNavigatorAlternative.presentation.detail.previewConnection
 import com.moco.DBNavigatorAlternative.presentation.detail.previewCommentList
 import com.moco.DBNavigatorAlternative.presentation.profile.ProfileScreen
 
+/**
+ * Die Navigations-Zentrale deiner App.
+ */
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController() //zentrales steuerelement für die navigation
-
+    val navController = rememberNavController()
 
     Scaffold(
         bottomBar = {
-            // Die BottomBar wird nur EINMAL hier definiert
-            //routing logik
             AppBottomBar(
                 onAddClick = { navController.navigate("home") },
                 onSearchClick = { navController.navigate("search") },
@@ -31,9 +32,6 @@ fun AppNavigation() {
             )
         }
     ) { innerPadding ->
-        // Definition des NavHost: Das Mapping-System der App-Architektur.
-        // Er verknüpft eindeutige Bezeichner (Strings als Routes) mit den
-        // entsprechenden View-Komponenten (Composables).
         NavHost(
             navController = navController,
             startDestination = "home",
@@ -42,10 +40,12 @@ fun AppNavigation() {
             composable("home") { HomeScreen() }
             composable("search") { ConnectionSelectionScreen() }
             composable("profile") { ProfileScreen() }
-            composable("detail") { DetailScreen(
-                connection = previewConnection,
-                comments = previewCommentList
-            ) }
+            composable("detail") { 
+                DetailScreen(
+                    connection = previewConnection,
+                    comments = previewCommentList
+                ) 
+            }
         }
     }
 }

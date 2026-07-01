@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "242671760463",
+    "project_id": "db-navigator-alternative",
+    "storage_bucket": "db-navigator-alternative.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242671760463:android:96c0d3ab2a77e0abfb663a",
+        "android_client_info": {
+          "package_name": "com.moco.DBNavigatorAlternative"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnwGGQcJG9nOihus1oWMo6BydVswxGJoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

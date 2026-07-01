@@ -16,7 +16,6 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 /**
  * DER HOMESCREEN
  * Dies ist die Hauptseite der App. Sie ist nach dem MVVM-Muster aufgebaut
-
  */
 @Composable
 fun HomeScreen(
@@ -31,7 +30,7 @@ fun HomeScreen(
         Scaffold(
             topBar = {
                 // Wir nutzen hier wieder die originale AppTopBar aus deinem Projekt
-                AppTopBar(title = "DB-Navigator-Alternative")
+                AppTopBar(title = "Navigator")
             }
         ) { innerPadding ->
             // Column ordnet alle Sektionen untereinander an

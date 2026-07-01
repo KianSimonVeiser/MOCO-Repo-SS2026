@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.presentation.generalUse
+package com.moco.DBNavigatorAlternative.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
