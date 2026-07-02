@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.update
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * ViewModel zur Verwaltung des HomeScreen-Status.
+ * Hinweis: Automatisierte Synchronisationsprozesse sind aktuell deaktiviert.
+ */
 class HomeViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -25,14 +29,20 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun onFromChanged(newVal: String) {
-        _uiState.update { it.copy(from = newVal) }
+    // --- Synchronisations-Funktionen (Aktuell deaktiviert, da Dateien auskommentiert sind) ---
+
+    /*
+    private suspend fun performGummersbachSync() {
+        // Diese Funktion ist deaktiviert, da die zugehörigen API- und Cloud-Modelle auskommentiert wurden.
     }
 
-    fun onToChanged(newVal: String) {
-        _uiState.update { it.copy(to = newVal) }
+    private fun syncAllStationsToCloud(query: String) {
+        // Diese Funktion ist deaktiviert, da die zugehörigen API- und Cloud-Modelle auskommentiert wurden.
     }
+    */
 
+    fun onFromChanged(newVal: String) { _uiState.update { it.copy(from = newVal) } }
+    fun onToChanged(newVal: String) { _uiState.update { it.copy(to = newVal) } }
     fun toggleDatePicker(show: Boolean) { _uiState.update { it.copy(showDatePicker = show) } }
     fun onDateSelected(millis: Long?) {
         millis?.let {

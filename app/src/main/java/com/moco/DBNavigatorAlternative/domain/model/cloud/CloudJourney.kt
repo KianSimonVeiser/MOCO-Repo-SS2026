@@ -1,23 +1,19 @@
 package com.moco.DBNavigatorAlternative.domain.model.cloud
 
 /**
- * DER HAUPT-ORDNER: Repräsentiert eine komplette Reiseverbindung.
+ * Erweiterte Modelle für Reiseverbindungen in der Cloud.
  */
 data class CloudJourney(
     val realtimeDataUpdatedAt: Long = 0,
     val legs: List<CloudLeg> = emptyList()
 )
 
-/**
- * DIE REGISTERKARTE: Ein einzelner Abschnitt einer Reise.
- * Z.B. die Fahrt von Berlin nach Darmstadt oder ein Fußweg.
- */
 data class CloudLeg(
     val tripId: String = "",
     val direction: String = "",
-    val line: CloudLine? = null,        // Der Zug-Steckbrief (null bei Fußweg)
-    val origin: CloudStation? = null,   // Startpunkt dieses Abschnitts
-    val destination: CloudStation? = null, // Zielpunkt dieses Abschnitts
+    val line: CloudLine? = null,
+    val origin: CloudStation? = null,
+    val destination: CloudStation? = null,
     val departure: String = "",
     val plannedDeparture: String = "",
     val departureDelay: Int? = null,
@@ -26,23 +22,17 @@ data class CloudLeg(
     val arrivalDelay: Int? = null,
     val walking: Boolean = false,
     val distance: Int? = null,
-    val stopovers: List<CloudStopover> = emptyList() // Liste aller Haltepunkte
+    val stopovers: List<CloudStopover> = emptyList()
 )
 
-/**
- * DER ZUG-STECKBRIEF: Infos zur Linie (z.B. S7 oder ICE 572).
- */
 data class CloudLine(
     val id: String = "",
     val fahrtNr: String = "",
     val name: String = "",
-    val product: String = "",          // z.B. 'suburban' oder 'express'
-    val operatorName: String = ""       // z.B. 'S-Bahn Berlin GmbH'
+    val product: String = "",
+    val operatorName: String = ""
 )
 
-/**
- * DER FAHRPLAN-EINTRAG: Ein einzelner Halt an einem Bahnhof während der Fahrt.
- */
 data class CloudStopover(
     val stop: CloudStation? = null,
     val arrival: String? = null,
