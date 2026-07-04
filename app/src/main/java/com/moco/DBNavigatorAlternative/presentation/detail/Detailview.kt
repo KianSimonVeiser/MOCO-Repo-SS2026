@@ -97,7 +97,8 @@ fun DetailScreenContent(
             }
 
             DetailOverlayCards(
-                historicalPunctualityScore = 3.5f,
+                historicalPunctualityScore = uiState.punctualityInfo?.score,
+                bindingLossProbability = uiState.punctualityInfo?.bindingLossProbability,
                 onCommentsClick = onCommentsClick
             )
         }

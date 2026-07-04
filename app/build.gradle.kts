@@ -5,11 +5,7 @@ plugins {
 
 android {
     namespace = "com.moco.DBNavigatorAlternative"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.moco.DBNavigatorAlternative"
@@ -60,4 +56,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation("androidx.navigation:navigation-common:2.8.5")
     implementation("androidx.navigation:navigation-runtime:2.8.5")
+
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 }

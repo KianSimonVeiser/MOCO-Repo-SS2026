@@ -1,25 +1,35 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.moco.DBNavigatorAlternative.data.PunctualityRepository
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class DetailViewModel : ViewModel() {
+class DetailViewModel(
+    private val punctualityRepository: PunctualityRepository = PunctualityRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
     fun setConnection(connection: Connection) {
-        _uiState.update { currentState ->
-            if (currentState.selectedSegmentId.isNotBlank()) {
-                currentState
-            } else {
-                currentState.copy(
-                    selectedSegmentId = connection.segments.firstOrNull()?.id.orEmpty()
-                )
+        viewModelScope.launch {
+            val punctualityInfo = punctualityRepository.getPunctualityForConnection(connection)
+            
+            _uiState.update { currentState ->
+                if (currentState.selectedSegmentId.isNotBlank()) {
+                    currentState.copy(punctualityInfo = punctualityInfo)
+                } else {
+                    currentState.copy(
+                        selectedSegmentId = connection.segments.firstOrNull()?.id.orEmpty(),
+                        punctualityInfo = punctualityInfo
+                    )
+                }
             }
         }
     }

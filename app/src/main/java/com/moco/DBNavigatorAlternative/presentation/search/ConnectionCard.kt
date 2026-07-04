@@ -9,19 +9,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.moco.DBNavigatorAlternative.domain.model.Connection
+import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
 import com.moco.DBNavigatorAlternative.domain.model.TrainType
 
 /**
  * Eine Karte, die eine einzelne Zugverbindung in der Ergebnisliste darstellt.
- * 
- * @param connection Die anzuzeigende Verbindung.
- * @param onClick Callback, wenn die Karte angeklickt wird.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ConnectionCard(
     connection: Connection,
+    punctualityInfo: PunctualityInfo?,
     onClick: () -> Unit
 ) {
     ElevatedCard(
@@ -33,14 +33,17 @@ fun ConnectionCard(
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Kopfzeile mit Abfahrts-/Ankunftszeit und Pünktlichkeits-Score
+            val currentScore = punctualityInfo?.score
+            val isCritical = currentScore != null && currentScore < 5.0f
+            
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
                     text = "${connection.segments.firstOrNull()?.departureStop?.time} → ${connection.segments.lastOrNull()?.arrivalStop?.time}",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (connection.isLate) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                    color = if (isCritical) Color(0xFFE2104E) else MaterialTheme.colorScheme.onSurface
                 )
-                ScoreBadge(connection.displayScore)
+                ScoreBadge(currentScore?.toDouble())
             }
 
             // Auflistung der genutzten Züge/Linien
@@ -50,30 +53,38 @@ fun ConnectionCard(
                 }
             }
 
-            // Optionaler Hinweis zur aufgehobenen Zugbindung
-            if (connection.shouldShowBindingHint) BindingHint()
+            // Hinweis zur aufgehobenen Zugbindung mit Wahrscheinlichkeit (nur bei Risiko)
+            if (punctualityInfo != null) {
+                val probPercent = (punctualityInfo.bindingLossProbability * 100).toInt()
+                if (connection.shouldShowBindingHint || punctualityInfo.bindingLossProbability > 0.2f) {
+                    BindingHint(probPercent)
+                }
+            }
         }
     }
 }
 
 /**
- * Kleines farbiges Abzeichen für den Pünktlichkeits-Score.
+ * Kleines farbiges Abzeichen für den Pünktlichkeits-Score (Ampelsystem).
  */
 @Composable
-fun ScoreBadge(score: Double) {
+fun ScoreBadge(score: Double?) {
     val color = when {
+        score == null -> Color.Gray
         score >= 8.0 -> Color(0xFF76B82A) // Grün
         score >= 5.0 -> Color(0xFFFFD700) // Gelb
         else -> Color(0xFFE2104E)        // Rot
     }
     Surface(color = color, shape = RoundedCornerShape(8.dp)) {
-        Text("%.1f".format(score), Modifier.padding(horizontal = 8.dp, vertical = 4.dp), fontWeight = FontWeight.Bold)
+        Text(
+            text = score?.let { "%.1f".format(it) } ?: "...",
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            fontWeight = FontWeight.Bold,
+            color = if (score != null && score >= 5.0 && score < 8.0) Color.Black else Color.White
+        )
     }
 }
 
-/**
- * Abzeichen für den Zugtyp (z.B. ICE, RE).
- */
 @Composable
 fun TrainBadge(name: String, type: TrainType) {
     val color = when(type) {
@@ -86,12 +97,17 @@ fun TrainBadge(name: String, type: TrainType) {
     }
 }
 
-/**
- * Hinweisbox, wenn die Zugbindung aufgrund von Verspätungen aufgehoben wurde.
- */
 @Composable
-fun BindingHint() {
-    Surface(color = Color(0xFF76B82A).copy(0.2f), shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, Color(0xFF76B82A))) {
-        Text("Zugbindung aufgehoben", Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.bodySmall)
+fun BindingHint(probPercent: Int) {
+    Surface(
+        color = Color(0xFF76B82A).copy(0.2f), 
+        shape = RoundedCornerShape(8.dp), 
+        border = BorderStroke(1.dp, Color(0xFF76B82A))
+    ) {
+        Text(
+            text = "Zugbindung aufgehoben ($probPercent% Wahrscheinlichkeit)", 
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), 
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }

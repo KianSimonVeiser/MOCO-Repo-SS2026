@@ -52,8 +52,14 @@ fun ConnectionSelectionScreen() {
                 
                 // Dynamische Liste der Zugverbindungen
                 items(connections) { connection ->
+                    // Starte das Laden der Pünktlichkeitsdaten, falls noch nicht im Cache
+                    LaunchedEffect(connection.id) {
+                        viewModel.loadPunctualityInfo(connection)
+                    }
+
                     ConnectionCard(
                         connection = connection,
+                        punctualityInfo = viewModel.getPunctualityInfo(connection),
                         onClick = { viewModel.onConnectionSelected(connection) }
                     )
                 }

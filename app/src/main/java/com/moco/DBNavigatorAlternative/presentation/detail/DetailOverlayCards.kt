@@ -17,9 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Overlay-Karten für die Detailansicht (Pünktlichkeit und Kommentare).
+ * 
+ * @param historicalPunctualityScore Der anzuzeigende Score.
+ * @param bindingLossProbability Nicht mehr in dieser Ansicht verwendet.
+ * @param onCommentsClick Callback für die Kommentarkarte.
+ */
 @Composable
 fun DetailOverlayCards(
     historicalPunctualityScore: Float?,
+    bindingLossProbability: Float? = null, // Wird ignoriert
     onCommentsClick: () -> Unit
 ) {
     Box(
