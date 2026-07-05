@@ -33,9 +33,12 @@ fun SearchHeader(viewModel: SearchViewModel) {
         // Eingabebereich für Start und Ziel
         SearchSection(
             fromValue = viewModel.from,
+            locationNeeded = viewModel.locationNeeded,
             toValue = viewModel.to,
             onFromChange = { viewModel.onFromChanged(it) },
-            onToChange = { viewModel.onToChanged(it) }
+            onToChange = { viewModel.onToChanged(it) },
+            onLocationClick = { viewModel.onLocationNeeded() },
+            onLocationDismissed = { viewModel.onLocationDismissed() }
         )
         
         // Auswahl für Datum und Uhrzeit

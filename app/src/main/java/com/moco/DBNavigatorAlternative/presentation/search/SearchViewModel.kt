@@ -23,6 +23,8 @@ class SearchViewModel : ViewModel() {
         private set
     var showDatePicker by mutableStateOf(false)
         private set
+    var locationNeeded by mutableStateOf(false)
+        private set
 
     private val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
 
@@ -35,6 +37,8 @@ class SearchViewModel : ViewModel() {
     fun onFromChanged(newVal: String) { from = newVal }
     fun onToChanged(newVal: String) { to = newVal }
     fun toggleDatePicker(show: Boolean) { showDatePicker = show }
+    fun onLocationNeeded() { locationNeeded = true }
+    fun onLocationDismissed() { locationNeeded = false }
     fun onDateSelected(millis: Long?) {
         millis?.let {
             date = dateFormatter.format(Date(it))

@@ -1,6 +1,8 @@
 package com.moco.DBNavigatorAlternative.presentation.home
 
+import androidx.compose.material3.contentColorFor
 import androidx.lifecycle.ViewModel
+import com.moco.DBNavigatorAlternative.presentation.generalUse.Location.checkLocationPermission
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,4 +60,8 @@ class HomeViewModel : ViewModel() {
     fun toggleArrival(arrival: Boolean) { _uiState.update { it.copy(isArrival = arrival) } }
 
     fun toggleOnlyDTicket(active: Boolean) { _uiState.update { it.copy(onlyDTicket = active) } }
+
+    fun onLocationNeeded(){_uiState.update { it.copy(locationNeeded = true) } }
+
+    fun onLocationDismissed(){_uiState.update { it.copy(locationNeeded = false) } }
 }

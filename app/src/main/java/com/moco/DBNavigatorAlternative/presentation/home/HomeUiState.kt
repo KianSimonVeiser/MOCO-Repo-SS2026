@@ -13,5 +13,6 @@ data class HomeUiState(
     val isArrival: Boolean = false,     // Schalter für Abfahrt (false) oder Ankunft (true)
     val onlyDTicket: Boolean = false,   // Filter für Deutschland-Ticket
     val showDatePicker: Boolean = false,// Steuert die Sichtbarkeit des Kalenders
-    val showTimePicker: Boolean = false // Steuert die Sichtbarkeit der Uhr
+    val showTimePicker: Boolean = false, // Steuert die Sichtbarkeit der Uhr
+    val locationNeeded: Boolean = false
 )
