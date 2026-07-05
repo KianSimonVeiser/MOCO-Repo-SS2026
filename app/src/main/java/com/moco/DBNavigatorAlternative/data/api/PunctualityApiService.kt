@@ -6,27 +6,28 @@ import retrofit2.http.Query
 
 /**
  * Interface für den Pünktlichkeitsserver.
- * Basierend auf den historischen Statistiken der Deutschen Bahn.
+ * Kommuniziert mit dem Python-Backend (FastAPI + DuckDB).
  */
 interface PunctualityApiService {
 
     /**
-     * Ruft Statistiken für eine bestimmte Zugnummer ab.
-     * @param trainId Die Nummer des Zuges (z.B. "ICE 572").
+     * Ruft Statistiken für einen spezifischen Zug ab.
+     * @param trainType Typ des Zuges (z.B. "ICE")
+     * @param trainNumber Nummer des Zuges (z.B. "572")
      */
-    @GET("statistics")
+    @GET("statistics/train")
     suspend fun getTrainStatistics(
-        @Query("trainId") trainId: String
+        @Query("type") trainType: String,
+        @Query("number") trainNumber: String
     ): PunctualityInfo
 
     /**
      * Ruft die Pünktlichkeitsvorhersage für eine gesamte Verbindung ab.
-     * @param from Startbahnhof
-     * @param to Zielbahnhof
+     * Der Server berechnet dies basierend auf den übergebenen Zugnummern.
+     * @param trainIds Liste von "Typ Nummer" (z.B. ["ICE 572", "RE 21"])
      */
-    @GET("connection/forecast")
+    @GET("statistics/connection")
     suspend fun getConnectionForecast(
-        @Query("from") from: String,
-        @Query("to") to: String
+        @Query("trains") trainIds: List<String>
     ): PunctualityInfo
 }

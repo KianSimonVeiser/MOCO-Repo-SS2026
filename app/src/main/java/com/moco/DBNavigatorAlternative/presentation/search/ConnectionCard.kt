@@ -53,12 +53,10 @@ fun ConnectionCard(
                 }
             }
 
-            // Hinweis zur aufgehobenen Zugbindung mit Wahrscheinlichkeit (nur bei Risiko)
-            if (punctualityInfo != null) {
+            // Hinweis zur aufgehobenen Zugbindung mit Wahrscheinlichkeit (dynamisch ab 50%)
+            if (punctualityInfo != null && punctualityInfo.bindingLossProbability >= 0.5f) {
                 val probPercent = (punctualityInfo.bindingLossProbability * 100).toInt()
-                if (connection.shouldShowBindingHint || punctualityInfo.bindingLossProbability > 0.2f) {
-                    BindingHint(probPercent)
-                }
+                BindingHint(probPercent)
             }
         }
     }

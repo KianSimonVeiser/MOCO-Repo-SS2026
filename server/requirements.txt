@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+duckdb
+huggingface-hub
+pandas
+pyarrow

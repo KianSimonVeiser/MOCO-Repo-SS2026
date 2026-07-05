@@ -11,56 +11,49 @@ import kotlin.math.min
 
 /**
  * Repository zur Steuerung der Pünktlichkeitsdaten.
- * Kann Daten sowohl lokal berechnen (Fallback) als auch vom Pünktlichkeitsserver abrufen.
+ * Versucht Echtzeit-Statistiken vom Python-Server zu laden und bietet lokale Fallbacks.
  */
 class PunctualityRepository {
 
-    // Retrofit-Instanz für den Server-Zugriff
     private val apiService: PunctualityApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/") // Zugriff auf localhost des PCs vom Emulator aus
+            .baseUrl("http://10.0.2.2:8000/") // FastAPI Standardport ist 8000
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(PunctualityApiService::class.java)
     }
 
     /**
-     * Hauptfunktion zum Abrufen der Pünktlichkeitsdaten.
-     * In einer Produktiv-App würde hier ein Netzwerkaufruf mit Fehlerbehandlung stehen.
+     * Ruft die Pünktlichkeitsdaten für eine Verbindung ab.
+     * Sendet alle Zugnummern der Verbindung an den Server für eine kombinierte Vorhersage.
      */
     suspend fun getPunctualityForConnection(connection: Connection): PunctualityInfo {
         return try {
-            // Versuche Daten vom Server zu laden (hier noch auskommentiert, da Server-URL fiktiv)
-            // val stats = apiService.getConnectionForecast(from = connection.segments.first().departureStop.name, to = connection.segments.last().arrivalStop.name)
-            // stats
+            // Die 'line' enthält bereits das Format "TYP NUMMER" (z.B. "ICE 572")
+            val trainIds = connection.segments.map { it.train.line }
             
-            // Aktueller Fallback: Lokale Berechnung basierend auf historischen Statistiken
-            calculatePunctualityLocally(connection)
+            // Server-Anfrage
+            apiService.getConnectionForecast(trainIds)
         } catch (e: Exception) {
+            // Logge den Fehler (optional) und nutze lokale Logik als Fallback
             calculatePunctualityLocally(connection)
         }
     }
 
     /**
-     * Lokale Berechnungslogik als Fallback oder für den Offline-Modus.
-     * Nutzt die Basis-Statistiken der DB (z.B. Fernverkehr ist unpünktlicher).
+     * Lokale Berechnungslogik (Fallback).
+     * Basierend auf allgemeinen DB-Statistiken.
      */
     private fun calculatePunctualityLocally(connection: Connection): PunctualityInfo {
         var score = 9.0f
-        
-        // Malus für Fernverkehr (ICE/IC)
         val hasLongDistance = connection.segments.any { it.train.type == TrainType.ICE || it.train.type == TrainType.IC }
         if (hasLongDistance) score -= 2.0f
-        
-        // Malus für jeden Umstieg (erhöhtes Verspätungsrisiko)
         score -= (connection.transferCount * 1.5f)
         
-        // Berechnung der Bindungsverlust-Wahrscheinlichkeit (> 20 Min Verspätung)
         var lossProb = 0.05f
         if (hasLongDistance) lossProb += 0.15f
         lossProb += (connection.transferCount * 0.12f)
         
-        // Falls Segmente bereits Scores haben (aus Mock-Daten), diese einfließen lassen
         val segmentScore = connection.segments.mapNotNull { it.punctualityScore }.average()
         if (!segmentScore.isNaN()) {
             score = (score + segmentScore.toFloat()) / 2

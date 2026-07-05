@@ -4,28 +4,7 @@ import com.moco.DBNavigatorAlternative.domain.model.*
 
 /**
  * UI-spezifische Erweiterungen für das zentrale Modell aus TrainConnection.kt.
- * Diese Properties berechnen Werte für die Anzeige in der UI.
  */
-
-/**
- * Liefert den Pünktlichkeits-Score der Verbindung basierend auf dem ersten Segment, das einen Score hat.
- */
-val Connection.displayScore: Double
-    get() = segments.firstOrNull { it.punctualityScore != null }?.punctualityScore?.toDouble() 
-        ?: segments.firstOrNull()?.punctualityScore?.toDouble() 
-        ?: 0.0
-
-/**
- * Bestimmt, ob die Verbindung als verspätet/kritisch markiert werden soll (Score < 4.0).
- */
-val Connection.isLate: Boolean
-    get() = displayScore < 4.0
-
-/**
- * Bestimmt, ob ein Hinweis zur aufgehobenen Zugbindung angezeigt werden soll.
- */
-val Connection.shouldShowBindingHint: Boolean
-    get() = displayScore in 5.0..6.0
 
 /**
  * Liefert eine Liste von Beispiel-Verbindungen für die Anzeige in Previews und Tests.
