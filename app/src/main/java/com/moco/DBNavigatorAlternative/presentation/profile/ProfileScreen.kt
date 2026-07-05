@@ -12,32 +12,28 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Zentraler Container für die Profil-Funktionalität.
- * Diese Komponente fungiert als Orchestrator und verwaltet den Navigationszustand 
- * zwischen Login, Registrierung und dem angemeldeten Profil-Bereich.
- * Zudem werden hier zentrale UI-Elemente wie Popups und Dialoge gesteuert.
  */
 @Composable
 fun ProfileScreen() {
-    // screenState bestimmt, welche Ansicht aktuell gerendert wird ("login", "registration", "loggedIn")
     var screenState by remember { mutableStateOf("login") }
-    
-    // popupMessage hält den Text für das Erfolgs-Popup. Wenn null, wird kein Popup angezeigt.
     var popupMessage by remember { mutableStateOf<String?>(null) }
-    
-    // showEmailDialog steuert die Sichtbarkeit des Dialogs zum Zurücksetzen des Passworts
     var showEmailDialog by remember { mutableStateOf(false) }
+    
+    // Aktuelle Nutzerdaten nach Login
+    var currentUsername by remember { mutableStateOf("") }
+    var currentEmail by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = { 
-            // Spezifische TopBar für das Profil laut Wireframe
             CustomProfileTopBar(title = if (screenState == "registration") "Registrierung" else "Profil") 
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // State-basierte Navigation innerhalb des Profil-Bereichs
             when (screenState) {
                 "login" -> LoginScreen(
-                    onLoginClick = { 
+                    onLoginSuccess = { username, email ->
+                        currentUsername = username
+                        currentEmail = email
                         popupMessage = "Anmeldung erfolgreich"
                         screenState = "loggedIn"
                     },
@@ -52,9 +48,8 @@ fun ProfileScreen() {
                     onBackToLogin = { screenState = "login" }
                 )
                 "loggedIn" -> LoggedInScreen(
-                    // Platzhalterdaten für den angemeldeten Nutzer
-                    username = "Max Mustermann",
-                    email = "max@mustermann.de",
+                    username = currentUsername,
+                    email = currentEmail,
                     onLogoutClick = { 
                         popupMessage = "Erfolgreich Abgemeldet"
                         screenState = "login" 
@@ -64,7 +59,6 @@ fun ProfileScreen() {
         }
     }
 
-    // Zeigt ein Informations-Popup an, falls eine Nachricht gesetzt wurde
     popupMessage?.let { message ->
         ProfilePopup(
             text = message,
@@ -72,7 +66,6 @@ fun ProfileScreen() {
         )
     }
 
-    // Zeigt den E-Mail-Eingabedialog an, wenn "Passwort vergessen" geklickt wurde
     if (showEmailDialog) {
         EmailInputDialog(
             onDismiss = { showEmailDialog = false },
@@ -86,14 +79,11 @@ fun ProfileScreen() {
 
 /**
  * Eine benutzerdefinierte Top-AppBar für den Profilbereich.
- * Entspricht dem Design des Wireframes mit spezifischer Hintergrundfarbe und zentriertem Text.
- * 
- * @param title Der im Header anzuzeigende Text.
  */
 @Composable
 fun CustomProfileTopBar(title: String) {
     Surface(
-        color = Color(0xFFE2D9FF), // Hellviolette Hintergrundfarbe aus dem Wireframe
+        color = Color(0xFFE2D9FF),
         modifier = Modifier.fillMaxWidth().height(100.dp)
     ) {
         Box(contentAlignment = Alignment.Center) {

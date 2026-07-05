@@ -23,17 +23,22 @@ import androidx.compose.ui.window.DialogProperties
 
 /**
  * Ein spezialisiertes Eingabefeld für die Profil-Screens.
- * Zeichnet sich durch einen grauen Hintergrund und einen schwarzen Rahmen aus (Wireframe-Design).
  * 
+ * @param value Der aktuelle Textwert.
+ * @param onValueChange Callback bei Textänderung.
  * @param placeholder Der Text, der angezeigt wird, wenn das Feld leer ist.
- * @param isPassword Wenn true, wird die Eingabe maskiert (z.B. für Passwörter).
+ * @param isPassword Wenn true, wird die Eingabe maskiert.
  */
 @Composable
-fun ProfileInputField(placeholder: String, isPassword: Boolean = false) {
-    var text by remember { mutableStateOf("") }
+fun ProfileInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String, 
+    isPassword: Boolean = false
+) {
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        value = value,
+        onValueChange = onValueChange,
         placeholder = { Text(placeholder, color = Color.Gray, fontSize = 18.sp) },
         modifier = Modifier
             .fillMaxWidth()
@@ -55,7 +60,6 @@ fun ProfileInputField(placeholder: String, isPassword: Boolean = false) {
 
 /**
  * Ein einheitlich gestalteter Button für den Profilbereich.
- * Nutzt eine Box mit Hintergrundfarbe und Rahmen, um das spezifische Design des Wireframes umzusetzen.
  * 
  * @param text Die Beschriftung des Buttons.
  * @param color Die Hintergrundfarbe des Buttons.
@@ -78,8 +82,6 @@ fun ProfileButton(text: String, color: Color, onClick: () -> Unit) {
 
 /**
  * Ein modales Informations-Popup.
- * Entspricht dem Design des "Profil Pop-Ups.png" Wireframes mit grauem Hintergrund 
- * und einem Schließen-Button oben rechts.
  * 
  * @param text Die im Popup anzuzeigende Nachricht.
  * @param onDismiss Callback zum Schließen des Popups.
@@ -100,7 +102,6 @@ fun ProfilePopup(
                 .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
                 .padding(16.dp)
         ) {
-            // Schließen-Icon oben rechts
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
@@ -112,7 +113,6 @@ fun ProfilePopup(
                 )
             }
 
-            // Der eigentliche Textinhalt des Popups
             Text(
                 text = text,
                 fontSize = 18.sp,
@@ -128,15 +128,14 @@ fun ProfilePopup(
 
 /**
  * Ein Dialog zur Eingabe der E-Mail-Adresse für die "Passwort vergessen"-Funktion.
- * 
- * @param onDismiss Callback zum Abbrechen/Schließen.
- * @param onConfirm Callback, wenn die E-Mail gesendet werden soll.
  */
 @Composable
 fun EmailInputDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
+    var email by remember { mutableStateOf("") }
+    
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
@@ -153,16 +152,18 @@ fun EmailInputDialog(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Nutzt das standardisierte Eingabefeld
-                ProfileInputField(placeholder = "E-Mail Adresse")
+                ProfileInputField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = "E-Mail Adresse"
+                )
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // Nutzt den standardisierten Button
                 ProfileButton(
                     text = "Senden",
                     color = Color(0xFFD9D9D9),
-                    onClick = { onConfirm("") } // E-Mail könnte hier aus einem State gelesen werden
+                    onClick = { onConfirm(email) }
                 )
             }
         }
