@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
+import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchButton
+import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
 import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 
 /**
