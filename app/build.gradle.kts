@@ -58,6 +58,10 @@ dependencies {
     implementation("androidx.navigation:navigation-common:2.8.5")
     implementation("androidx.navigation:navigation-runtime:2.8.5")
 
+    // Standort & Coroutines Tasks
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)

@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.presentation.home
+package com.moco.DBNavigatorAlternative.presentation.generalUse
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

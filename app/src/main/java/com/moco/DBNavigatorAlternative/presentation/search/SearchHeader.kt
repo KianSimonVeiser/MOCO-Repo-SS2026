@@ -12,7 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.moco.DBNavigatorAlternative.presentation.home.SearchSection
+import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
 import com.moco.DBNavigatorAlternative.presentation.home.DateTimeSection
 
 /**
@@ -33,9 +33,14 @@ fun SearchHeader(viewModel: SearchViewModel) {
         // Eingabebereich für Start und Ziel
         SearchSection(
             fromValue = viewModel.from,
+            locationNeeded = viewModel.locationNeeded,
             toValue = viewModel.to,
+            locationValue = "",
             onFromChange = { viewModel.onFromChanged(it) },
-            onToChange = { viewModel.onToChanged(it) }
+            onToChange = { viewModel.onToChanged(it) },
+            onLocationClick = { viewModel.onLocationNeeded() },
+            onLocationDismissed = { viewModel.onLocationDismissed() },
+            onLocationAccepted = { viewModel.onLocationAccepted() }
         )
         
         // Auswahl für Datum und Uhrzeit
