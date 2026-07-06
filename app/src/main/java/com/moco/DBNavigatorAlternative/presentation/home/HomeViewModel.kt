@@ -71,13 +71,15 @@ class HomeViewModel(
     fun onLocationDismissed(){_uiState.update { it.copy(locationNeeded = false) } }
 
     fun onLocationAccepted() {
+        // Wir setzen locationNeeded sofort auf false, um Endlosschleifen in der UI zu verhindern
+        _uiState.update { it.copy(locationNeeded = false) }
         viewModelScope.launch {
             val locationName = locationRepository.getCurrentLocation()
             if (locationName != null) {
                 _uiState.update { 
                     it.copy(
                         location = locationName,
-                        locationNeeded = false 
+                        from = locationName // Wir setzen auch 'from', da dies im HomeScreen als Startwert genutzt wird
                     ) 
                 }
             }

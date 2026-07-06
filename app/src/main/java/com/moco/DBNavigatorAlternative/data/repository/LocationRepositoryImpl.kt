@@ -7,6 +7,8 @@ import android.location.Geocoder
 import android.location.Location
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
@@ -33,7 +35,16 @@ class LocationRepositoryImpl(
         }
 
         return try {
-            val location: Location? = fusedLocationClient.lastLocation.await()
+            // Versuche erst den letzten bekannten Standort (schnell)
+            var location: Location? = fusedLocationClient.lastLocation.await()
+            
+            // Wenn kein letzter Standort bekannt ist (oft auf Emulatoren), fordere einen neuen an
+            if (location == null) {
+                location = fusedLocationClient.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    CancellationTokenSource().token
+                ).await()
+            }
 
             location?.let {
                 /*getAddressFromLocation(it.latitude, it.longitude)*/

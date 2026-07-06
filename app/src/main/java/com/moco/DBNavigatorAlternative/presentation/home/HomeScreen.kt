@@ -59,7 +59,7 @@ fun HomeScreen(
             ) {
                 // --- 1. SEKTION: DIE SUCHE (VON/BIS) ---
                 SearchSection(
-                    fromValue = uiState.location,
+                    fromValue = uiState.from,
                     toValue = uiState.to,
                     locationNeeded = uiState.locationNeeded,
                     locationValue = uiState.location,

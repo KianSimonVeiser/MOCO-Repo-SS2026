@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -129,63 +130,75 @@ fun SearchSection(
         }
     }
     //Overlay Location Dialog
-    if(locationNeeded) {
-        if (checkLocationPermission(context)) {
-            onLocationAccepted()
-        } else if (activity != null && ActivityCompat.shouldShowRequestPermissionRationale(
+    if (locationNeeded) {
+        val hasPermission = checkLocationPermission(context)
+
+        if (hasPermission) {
+            // Falls wir die Berechtigung schon haben, rufen wir onLocationAccepted auf.
+            // Das LaunchedEffect sorgt dafür, dass dies nicht bei jedem Recompose passiert.
+            LaunchedEffect(Unit) {
+                onLocationAccepted()
+            }
+        } else {
+            val showRationale = activity != null && ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
-        ) {
-            AlertDialog(
-                onDismissRequest = {
-                    onLocationDismissed()
-                },
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        IconButton(
-                            onClick = {
-                                onLocationDismissed()
-                            }
+
+            if (showRationale) {
+                AlertDialog(
+                    onDismissRequest = {
+                        onLocationDismissed()
+                    },
+                    title = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Dialog schließen"
-                            )
-                        }
-                    }
-                },
-                text = {
-                    Text(
-                        text = "Um Stationen in deiner Nähe anzuzeigen, " +
-                                "musst du den Standort freigeben."
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            val intent = Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            ).apply {
-                                data = Uri.fromParts(
-                                    "package",
-                                    context.packageName,
-                                    null
+                            IconButton(
+                                onClick = {
+                                    onLocationDismissed()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Dialog schließen"
                                 )
                             }
-
-                            context.startActivity(intent)
                         }
-                    ) {
-                        Text("Zu den Einstellungen")
+                    },
+                    text = {
+                        Text(
+                            text = "Um Stationen in deiner Nähe anzuzeigen, " +
+                                    "musst du den Standort freigeben."
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val intent = Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                ).apply {
+                                    data = Uri.fromParts(
+                                        "package",
+                                        context.packageName,
+                                        null
+                                    )
+                                }
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Text("Zu den Einstellungen")
+                        }
                     }
+                )
+            } else {
+                // Wenn wir keine Rationale zeigen müssen und keine Berechtigung haben,
+                // fragen wir den Nutzer direkt über den System-Dialog.
+                LaunchedEffect(Unit) {
+                    launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
-            )
-        } else {
-            launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
         }
     }
 }
