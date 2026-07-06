@@ -35,10 +35,12 @@ fun SearchHeader(viewModel: SearchViewModel) {
             fromValue = viewModel.from,
             locationNeeded = viewModel.locationNeeded,
             toValue = viewModel.to,
+            locationValue = "",
             onFromChange = { viewModel.onFromChanged(it) },
             onToChange = { viewModel.onToChanged(it) },
             onLocationClick = { viewModel.onLocationNeeded() },
-            onLocationDismissed = { viewModel.onLocationDismissed() }
+            onLocationDismissed = { viewModel.onLocationDismissed() },
+            onLocationAccepted = { viewModel.onLocationAccepted() }
         )
         
         // Auswahl für Datum und Uhrzeit

@@ -30,15 +30,16 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 @Composable
 fun HomeScreen(
 
-    // Das ViewModel wird hier automatisch bereitgestellt
-    viewModel: HomeViewModel = viewModel()
+    // Das ViewModel wird hier mit der Factory bereitgestellt
+    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     // Wir beobachten den Zustand der Daten (uiState) aus dem ViewModel
     val uiState by viewModel.uiState.collectAsState()
     // Context wird benötigt, um Berechtigungen wie Standort zu prüfen
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
-    val activity = context as Activity
+    // Sicherer Cast, falls wir nicht in einer Activity sind (z.B. Preview)
+    val activity = context as? Activity
     MyApplicationTheme {
         // Scaffold ist das Grundgerüst, das z.B. Platz für die TopBar bietet
         Scaffold(
@@ -58,13 +59,15 @@ fun HomeScreen(
             ) {
                 // --- 1. SEKTION: DIE SUCHE (VON/BIS) ---
                 SearchSection(
-                    fromValue = uiState.from,
+                    fromValue = uiState.location,
                     toValue = uiState.to,
                     locationNeeded = uiState.locationNeeded,
+                    locationValue = uiState.location,
                     onFromChange = { viewModel.onFromChanged(it) },
                     onToChange = { viewModel.onToChanged(it) },
                     onLocationDismissed = {viewModel.onLocationDismissed()},
-                    onLocationClick = {viewModel.onLocationNeeded()}
+                    onLocationClick = {viewModel.onLocationNeeded()},
+                    onLocationAccepted = {viewModel.onLocationAccepted()}
                 )
 
                 // --- 2. SEKTION: DAS DATUM ---

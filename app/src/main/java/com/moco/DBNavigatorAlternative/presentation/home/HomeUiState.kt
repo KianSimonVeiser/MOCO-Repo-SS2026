@@ -14,5 +14,6 @@ data class HomeUiState(
     val onlyDTicket: Boolean = false,   // Filter für Deutschland-Ticket
     val showDatePicker: Boolean = false,// Steuert die Sichtbarkeit des Kalenders
     val showTimePicker: Boolean = false, // Steuert die Sichtbarkeit der Uhr
-    val locationNeeded: Boolean = false
+    val locationNeeded: Boolean = false,
+    val location: String = ""
 )

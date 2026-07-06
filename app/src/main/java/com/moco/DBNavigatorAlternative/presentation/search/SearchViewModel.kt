@@ -4,7 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.model.Connection
+import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -12,9 +18,11 @@ import java.util.*
  * ViewModel für die Verbindungssuche.
  * Verwaltet den Zustand der Suchergebnisse und die Auswahl einer Verbindung.
  */
-class SearchViewModel : ViewModel() {
+class SearchViewModel(
+    private val locationRepository: LocationRepository
+) : ViewModel() {
 
-    // --- State für die Suchparameter (ähnlich wie im HomeViewModel) ---
+    // --- State für die Suchparameter ---
     var from by mutableStateOf("")
         private set
     var to by mutableStateOf("")
@@ -39,6 +47,17 @@ class SearchViewModel : ViewModel() {
     fun toggleDatePicker(show: Boolean) { showDatePicker = show }
     fun onLocationNeeded() { locationNeeded = true }
     fun onLocationDismissed() { locationNeeded = false }
+
+    fun onLocationAccepted() {
+        viewModelScope.launch {
+            val locationName = locationRepository.getCurrentLocation()
+            if (locationName != null) {
+                from = locationName
+                locationNeeded = false
+            }
+        }
+    }
+
     fun onDateSelected(millis: Long?) {
         millis?.let {
             date = dateFormatter.format(Date(it))
@@ -46,19 +65,30 @@ class SearchViewModel : ViewModel() {
         showDatePicker = false
     }
 
-    // --- State für die Ergebnisse ---
-    // Liste der gefundenen Verbindungen (aktuell Mock-Daten)
+    // --- State für die Ergebnisse -
+    // --
     var connections by mutableStateOf(getMockConnections())
         private set
 
-    // Die aktuell für die Detailansicht ausgewählte Verbindung
     var selectedConnection by mutableStateOf<Connection?>(null)
         private set
 
-    /**
-     * Wählt eine Verbindung aus oder setzt die Auswahl zurück.
-     */
     fun onConnectionSelected(connection: Connection?) {
         selectedConnection = connection
+    }
+
+    // Factory für SearchViewModel
+    companion object {
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
+                val repository = LocationRepositoryImpl(application.applicationContext)
+                return SearchViewModel(repository) as T
+            }
+        }
     }
 }

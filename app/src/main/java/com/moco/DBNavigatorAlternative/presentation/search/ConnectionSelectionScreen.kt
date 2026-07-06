@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.presentation.detail.previewCommentList
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
@@ -16,10 +17,9 @@ import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
  * Er verwaltet den Wechsel zwischen der Suchergebnisliste und der Detailansicht einer Verbindung.
  */
 @Composable
-fun ConnectionSelectionScreen() {
-    // ViewModel-Instanz über remember erhalten (einfaches MVVM-Pattern)
-    val viewModel = remember { SearchViewModel() }
-    
+fun ConnectionSelectionScreen(
+    viewModel: SearchViewModel = viewModel(factory = SearchViewModel.Factory)
+) {
     // Status der UI aus dem ViewModel beziehen
     val connections = viewModel.connections
     val selectedConnection = viewModel.selectedConnection

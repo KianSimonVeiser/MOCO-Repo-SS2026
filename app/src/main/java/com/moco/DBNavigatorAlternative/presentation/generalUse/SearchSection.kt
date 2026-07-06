@@ -46,15 +46,22 @@ fun SearchSection(
     fromValue: String,
     toValue: String,
     locationNeeded: Boolean,
+    locationValue: String,
     onFromChange: (String) -> Unit,
     onToChange: (String) -> Unit,
     onLocationClick: () -> Unit,
     onLocationDismissed: () -> Unit,
+    onLocationAccepted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val activity = context as Activity
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    // Sicherer Zugriff auf die Activity für Previews
+    val activity = context as? Activity
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            onLocationAccepted()
+        }
+    }
 
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
@@ -124,8 +131,8 @@ fun SearchSection(
     //Overlay Location Dialog
     if(locationNeeded) {
         if (checkLocationPermission(context)) {
-            //TODO: LOcation Event
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(
+            onLocationAccepted()
+        } else if (activity != null && ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
