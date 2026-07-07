@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.data
+package com.moco.DBNavigatorAlternative.data.repository
 
 import com.moco.DBNavigatorAlternative.data.api.PunctualityApiService
 import com.moco.DBNavigatorAlternative.domain.model.Connection
@@ -31,7 +31,7 @@ class PunctualityRepository {
         return try {
             // Die 'line' enthält bereits das Format "TYP NUMMER" (z.B. "ICE 572")
             val trainIds = connection.segments.map { it.train.line }
-            
+
             // Server-Anfrage
             apiService.getConnectionForecast(trainIds)
         } catch (e: Exception) {
@@ -49,11 +49,11 @@ class PunctualityRepository {
         val hasLongDistance = connection.segments.any { it.train.type == TrainType.ICE || it.train.type == TrainType.IC }
         if (hasLongDistance) score -= 2.0f
         score -= (connection.transferCount * 1.5f)
-        
+
         var lossProb = 0.05f
         if (hasLongDistance) lossProb += 0.15f
         lossProb += (connection.transferCount * 0.12f)
-        
+
         val segmentScore = connection.segments.mapNotNull { it.punctualityScore }.average()
         if (!segmentScore.isNaN()) {
             score = (score + segmentScore.toFloat()) / 2

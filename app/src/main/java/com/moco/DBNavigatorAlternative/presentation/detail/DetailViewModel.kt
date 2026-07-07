@@ -2,7 +2,7 @@ package com.moco.DBNavigatorAlternative.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moco.DBNavigatorAlternative.data.PunctualityRepository
+import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
