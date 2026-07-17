@@ -1,10 +1,6 @@
 package com.moco.DBNavigatorAlternative.presentation.profile
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -22,108 +18,106 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 /**
- * Ein spezialisiertes Eingabefeld für die Profil-Screens.
- * 
- * @param value Der aktuelle Textwert.
- * @param onValueChange Callback bei Textänderung.
- * @param placeholder Der Text, der angezeigt wird, wenn das Feld leer ist.
- * @param isPassword Wenn true, wird die Eingabe maskiert.
+ * Eine einheitliche Karte (Kästchen) für den Profilbereich, 
+ * passend zum Design der Reiseplanung (SearchSection).
+ */
+@Composable
+fun ProfileSectionCard(
+    title: String? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (title != null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            content()
+        }
+    }
+}
+
+/**
+ * Ein modernisiertes Eingabefeld im Stil der restlichen App.
  */
 @Composable
 fun ProfileInputField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String, 
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    label: String? = null
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, color = Color.Gray, fontSize = 18.sp) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp)),
+        label = { Text(label ?: placeholder) },
+        placeholder = { Text(placeholder) },
+        modifier = Modifier.fillMaxWidth(),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFFD9D9D9),
-            focusedContainerColor = Color(0xFFD9D9D9),
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black
-        ),
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.medium,
         singleLine = true
     )
 }
 
 /**
  * Ein einheitlich gestalteter Button für den Profilbereich.
- * 
- * @param text Die Beschriftung des Buttons.
- * @param color Die Hintergrundfarbe des Buttons.
- * @param onClick Die Aktion, die beim Klicken ausgeführt wird.
  */
 @Composable
-fun ProfileButton(text: String, color: Color, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
+fun ProfileButton(
+    text: String, 
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .background(color, RoundedCornerShape(8.dp))
-            .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+            .height(50.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        )
     ) {
-        Text(text = text, fontSize = 22.sp, color = Color.Black)
+        Text(text = text, style = MaterialTheme.typography.labelLarge, fontSize = 18.sp)
     }
 }
 
 /**
- * Ein modales Informations-Popup.
- * 
- * @param text Die im Popup anzuzeigende Nachricht.
- * @param onDismiss Callback zum Schließen des Popups.
+ * Ein standardisiertes Informations-Popup.
  */
 @Composable
 fun ProfilePopup(
     text: String,
     onDismiss: () -> Unit
 ) {
-    Dialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(Color(0xFFE5E5E5), RoundedCornerShape(8.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
-                .padding(16.dp)
-        ) {
-            IconButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.TopEnd).size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Schließen",
-                    tint = Color.Black
-                )
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("OK")
             }
-
-            Text(
-                text = text,
-                fontSize = 18.sp,
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp)
-            )
-        }
-    }
+        },
+        title = {
+            Text(text = "Information", style = MaterialTheme.typography.headlineSmall)
+        },
+        text = {
+            Text(text = text, style = MaterialTheme.typography.bodyMedium)
+        },
+        shape = MaterialTheme.shapes.large
+    )
 }
 
 /**
@@ -136,36 +130,31 @@ fun EmailInputDialog(
 ) {
     var email by remember { mutableStateOf("") }
     
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
-                .padding(24.dp)
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    "Passwort zurücksetzen", 
-                    fontSize = 20.sp, 
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Passwort zurücksetzen", style = MaterialTheme.typography.headlineSmall)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen zu erhalten.")
                 ProfileInputField(
                     value = email,
                     onValueChange = { email = it },
                     placeholder = "E-Mail Adresse"
                 )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                ProfileButton(
-                    text = "Senden",
-                    color = Color(0xFFD9D9D9),
-                    onClick = { onConfirm(email) }
-                )
             }
-        }
-    }
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(email) }) {
+                Text("Senden")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Abbrechen")
+            }
+        },
+        shape = MaterialTheme.shapes.large
+    )
 }

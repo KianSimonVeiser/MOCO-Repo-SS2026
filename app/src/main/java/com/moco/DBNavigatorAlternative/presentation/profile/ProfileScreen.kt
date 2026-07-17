@@ -19,13 +19,18 @@ fun ProfileScreen() {
     var popupMessage by remember { mutableStateOf<String?>(null) }
     var showEmailDialog by remember { mutableStateOf(false) }
     
-    // Aktuelle Nutzerdaten nach Login
     var currentUsername by remember { mutableStateOf("") }
     var currentEmail by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = { 
-            CustomProfileTopBar(title = if (screenState == "registration") "Registrierung" else "Profil") 
+            CustomProfileTopBar(
+                title = when(screenState) {
+                    "registration" -> "Registrierung"
+                    "settings" -> "Einstellungen"
+                    else -> "Profil"
+                }
+            ) 
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
@@ -50,9 +55,19 @@ fun ProfileScreen() {
                 "loggedIn" -> LoggedInScreen(
                     username = currentUsername,
                     email = currentEmail,
+                    onSettingsClick = { screenState = "settings" },
                     onLogoutClick = { 
                         popupMessage = "Erfolgreich Abgemeldet"
                         screenState = "login" 
+                    }
+                )
+                "settings" -> SettingsScreen(
+                    currentUsername = currentUsername,
+                    currentEmail = currentEmail,
+                    onBackClick = { screenState = "loggedIn" },
+                    onAccountDeleted = {
+                        popupMessage = "Dein Konto wurde gelöscht"
+                        screenState = "login"
                     }
                 )
             }
