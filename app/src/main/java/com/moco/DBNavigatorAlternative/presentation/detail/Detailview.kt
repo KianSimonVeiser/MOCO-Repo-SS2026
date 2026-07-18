@@ -18,14 +18,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.moco.DBNavigatorAlternative.domain.model.Comment
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 
 @Composable
 fun DetailScreen(
     connection: Connection,
-    comments: List<Comment>,
     viewModel: DetailViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -36,15 +34,18 @@ fun DetailScreen(
 
     DetailScreenContent(
         connection = connection,
-        comments = comments,
         uiState = uiState,
         onWarningEnabledChanged = viewModel::onWarningEnabledChanged,
         onCommentsClick = viewModel::showCommentSheet,
         onDismissCommentSheet = viewModel::hideCommentSheet,
         onCommentTextChanged = viewModel::onCommentTextChanged,
+        onSendComment = { viewModel.submitComment(connection) },
         onSegmentMenuClick = viewModel::showSegmentMenu,
         onSegmentMenuDismiss = viewModel::hideSegmentMenu,
-        onSegmentSelected = viewModel::onSegmentSelected
+        onSegmentSelected = { viewModel.onSegmentSelected(it, connection) },
+        onRatingSelected = { stationId, rating ->
+            viewModel.submitRating(stationId, rating)
+        }
     )
 }
 
@@ -52,17 +53,19 @@ fun DetailScreen(
 @Composable
 fun DetailScreenContent(
     connection: Connection,
-    comments: List<Comment>,
     uiState: DetailUiState,
     onWarningEnabledChanged: (Boolean) -> Unit,
     onCommentsClick: () -> Unit,
     onDismissCommentSheet: () -> Unit,
     onCommentTextChanged: (String) -> Unit,
+    onSendComment: () -> Unit,
     onSegmentMenuClick: () -> Unit,
     onSegmentMenuDismiss: () -> Unit,
-    onSegmentSelected: (String) -> Unit
+    onSegmentSelected: (String) -> Unit,
+    onRatingSelected: (String, Int) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
+    val selectedSegment = connection.segments.find { it.id == uiState.selectedSegmentId }
 
     Scaffold(
         topBar = {
@@ -85,21 +88,23 @@ fun DetailScreenContent(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    bottom = 320.dp
-                )
+                contentPadding = PaddingValues(bottom = 320.dp)
             ) {
                 items(connection.segments) { segment ->
-                    ConnectionSegmentItem(
-                        connectionSegment = segment
-                    )
+                    ConnectionSegmentItem(connectionSegment = segment)
                 }
             }
 
             DetailOverlayCards(
                 historicalPunctualityScore = uiState.punctualityInfo?.score,
                 bindingLossProbability = uiState.punctualityInfo?.bindingLossProbability,
-                onCommentsClick = onCommentsClick
+                onCommentsClick = onCommentsClick,
+                stationRating = uiState.stationRating,
+                onRatingSelected = { rating -> 
+                    selectedSegment?.departureStop?.id?.let { id ->
+                        onRatingSelected(id, rating)
+                    }
+                }
             )
         }
 
@@ -109,7 +114,7 @@ fun DetailScreenContent(
                 sheetState = sheetState
             ) {
                 CommentsBottomSheet(
-                    comments = comments,
+                    comments = uiState.stationComments,
                     connection = connection,
                     newCommentText = uiState.newCommentText,
                     selectedSegmentId = uiState.selectedSegmentId,
@@ -117,7 +122,8 @@ fun DetailScreenContent(
                     onCommentTextChanged = onCommentTextChanged,
                     onSegmentMenuClick = onSegmentMenuClick,
                     onSegmentMenuDismiss = onSegmentMenuDismiss,
-                    onSegmentSelected = onSegmentSelected
+                    onSegmentSelected = onSegmentSelected,
+                    onSendClick = onSendComment
                 )
             }
         }

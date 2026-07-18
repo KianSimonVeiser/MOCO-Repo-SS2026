@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -12,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
+import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
 import com.moco.DBNavigatorAlternative.domain.model.TrainType
 
 /**
@@ -22,6 +24,7 @@ import com.moco.DBNavigatorAlternative.domain.model.TrainType
 fun ConnectionCard(
     connection: Connection,
     punctualityInfo: PunctualityInfo?,
+    stationRating: StationRatingSummary?,
     onClick: () -> Unit
 ) {
     ElevatedCard(
@@ -37,12 +40,23 @@ fun ConnectionCard(
             val isCritical = currentScore != null && currentScore < 5.0f
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    text = "${connection.segments.firstOrNull()?.departureStop?.time} → ${connection.segments.lastOrNull()?.arrivalStop?.time}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCritical) Color(0xFFE2104E) else MaterialTheme.colorScheme.onSurface
-                )
+                Column {
+                    Text(
+                        text = "${connection.segments.firstOrNull()?.departureStop?.time} → ${connection.segments.lastOrNull()?.arrivalStop?.time}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isCritical) Color(0xFFE2104E) else MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Anzeige der Bahnhofsbewertung
+                    if (stationRating != null) {
+                        Text(
+                            text = "Bahnhof: %.1f ★ (%d)".format(stationRating.averageRating, stationRating.reviewCount),
+                            fontSize = 12.sp,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+                }
                 ScoreBadge(currentScore?.toDouble())
             }
 

@@ -1,34 +1,29 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
 
-/**
- * Overlay-Karten für die Detailansicht (Pünktlichkeit und Kommentare).
- * 
- * @param historicalPunctualityScore Der anzuzeigende Score.
- * @param bindingLossProbability Nicht mehr in dieser Ansicht verwendet.
- * @param onCommentsClick Callback für die Kommentarkarte.
- */
 @Composable
 fun DetailOverlayCards(
     historicalPunctualityScore: Float?,
-    bindingLossProbability: Float? = null, // Wird ignoriert
-    onCommentsClick: () -> Unit
+    bindingLossProbability: Float? = null,
+    onCommentsClick: () -> Unit,
+    stationRating: StationRatingSummary? = null,
+    onRatingSelected: (Int) -> Unit = {}
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -41,6 +36,11 @@ fun DetailOverlayCards(
         ) {
             HistoricalPunctualityCard(
                 punctualityScore = historicalPunctualityScore
+            )
+
+            StationRatingCard(
+                summary = stationRating,
+                onRatingSelected = onRatingSelected
             )
 
             CommentsCard(
@@ -78,6 +78,59 @@ private fun HistoricalPunctualityCard(
                 TrainPunctualityCard(
                     punctualityScore = punctualityScore
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StationRatingCard(
+    summary: StationRatingSummary?,
+    onRatingSelected: (Int) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(350.dp)
+            .height(90.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Bahnhofsbewertung",
+                    fontSize = 20.sp
+                )
+                
+                Text(
+                    text = if (summary != null) "%.1f ★".format(summary.averageRating) else "N/A",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFFFFD700)
+                )
+            }
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(5) { index ->
+                    Icon(
+                        imageVector = if (index < (summary?.averageRating?.toInt() ?: 0)) 
+                            Icons.Default.Star else Icons.Default.StarBorder,
+                        contentDescription = null,
+                        tint = Color(0xFFFFD700),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clickable { onRatingSelected(index + 1) }
+                    )
+                }
             }
         }
     }

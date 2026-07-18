@@ -43,8 +43,7 @@ fun AppNavigation() {
             composable("search") { ConnectionSelectionScreen() }
             composable("profile") { ProfileScreen() }
             composable("detail") { DetailScreen(
-                connection = previewConnection,
-                comments = previewCommentList
+                connection = previewConnection
             ) }
         }
     }

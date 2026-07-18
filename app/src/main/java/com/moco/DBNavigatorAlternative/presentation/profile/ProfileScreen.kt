@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moco.DBNavigatorAlternative.data.UserRepository
 
 /**
  * Zentraler Container für die Profil-Funktionalität.
@@ -19,23 +20,27 @@ fun ProfileScreen() {
     var popupMessage by remember { mutableStateOf<String?>(null) }
     var showEmailDialog by remember { mutableStateOf(false) }
     
-    // Aktuelle Nutzerdaten nach Login
-    var currentUsername by remember { mutableStateOf("") }
-    var currentEmail by remember { mutableStateOf("") }
+    // Beobachte den globalen Nutzerstatus
+    val currentUser by UserRepository.currentUser.collectAsState()
+
+    // Wenn ein Nutzer angemeldet ist, zeigen wir den LoggedInScreen
+    val currentView = if (currentUser != null) {
+        "loggedIn"
+    } else {
+        screenState
+    }
 
     Scaffold(
         topBar = { 
-            CustomProfileTopBar(title = if (screenState == "registration") "Registrierung" else "Profil") 
+            CustomProfileTopBar(title = if (currentView == "registration") "Registrierung" else "Profil") 
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-            when (screenState) {
+            when (currentView) {
                 "login" -> LoginScreen(
-                    onLoginSuccess = { username, email ->
-                        currentUsername = username
-                        currentEmail = email
+                    onLoginSuccess = { _, _ ->
                         popupMessage = "Anmeldung erfolgreich"
-                        screenState = "loggedIn"
+                        // Der Wechsel zu loggedIn passiert automatisch durch currentUser State
                     },
                     onRegisterClick = { screenState = "registration" },
                     onForgotPasswordClick = { showEmailDialog = true }
@@ -48,9 +53,10 @@ fun ProfileScreen() {
                     onBackToLogin = { screenState = "login" }
                 )
                 "loggedIn" -> LoggedInScreen(
-                    username = currentUsername,
-                    email = currentEmail,
+                    username = currentUser?.username ?: "",
+                    email = currentUser?.email ?: "",
                     onLogoutClick = { 
+                        UserRepository.setUser(null)
                         popupMessage = "Erfolgreich Abgemeldet"
                         screenState = "login" 
                     }
