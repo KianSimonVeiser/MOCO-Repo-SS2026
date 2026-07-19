@@ -32,7 +32,7 @@ fun ProfileScreen() {
 
     Scaffold(
         topBar = { 
-            CustomProfileTopBar(title = if (currentView == "registration") "Registrierung" else "Profil") 
+            CustomProfileTopBar(title = if (currentView == "registration") "Registrierung" else "Profil")
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
@@ -55,10 +55,20 @@ fun ProfileScreen() {
                 "loggedIn" -> LoggedInScreen(
                     username = currentUser?.username ?: "",
                     email = currentUser?.email ?: "",
+                    onSettingsClick = { screenState = "settings" },
                     onLogoutClick = { 
                         UserRepository.setUser(null)
                         popupMessage = "Erfolgreich Abgemeldet"
                         screenState = "login" 
+                    }
+                )
+                "settings" -> SettingsScreen(
+                    currentUsername = currentUsername,
+                    currentEmail = currentEmail,
+                    onBackClick = { screenState = "loggedIn" },
+                    onAccountDeleted = {
+                        popupMessage = "Dein Konto wurde gelöscht"
+                        screenState = "login"
                     }
                 )
             }

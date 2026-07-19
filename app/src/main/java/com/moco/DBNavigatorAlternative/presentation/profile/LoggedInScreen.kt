@@ -6,59 +6,59 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
  * Der Bildschirm für den angemeldeten Benutzer.
- * Zeigt die Profilinformationen und ermöglicht die Abmeldung.
- * Implementiert das Design gemäß dem Wireframe "Angemeldet.png".
- * 
- * @param username Der anzuzeigende Nutzername des angemeldeten Benutzers.
- * @param email Die anzuzeigende E-Mail-Adresse des angemeldeten Benutzers.
- * @param onLogoutClick Callback für die Abmeldung.
  */
 @Composable
 fun LoggedInScreen(
     username: String,
     email: String,
+    onSettingsClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // Großer Titel zur Bestätigung des Login-Status
-        Spacer(modifier = Modifier.height(100.dp))
-        Text("Angemeldet", style = MaterialTheme.typography.headlineLarge)
+        Spacer(modifier = Modifier.height(32.dp))
         
-        Spacer(modifier = Modifier.height(40.dp))
+        Text(
+            text = "Willkommen zurück!", 
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
         
-        // Sektion zur Anzeige der Nutzerinformationen (Nutzername und E-Mail)
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Nutzername:", fontWeight = FontWeight.Bold)
-            Text(text = username, fontSize = 20.sp)
+        ProfileSectionCard(title = "Dein Profil") {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "Nutzername", style = MaterialTheme.typography.labelMedium)
+                Text(text = username, style = MaterialTheme.typography.bodyLarge, fontSize = 20.sp)
+            }
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(text = "E-Mail Adresse:", fontWeight = FontWeight.Bold)
-            Text(text = email, fontSize = 20.sp)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = "E-Mail Adresse", style = MaterialTheme.typography.labelMedium)
+                Text(text = email, style = MaterialTheme.typography.bodyLarge, fontSize = 18.sp)
+            }
         }
         
-        Spacer(modifier = Modifier.height(64.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            ProfileButton(
+                text = "Einstellungen",
+                onClick = onSettingsClick
+            )
 
-        // Grauer Abmelde-Button laut Design-Vorgabe
-        ProfileButton(
-            text = "Abmelden",
-            color = Color(0xFFD9D9D9),
-            onClick = onLogoutClick
-        )
+            ProfileButton(
+                text = "Abmelden",
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                onClick = onLogoutClick
+            )
+        }
     }
 }
