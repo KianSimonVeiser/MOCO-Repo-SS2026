@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.moco.DBNavigatorAlternative.data.UserRepository
+import com.moco.DBNavigatorAlternative.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,12 +20,11 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isLoggedIn: Boolean = false,
-    val username: String = "" // Wir speichern den Namen für die Profilanzeige
+    val username: String = "" 
 )
 
 /**
  * ViewModel für die Login-Logik.
- * Prüft Nutzerdaten direkt in Firestore (Abgleich des Klartext-Passworts).
  */
 class LoginViewModel : ViewModel() {
 
@@ -50,15 +51,21 @@ class LoginViewModel : ViewModel() {
             try {
                 val db = Firebase.firestore
                 
-                // Wir suchen das Dokument, das als ID die E-Mail hat
                 db.collection("users").document(state.email).get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
                             val dbPassword = document.getString("password")
                             val dbUsername = document.getString("username") ?: "Nutzer"
                             
-                            // Passwort-Vergleich (Klartext)
                             if (dbPassword == state.password) {
+                                // Nutzer im UserRepository setzen
+                                val user = User(
+                                    userId = state.email,
+                                    username = dbUsername,
+                                    email = state.email
+                                )
+                                UserRepository.setUser(user)
+
                                 _uiState.update { 
                                     it.copy(
                                         isLoading = false, 
@@ -84,10 +91,15 @@ class LoginViewModel : ViewModel() {
 
     fun clearError() { _uiState.update { it.copy(errorMessage = null) } }
     
-    /**
-     * Setzt den Login-Status zurück (Logout).
-     */
     fun resetLoginStatus() {
         _uiState.update { it.copy(isLoggedIn = false, password = "") }
+    }
+
+    /**
+     * Meldet den Nutzer ab und löscht die Sitzung.
+     */
+    fun logout() {
+        UserRepository.setUser(null)
+        _uiState.update { LoginUiState() }
     }
 }

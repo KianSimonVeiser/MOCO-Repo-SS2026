@@ -113,7 +113,6 @@ val previewCommentList = listOf(
 @Composable
 fun DetailScreenPreview() {
     DetailScreen(
-        connection = previewConnection,
-        comments = previewCommentList
+        connection = previewConnection
     )
 }

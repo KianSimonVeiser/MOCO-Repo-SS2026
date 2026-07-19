@@ -1,31 +1,21 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.moco.DBNavigatorAlternative.domain.model.Comment
 import com.moco.DBNavigatorAlternative.domain.model.Connection
+import com.moco.DBNavigatorAlternative.domain.model.StationComment
 
 @Composable
 fun CommentsBottomSheet(
-    comments: List<Comment>,
+    comments: List<StationComment>,
     connection: Connection,
     newCommentText: String,
     selectedSegmentId: String,
@@ -34,6 +24,7 @@ fun CommentsBottomSheet(
     onSegmentMenuClick: () -> Unit,
     onSegmentMenuDismiss: () -> Unit,
     onSegmentSelected: (String) -> Unit,
+    onSendClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val selectedSegment = connection.segments.firstOrNull { segment ->
@@ -46,77 +37,89 @@ fun CommentsBottomSheet(
             .padding(top = 8.dp)
     ) {
         Text(
-            text = "${comments.size} Kommentare",
+            text = "Kommentare zu ${selectedSegment?.departureStop?.name ?: "Bahnhof"}",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(
-                horizontal = 16.dp,
-                vertical = 8.dp
-            )
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
         HorizontalDivider()
 
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(
-                vertical = 8.dp
-            )
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false),
+            contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            items(comments) { comment ->
-                CommentRow(
-                    comment = comment
-                )
+            if (comments.isEmpty()) {
+                item {
+                    Text(
+                        "Noch keine Kommentare vorhanden.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                items(comments) { comment ->
+                    CommentRow(comment = comment)
+                }
             }
         }
+
+        HorizontalDivider()
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = 16.dp,
-                    vertical = 8.dp
-                )
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
-                value = newCommentText,
-                onValueChange = onCommentTextChanged,
-                label = {
-                    Text("Kommentar schreiben")
-                },
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Box {
-                OutlinedButton(
-                    onClick = onSegmentMenuClick
-                ) {
-                    Text(
-                        text = selectedSegment?.train?.line
-                            ?: "Verbindungsabschnitt auswählen"
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = segmentMenuExpanded,
-                    onDismissRequest = onSegmentMenuDismiss
-                ) {
-                    connection.segments.forEach { segment ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = "${segment.train.line}: ${segment.departureStop.name} → ${segment.arrivalStop.name}"
-                                )
-                            },
-                            onClick = {
-                                onSegmentSelected(segment.id)
-                            }
+            Column(modifier = Modifier.weight(1f)) {
+                Box {
+                    OutlinedButton(
+                        onClick = onSegmentMenuClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (selectedSegment != null) 
+                                "${selectedSegment.departureStop.name} (Gleis ${selectedSegment.departureStop.platform})" 
+                                else "Bahnhof auswählen"
                         )
                     }
+
+                    DropdownMenu(
+                        expanded = segmentMenuExpanded,
+                        onDismissRequest = onSegmentMenuDismiss
+                    ) {
+                        connection.segments.forEach { segment ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = "${segment.departureStop.name} (Gleis ${segment.departureStop.platform})")
+                                },
+                                onClick = {
+                                    onSegmentSelected(segment.id)
+                                }
+                            )
+                        }
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = newCommentText,
+                    onValueChange = onCommentTextChanged,
+                    placeholder = { Text("Hier kommentieren...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        IconButton(onClick = onSendClick, enabled = newCommentText.isNotBlank()) {
+                            Icon(Icons.Default.Send, contentDescription = "Senden")
+                        }
+                    }
+                )
             }
         }
+        
+        Spacer(modifier = Modifier.height(32.dp)) // Padding für BottomSheet
     }
 }

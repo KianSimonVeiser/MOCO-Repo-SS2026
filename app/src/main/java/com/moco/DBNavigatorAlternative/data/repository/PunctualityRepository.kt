@@ -31,7 +31,7 @@ class PunctualityRepository {
         return try {
             // Die 'line' enthält bereits das Format "TYP NUMMER" (z.B. "ICE 572")
             val trainIds = connection.segments.map { it.train.line }
-
+            
             // Server-Anfrage
             apiService.getConnectionForecast(trainIds)
         } catch (e: Exception) {
@@ -46,7 +46,7 @@ class PunctualityRepository {
      */
     private fun calculatePunctualityLocally(connection: Connection): PunctualityInfo {
         var score = 9.0f
-        val hasLongDistance = connection.segments.any { it.train.type == TrainType.ICE || it.train.type == TrainType.IC }
+        val hasLongDistance = connection.segments.any { (it.train.type == TrainType.ICE) || (it.train.type == TrainType.IC) }
         if (hasLongDistance) score -= 2.0f
         score -= (connection.transferCount * 1.5f)
 
@@ -54,7 +54,11 @@ class PunctualityRepository {
         if (hasLongDistance) lossProb += 0.15f
         lossProb += (connection.transferCount * 0.12f)
 
-        val segmentScore = connection.segments.mapNotNull { it.punctualityScore }.average()
+        val segmentScore = connection.segments
+            .asSequence()
+            .mapNotNull { it.punctualityScore }
+            .average()
+            
         if (!segmentScore.isNaN()) {
             score = (score + segmentScore.toFloat()) / 2
         }

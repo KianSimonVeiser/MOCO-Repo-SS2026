@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
-import com.moco.DBNavigatorAlternative.presentation.detail.previewCommentList
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 
 /**
@@ -27,8 +26,7 @@ fun ConnectionSelectionScreen(
     if (selectedConnection != null) {
         // Zeige die Detailansicht, wenn eine Verbindung ausgewählt wurde
         DetailScreen(
-            connection = selectedConnection,
-            comments = previewCommentList
+            connection = selectedConnection
         )
         
         // Fängt den Zurück-Button ab, um zur Liste zurückzukehren statt die App zu schließen
@@ -52,16 +50,23 @@ fun ConnectionSelectionScreen(
                 
                 // Dynamische Liste der Zugverbindungen
                 items(connections) { connection ->
-                    // Starte das Laden der Pünktlichkeitsdaten, falls noch nicht im Cache
+                    // Starte das Laden der Pünktlichkeitsdaten und Bahnhofsbewertungen
                     LaunchedEffect(connection.id) {
                         viewModel.loadPunctualityInfo(connection)
+                        connection.segments.firstOrNull()?.departureStop?.id?.let {
+                            viewModel.loadStationRating(it)
+                        }
                     }
 
                     ConnectionCard(
                         connection = connection,
                         punctualityInfo = viewModel.getPunctualityInfo(connection),
-                        onClick = { viewModel.onConnectionSelected(connection) }
-                    )
+                        stationRating = connection.segments.firstOrNull()?.departureStop?.id?.let {
+                            viewModel.getStationRating(it)
+                        }
+                    ) {
+                        viewModel.onConnectionSelected(connection)
+                    }
                 }
             }
         }
