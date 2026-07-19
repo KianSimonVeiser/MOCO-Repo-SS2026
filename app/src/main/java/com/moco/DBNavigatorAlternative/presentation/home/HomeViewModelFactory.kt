@@ -7,7 +7,7 @@ import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import com.moco.DBNavigatorAlternative.presentation.home.HomeViewModel.Companion.dbNavApiServiceInstance
 
-class Factory : ViewModelProvider.Factory {
+class HomeViewModelFactory : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(

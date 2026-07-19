@@ -3,7 +3,6 @@ package com.moco.DBNavigatorAlternative.presentation.generalUse
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
@@ -11,10 +10,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,26 +35,36 @@ fun SimpleSearchBar(
     // Controls expansion state of the search bar
     var expanded by rememberSaveable { mutableStateOf(false) }
 
+    // Automatisch ausklappen, wenn mehr als ein Ergebnis vorliegt (z.B. nach Standortabfrage)
+    LaunchedEffect(searchResults) {
+        if (searchResults.size > 1) {
+            expanded = true
+        }
+    }
+
     Box(
         modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .semantics { isTraversalGroup = true }
     ) {
-        SearchBar(
+        DockedSearchBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .semantics { traversalIndex = 0f },
             inputField = {
                 SearchBarDefaults.InputField(
                     query = textFieldState.text.toString(),
-                    onQueryChange = { textFieldState.edit { replace(0, length, it) } },
+                    onQueryChange = {
+                        textFieldState.edit { replace(0, length, it) }
+                        onSearch(textFieldState.text.toString()) //Suche wird schon bei Eingabe ausgelöst
+                    },
                     onSearch = {
                         onSearch(textFieldState.text.toString())
                         expanded = false
                     },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    placeholder = { Text("Search") }
+                    placeholder = { Text("Suche...") }
                 )
             },
             expanded = expanded,
