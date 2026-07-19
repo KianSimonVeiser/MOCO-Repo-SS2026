@@ -98,11 +98,14 @@ fun HomeScreen(
 
                 // --- 5. SEKTION: DER SUCH-BUTTON ---
                 SearchButton(
-                    onClick = { /* Hier würde dief Suche ausgelöst werden */ }
+                    onClick = { /* Hier würde die Suche ausgelöst werden */ }
                 )
 
                 // --- 6. SEKTION: MEINE FAVORITEN ---
-                FavoritesSection()
+                FavoritesSection(
+                    favorites = uiState.favorites,
+                    onFavoriteClick = { viewModel.onFavoriteClicked(it) }
+                )
             }
         }
     }

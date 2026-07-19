@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
+import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +22,9 @@ import java.util.*
  * Es ist entkoppelt von der UI und beobachtet das model
  */
 class HomeViewModel(
-    private val locationRepository: LocationRepository
+    private val locationRepository: LocationRepository,
+    private val interactionRepository: InteractionRepository = InteractionRepository(),
+    private val userRepository: UserRepository = UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -38,9 +43,38 @@ class HomeViewModel(
                 time = String.format(Locale.GERMANY, "%02d:%02d", now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE))
             )
         }
+
+        // Favoriten beobachten, sobald ein Nutzer angemeldet ist
+        observeFavorites()
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            userRepository.currentUser.collect { user ->
+                if (user != null) {
+                    interactionRepository.getFavorites(user.userId).collect { favs ->
+                        _uiState.update { it.copy(favorites = favs) }
+                    }
+                } else {
+                    _uiState.update { it.copy(favorites = emptyList()) }
+                }
+            }
+        }
     }
 
     // --- Funktionen für die UI-Interaktionen ---
+
+    /**
+     * Klick auf einen Favoriten füllt die Felder automatisch aus.
+     */
+    fun onFavoriteClicked(favorite: FavoriteConnection) {
+        _uiState.update { 
+            it.copy(
+                from = favorite.fromStation,
+                to = favorite.toStation
+            )
+        }
+    }
 
     fun onFromChanged(newVal: String) { _uiState.update { it.copy(from = newVal) } }
 

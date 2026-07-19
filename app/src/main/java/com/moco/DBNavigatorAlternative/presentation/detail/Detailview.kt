@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
+import com.moco.DBNavigatorAlternative.presentation.profile.ProfilePopup
 
 @Composable
 fun DetailScreen(
@@ -35,7 +36,7 @@ fun DetailScreen(
     DetailScreenContent(
         connection = connection,
         uiState = uiState,
-        onWarningEnabledChanged = viewModel::onWarningEnabledChanged,
+        onFavoriteToggle = { viewModel.onFavoriteToggle(connection) },
         onCommentsClick = viewModel::showCommentSheet,
         onDismissCommentSheet = viewModel::hideCommentSheet,
         onCommentTextChanged = viewModel::onCommentTextChanged,
@@ -47,6 +48,14 @@ fun DetailScreen(
             viewModel.submitRating(stationId, rating)
         }
     )
+
+    // Authentifizierungs-Warnung
+    if (uiState.showAuthWarning) {
+        ProfilePopup(
+            text = "Bitte melde dich an, um Verbindungen zu speichern.",
+            onDismiss = { viewModel.dismissAuthWarning() }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +63,7 @@ fun DetailScreen(
 fun DetailScreenContent(
     connection: Connection,
     uiState: DetailUiState,
-    onWarningEnabledChanged: (Boolean) -> Unit,
+    onFavoriteToggle: () -> Unit,
     onCommentsClick: () -> Unit,
     onDismissCommentSheet: () -> Unit,
     onCommentTextChanged: (String) -> Unit,
@@ -70,11 +79,11 @@ fun DetailScreenContent(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Verbindung speichern",
+                title = if (uiState.isFavorite) "Verbindung gespeichert" else "Verbindung speichern",
                 actions = {
                     Switch(
-                        checked = uiState.isWarningEnabled,
-                        onCheckedChange = onWarningEnabledChanged
+                        checked = uiState.isFavorite,
+                        onCheckedChange = { onFavoriteToggle() }
                     )
                 }
             )

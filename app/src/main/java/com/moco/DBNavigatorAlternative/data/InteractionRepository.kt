@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.moco.DBNavigatorAlternative.domain.model.StationComment
 import com.moco.DBNavigatorAlternative.domain.model.StationRating
 import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -18,6 +19,7 @@ class InteractionRepository(
     private val ratingsCollection = firestore.collection("ratings")
     private val stationSummariesCollection = firestore.collection("stationSummaries")
     private val countersCollection = firestore.collection("metadata")
+    private val favoritesCollection = firestore.collection("favorites")
 
     suspend fun addComment(comment: StationComment) {
         val counterRef = countersCollection.document("comment_counter")
@@ -85,5 +87,63 @@ class InteractionRepository(
     suspend fun getStationRatingSummary(stationId: String): StationRatingSummary? {
         return stationSummariesCollection.document(stationId).get().await()
             .toObject(StationRatingSummary::class.java)
+    }
+
+    /**
+     * Speichert eine Verbindung als Favorit.
+     */
+    suspend fun addFavorite(favorite: FavoriteConnection) {
+        val docId = "${favorite.userId}_${favorite.fromStation}_${favorite.toStation}"
+        favoritesCollection.document(docId).set(favorite).await()
+    }
+
+    /**
+     * Entfernt eine Verbindung aus den Favoriten.
+     */
+    suspend fun removeFavorite(userId: String, from: String, to: String) {
+        val docId = "${userId}_${from}_${to}"
+        favoritesCollection.document(docId).delete().await()
+    }
+
+    /**
+     * Prüft, ob eine Verbindung favorisiert ist.
+     */
+    suspend fun isFavorite(userId: String, from: String, to: String): Boolean {
+        val docId = "${userId}_${from}_${to}"
+        return favoritesCollection.document(docId).get().await().exists()
+    }
+
+    /**
+     * Lädt alle Favoriten eines Nutzers als Flow.
+     */
+    fun getFavorites(userId: String): Flow<List<FavoriteConnection>> = callbackFlow {
+        val listener = favoritesCollection.whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val favorites = snapshot.toObjects(FavoriteConnection::class.java)
+                    trySend(favorites.sortedByDescending { it.timestamp })
+                }
+            }
+        awaitClose { listener.remove() }
+    }
+
+    /**
+     * Löscht alle Favoriten eines Nutzers.
+     */
+    suspend fun clearAllFavorites(userId: String) {
+        try {
+            val snapshot = favoritesCollection.whereEqualTo("userId", userId).get().await()
+            val batch = firestore.batch()
+            snapshot.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.moco.DBNavigatorAlternative.data.InteractionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +25,9 @@ data class SettingsUiState(
 /**
  * ViewModel zur Verwaltung der Benutzereinstellungen in Firebase.
  */
-class SettingsViewModel : ViewModel() {
+class SettingsViewModel(
+    private val interactionRepository: InteractionRepository = InteractionRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState = _uiState.asStateFlow()
@@ -109,7 +112,19 @@ class SettingsViewModel : ViewModel() {
     }
 
     fun deleteFavoriteConnections() {
-        _uiState.update { it.copy(errorMessage = "Funktion 'Favoriten löschen' folgt bald") }
+        if (userEmail.isBlank()) return
+        _uiState.update { it.copy(isLoading = true) }
+        
+        viewModelScope.launch {
+            interactionRepository.clearAllFavorites(userEmail)
+            _uiState.update { 
+                it.copy(
+                    isLoading = false, 
+                    isSuccess = true,
+                    errorMessage = null 
+                ) 
+            }
+        }
     }
 
     fun clearStatus() {

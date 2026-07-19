@@ -8,6 +8,7 @@ import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.StationComment
 import com.moco.DBNavigatorAlternative.domain.model.StationRating
+import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,14 @@ class DetailViewModel(
         viewModelScope.launch {
             val punctualityInfo = punctualityRepository.getPunctualityForConnection(connection)
             
+            // Favoriten-Status prüfen
+            val currentUser = userRepository.currentUser.value
+            val isFav = if (currentUser != null) {
+                val from = connection.segments.firstOrNull()?.departureStop?.name.orEmpty()
+                val to = connection.segments.lastOrNull()?.arrivalStop?.name.orEmpty()
+                interactionRepository.isFavorite(currentUser.userId, from, to)
+            } else false
+
             _uiState.update { currentState ->
                 val firstSegment = connection.segments.firstOrNull()
                 val selectedId = currentState.selectedSegmentId.ifBlank {
@@ -38,7 +47,8 @@ class DetailViewModel(
                 
                 currentState.copy(
                     selectedSegmentId = selectedId,
-                    punctualityInfo = punctualityInfo
+                    punctualityInfo = punctualityInfo,
+                    isFavorite = isFav
                 )
             }
             
@@ -65,6 +75,44 @@ class DetailViewModel(
 
     fun onWarningEnabledChanged(isEnabled: Boolean) {
         _uiState.update { it.copy(isWarningEnabled = isEnabled) }
+    }
+
+    /**
+     * Toggled den Favoriten-Status der aktuellen Verbindung.
+     */
+    fun onFavoriteToggle(connection: Connection) {
+        val currentUser = userRepository.currentUser.value
+        
+        // Prüfung: Ist der Nutzer angemeldet?
+        if (currentUser == null) {
+            _uiState.update { it.copy(showAuthWarning = true) }
+            return
+        }
+
+        val currentState = _uiState.value
+        val isCurrentlyFav = currentState.isFavorite
+        
+        val from = connection.segments.firstOrNull()?.departureStop?.name.orEmpty()
+        val to = connection.segments.lastOrNull()?.arrivalStop?.name.orEmpty()
+
+        viewModelScope.launch {
+            if (isCurrentlyFav) {
+                interactionRepository.removeFavorite(currentUser.userId, from, to)
+                _uiState.update { it.copy(isFavorite = false) }
+            } else {
+                val favorite = FavoriteConnection(
+                    userId = currentUser.userId,
+                    fromStation = from,
+                    toStation = to
+                )
+                interactionRepository.addFavorite(favorite)
+                _uiState.update { it.copy(isFavorite = true) }
+            }
+        }
+    }
+
+    fun dismissAuthWarning() {
+        _uiState.update { it.copy(showAuthWarning = false) }
     }
 
     fun showCommentSheet() {

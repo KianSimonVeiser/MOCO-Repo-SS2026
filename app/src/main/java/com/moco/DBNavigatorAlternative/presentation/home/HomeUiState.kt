@@ -1,5 +1,7 @@
 package com.moco.DBNavigatorAlternative.presentation.home
 
+import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
+
 /**
  * Repräsentiert den kompletten Zustand der Startseite.
  * Ist das Model im MVVM
@@ -15,5 +17,6 @@ data class HomeUiState(
     val showDatePicker: Boolean = false,// Steuert die Sichtbarkeit des Kalenders
     val showTimePicker: Boolean = false, // Steuert die Sichtbarkeit der Uhr
     val locationNeeded: Boolean = false,
-    val location: String = ""
+    val location: String = "",
+    val favorites: List<FavoriteConnection> = emptyList() // NEU: Favorisierte Verbindungen
 )
