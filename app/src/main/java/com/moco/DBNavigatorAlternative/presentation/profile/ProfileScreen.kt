@@ -19,13 +19,17 @@ fun ProfileScreen() {
     var screenState by remember { mutableStateOf("login") }
     var popupMessage by remember { mutableStateOf<String?>(null) }
     var showEmailDialog by remember { mutableStateOf(false) }
-    
+
     // Beobachte den globalen Nutzerstatus
     val currentUser by UserRepository.currentUser.collectAsState()
 
-    // Wenn ein Nutzer angemeldet ist, zeigen wir den LoggedInScreen
+    // NEU: Variablen für die Anzeige definieren
+    val currentUsername = currentUser?.username ?: ""
+    val currentEmail = currentUser?.email ?: ""
+
+    // LOGIK ANPASSEN: Erlaubt den Wechsel zu "settings", auch wenn man eingeloggt ist
     val currentView = if (currentUser != null) {
-        "loggedIn"
+        if (screenState == "settings") "settings" else "loggedIn"
     } else {
         screenState
     }
@@ -63,11 +67,12 @@ fun ProfileScreen() {
                     }
                 )
                 "settings" -> SettingsScreen(
-                    currentUsername = currentUsername,
-                    currentEmail = currentEmail,
+                    currentUsername = currentUsername, // Nutzt die neue Variable
+                    currentEmail = currentEmail,       // Nutzt die neue Variable
                     onBackClick = { screenState = "loggedIn" },
                     onAccountDeleted = {
                         popupMessage = "Dein Konto wurde gelöscht"
+                        UserRepository.setUser(null) // Nutzer abmelden
                         screenState = "login"
                     }
                 )
