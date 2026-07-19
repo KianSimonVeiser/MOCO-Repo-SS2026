@@ -1,7 +1,7 @@
 package com.moco.DBNavigatorAlternative.domain.model
 
 /**
- * Modell für eine vom Benutzer favorisierte Verbindung.
+ * Modell für eine vom Benutzer favorisierte Verbindung
  */
 data class FavoriteConnection(
     val favoriteId: String = "",
