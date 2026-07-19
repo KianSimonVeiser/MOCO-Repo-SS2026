@@ -20,7 +20,7 @@ fun ProfileScreen() {
     var popupMessage by remember { mutableStateOf<String?>(null) }
     var showEmailDialog by remember { mutableStateOf(false) }
 
-    // Beobachte den globalen Nutzerstatus
+    // Beobachte den globalen Nutzerstatus hiermit
     val currentUser by UserRepository.currentUser.collectAsState()
 
     // NEU: Variablen für die Anzeige definieren
