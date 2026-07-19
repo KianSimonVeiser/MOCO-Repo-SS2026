@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.domain.model.StationComment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,7 +20,8 @@ data class SettingsUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val isDeleted: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val userComments: List<StationComment> = emptyList() // NEU: Liste der eigenen Kommentare
 )
 
 /**
@@ -40,6 +42,15 @@ class SettingsViewModel(
     fun initUserData(username: String, email: String) {
         userEmail = email
         _uiState.update { it.copy(username = username) }
+        loadUserComments() // Lädt die Kommentare beim Start
+    }
+
+    private fun loadUserComments() {
+        if (userEmail.isBlank()) return
+        viewModelScope.launch {
+            val comments = interactionRepository.getCommentsForUser(userEmail)
+            _uiState.update { it.copy(userComments = comments) }
+        }
     }
 
     fun onUsernameChanged(newUsername: String) {
@@ -107,8 +118,32 @@ class SettingsViewModel(
         }
     }
 
+    /**
+     * Löscht alle Kommentare des Nutzers.
+     */
     fun deleteUserComments() {
-        _uiState.update { it.copy(errorMessage = "Funktion 'Kommentare löschen' folgt bald") }
+        if (userEmail.isBlank()) return
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            interactionRepository.clearAllUserComments(userEmail)
+            _uiState.update { 
+                it.copy(
+                    isLoading = false, 
+                    isSuccess = true,
+                    userComments = emptyList() 
+                ) 
+            }
+        }
+    }
+
+    /**
+     * Löscht einen einzelnen Kommentar.
+     */
+    fun deleteSingleComment(commentId: String) {
+        viewModelScope.launch {
+            interactionRepository.deleteComment(commentId)
+            loadUserComments() // Liste aktualisieren
+        }
     }
 
     fun deleteFavoriteConnections() {

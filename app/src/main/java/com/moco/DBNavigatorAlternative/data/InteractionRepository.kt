@@ -90,6 +90,42 @@ class InteractionRepository(
     }
 
     /**
+     * Lädt alle Kommentare eines spezifischen Nutzers.
+     */
+    suspend fun getCommentsForUser(userId: String): List<StationComment> {
+        return try {
+            val snapshot = commentsCollection.whereEqualTo("userId", userId).get().await()
+            snapshot.toObjects(StationComment::class.java).sortedByDescending { it.timestamp }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    /**
+     * Löscht einen spezifischen Kommentar anhand seiner ID.
+     */
+    suspend fun deleteComment(commentId: String) {
+        commentsCollection.document(commentId).delete().await()
+    }
+
+    /**
+     * Löscht alle Kommentare eines Nutzers.
+     */
+    suspend fun clearAllUserComments(userId: String) {
+        try {
+            val snapshot = commentsCollection.whereEqualTo("userId", userId).get().await()
+            val batch = firestore.batch()
+            snapshot.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit().await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
      * Speichert eine Verbindung als Favorit.
      */
     suspend fun addFavorite(favorite: FavoriteConnection) {

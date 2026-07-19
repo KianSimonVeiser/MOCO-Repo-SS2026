@@ -3,17 +3,19 @@ package com.moco.DBNavigatorAlternative.presentation.profile
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moco.DBNavigatorAlternative.domain.model.StationComment
 
 /**
  * Der Einstellungsbildschirm der Anwendung.
@@ -76,15 +78,47 @@ fun SettingsScreen(
             }
         }
 
-        // SEKTION: Datenverwaltung
-        ProfileSectionCard(title = "Datenverwaltung") {
+        // SEKTION: Meine Kommentare
+        ProfileSectionCard(title = "Meine Kommentare") {
+            if (uiState.userComments.isEmpty()) {
+                Text(
+                    text = "Keine Kommentare vorhanden.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            } else {
+                uiState.userComments.forEachIndexed { index, comment ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = comment.stationName, style = MaterialTheme.typography.labelLarge)
+                            Text(text = comment.content, style = MaterialTheme.typography.bodySmall)
+                        }
+                        IconButton(onClick = { viewModel.deleteSingleComment(comment.commentId) }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Löschen", tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                    if (index < uiState.userComments.size - 1) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             ProfileButton(
-                text = "Meine Kommentare löschen",
+                text = "Alle Kommentare löschen",
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 onClick = { viewModel.deleteUserComments() }
             )
+        }
 
+        // SEKTION: Datenverwaltung (Favoriten)
+        ProfileSectionCard(title = "Datenverwaltung") {
             ProfileButton(
                 text = "Favoriten löschen",
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
