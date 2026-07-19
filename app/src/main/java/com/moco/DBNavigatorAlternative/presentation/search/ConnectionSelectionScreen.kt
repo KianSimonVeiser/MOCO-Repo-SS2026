@@ -19,14 +19,13 @@ import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 fun ConnectionSelectionScreen(
     viewModel: SearchViewModel = viewModel(factory = SearchViewModel.Factory)
 ) {
-    // Status der UI aus dem ViewModel beziehen
-    val connections = viewModel.connections
-    val selectedConnection = viewModel.selectedConnection
+    // Status der UI aus dem ViewModel beobachten
+    val uiState by viewModel.uiState.collectAsState()
 
-    if (selectedConnection != null) {
+    if (uiState.selectedConnection != null) {
         // Zeige die Detailansicht, wenn eine Verbindung ausgewählt wurde
         DetailScreen(
-            connection = selectedConnection
+            connection = uiState.selectedConnection!!
         )
         
         // Fängt den Zurück-Button ab, um zur Liste zurückzukehren statt die App zu schließen
@@ -45,11 +44,20 @@ fun ConnectionSelectionScreen(
             ) {
                 // Der Suchbereich wird als erstes Element in der Liste mitgescrollt
                 item {
-                    SearchHeader(viewModel = viewModel)
+                    SearchHeader(
+                        uiState = uiState,
+                        onFromChanged = { viewModel.onFromChanged(it) },
+                        onToChanged = { viewModel.onToChanged(it) },
+                        onLocationNeeded = { viewModel.onLocationNeeded() },
+                        onLocationDismissed = { viewModel.onLocationDismissed() },
+                        onLocationAccepted = { viewModel.onLocationAccepted() },
+                        onToggleDatePicker = { viewModel.toggleDatePicker(it) },
+                        onDateSelected = { viewModel.onDateSelected(it) }
+                    )
                 }
                 
                 // Dynamische Liste der Zugverbindungen
-                items(connections) { connection ->
+                items(uiState.connections) { connection ->
                     // Starte das Laden der Pünktlichkeitsdaten und Bahnhofsbewertungen
                     LaunchedEffect(connection.id) {
                         viewModel.loadPunctualityInfo(connection)
@@ -63,10 +71,11 @@ fun ConnectionSelectionScreen(
                         punctualityInfo = viewModel.getPunctualityInfo(connection),
                         stationRating = connection.segments.firstOrNull()?.departureStop?.id?.let {
                             viewModel.getStationRating(it)
+                        },
+                        onClick = {
+                            viewModel.onConnectionSelected(connection)
                         }
-                    ) {
-                        viewModel.onConnectionSelected(connection)
-                    }
+                    )
                 }
             }
         }

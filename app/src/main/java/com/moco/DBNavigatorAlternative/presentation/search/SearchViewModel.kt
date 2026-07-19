@@ -1,20 +1,24 @@
 package com.moco.DBNavigatorAlternative.presentation.search
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.util.Log
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
 import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
+import com.moco.DBNavigatorAlternative.presentation.home.HomeViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -22,94 +26,177 @@ import java.util.Locale
 
 /**
  * ViewModel für die Verbindungssuche.
- * Verwaltet Suchparameter, Standortabfrage,
- * Suchergebnisse, Pünktlichkeitsinformationen und Bahnhofsbewertungen.
+ * Verwaltet Suchparameter, Standortabfrage, Suchergebnisse, 
+ * Pünktlichkeitsinformationen und Bahnhofsbewertungen.
  */
 class SearchViewModel(
     private val locationRepository: LocationRepository,
+    private val dbNavApiService: DBNavApiService,
     private val punctualityRepository: PunctualityRepository = PunctualityRepository(),
     private val interactionRepository: InteractionRepository = InteractionRepository()
 ) : ViewModel() {
 
-    // Suchparameter
-    var from by mutableStateOf("")
-        private set
-    var to by mutableStateOf("")
-        private set
-    var date by mutableStateOf("")
-        private set
-    var showDatePicker by mutableStateOf(false)
-        private set
-
-    // Steuert den Dialog für die Standortabfrage
-    var locationNeeded by mutableStateOf(false)
-        private set
+    private val _uiState = MutableStateFlow(SearchUiState())
+    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     private val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
 
-    // Cache für Pünktlichkeitsinformationen
-    private val _punctualityCache = mutableStateMapOf<String, PunctualityInfo>()
-    
-    // Cache für Bahnhofsbewertungen
-    private val _stationRatingCache = mutableStateMapOf<String, StationRatingSummary>()
-
     init {
-        date = dateFormatter.format(Date())
-    }
-
-    // Suchparameter ändern
-    fun onFromChanged(newValue: String) { from = newValue }
-    fun onToChanged(newValue: String) { to = newValue }
-    fun toggleDatePicker(show: Boolean) { showDatePicker = show }
-    fun onDateSelected(millis: Long?) {
-        millis?.let { date = dateFormatter.format(Date(it)) }
-        showDatePicker = false
-    }
-
-    // Standortabfrage
-    fun onLocationNeeded() { locationNeeded = true }
-    fun onLocationDismissed() { locationNeeded = false }
-    fun onLocationAccepted() {
-        viewModelScope.launch {
-            val location = locationRepository.getCurrentLocation()
-            if (location != null) { from = location }
-            locationNeeded = false
+        _uiState.update {
+            it.copy(
+                date = dateFormatter.format(Date()),
+                connections = getMockConnections()
+            )
         }
     }
 
-    // Suchergebnisse
-    var connections by mutableStateOf(getMockConnections())
-        private set
-    var selectedConnection by mutableStateOf<Connection?>(null)
-        private set
-    fun onConnectionSelected(connection: Connection?) { selectedConnection = connection }
+    // ---------------------------------------------------------
+    // Suchparameter
+    // ---------------------------------------------------------
 
-    // Pünktlichkeitsinformationen laden
+    fun onFromChanged(newValue: TextFieldState) {
+        val query = newValue.text.toString()
+        val results = if (query.isBlank()) {
+            emptyList()
+        } else {
+            listOf("Darmstadt Hbf", "Frankfurt(Main)Hbf", "Berlin Hbf")
+                .filter { it.contains(query, ignoreCase = true) }
+        }
+
+        _uiState.update {
+            it.copy(
+                fromTextFieldState = newValue,
+                fromSearchResult = results
+            )
+        }
+    }
+
+    fun onToChanged(newValue: TextFieldState) {
+        val query = newValue.text.toString()
+        val results = if (query.isBlank()) {
+            emptyList()
+        } else {
+            listOf("München Hbf", "Hamburg Hbf", "Köln Hbf")
+                .filter { it.contains(query, ignoreCase = true) }
+        }
+
+        _uiState.update {
+            it.copy(
+                toTextFieldState = newValue,
+                toSearchResult = results
+            )
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Datum
+    // ---------------------------------------------------------
+
+    fun toggleDatePicker(show: Boolean) {
+        _uiState.update { it.copy(showDatePicker = show) }
+    }
+
+    fun onDateSelected(millis: Long?) {
+        millis?.let {
+            val selectedDate = dateFormatter.format(Date(it))
+            _uiState.update {
+                it.copy(
+                    date = selectedDate,
+                    showDatePicker = false
+                )
+            }
+        } ?: _uiState.update { it.copy(showDatePicker = false) }
+    }
+
+    // ---------------------------------------------------------
+    // Standortabfrage
+    // ---------------------------------------------------------
+
+    fun onLocationNeeded() {
+        _uiState.update { it.copy(locationNeeded = true) }
+    }
+
+    fun onLocationDismissed() {
+        _uiState.update { it.copy(locationNeeded = false) }
+    }
+
+    fun onLocationAccepted() {
+        viewModelScope.launch {
+            try {
+                val locationObject = locationRepository.getCurrentLocation()
+
+                if (locationObject != null) {
+                    val nearbyStations = dbNavApiService.getNearbyStations(
+                        locationObject.latitude,
+                        locationObject.longitude
+                    )
+
+                    if (nearbyStations.isNotEmpty()) {
+                        val stationNames = nearbyStations.map { it.name }
+                        val nearestStation = stationNames.first()
+
+                        _uiState.value.fromTextFieldState.edit {
+                            replace(0, length, nearestStation)
+                        }
+
+                        _uiState.update {
+                            it.copy(fromSearchResult = stationNames)
+                        }
+                    }
+                }
+            } catch (exception: Exception) {
+                Log.e("SearchViewModel", "Fehler bei Standortabfrage", exception)
+            }
+            _uiState.update { it.copy(locationNeeded = false) }
+        }
+    }
+
+    // ---------------------------------------------------------
+    // Suchergebnisse & Pünktlichkeit
+    // ---------------------------------------------------------
+
+    fun onConnectionSelected(connection: Connection?) {
+        _uiState.update { it.copy(selectedConnection = connection) }
+    }
+
     fun loadPunctualityInfo(connection: Connection) {
-        if (_punctualityCache.containsKey(connection.id)) return
+        if (_uiState.value.punctualityCache.containsKey(connection.id)) return
+
         viewModelScope.launch {
             val info = punctualityRepository.getPunctualityForConnection(connection)
-            _punctualityCache[connection.id] = info
+            _uiState.update {
+                val newCache = it.punctualityCache.toMutableMap()
+                newCache[connection.id] = info
+                it.copy(punctualityCache = newCache)
+            }
         }
     }
 
     fun getPunctualityInfo(connection: Connection): PunctualityInfo? {
-        return _punctualityCache[connection.id]
+        return _uiState.value.punctualityCache[connection.id]
     }
 
-    // Bahnhofsbewertungen laden
+    // ---------------------------------------------------------
+    // Bahnhofsbewertungen
+    // ---------------------------------------------------------
+
     fun loadStationRating(stationId: String) {
-        if (_stationRatingCache.containsKey(stationId)) return
+        if (_uiState.value.stationRatingCache.containsKey(stationId)) return
+
         viewModelScope.launch {
             val summary = interactionRepository.getStationRatingSummary(stationId)
             if (summary != null) {
-                _stationRatingCache[stationId] = summary
+                _uiState.update {
+                    val newCache = it.stationRatingCache.toMutableMap()
+                    newCache[stationId] = summary
+                    it.copy(stationRatingCache = newCache)
+                }
             }
         }
     }
 
     fun getStationRating(stationId: String): StationRatingSummary? {
-        return _stationRatingCache[stationId]
+        return _uiState.value.stationRatingCache[stationId]
     }
 
     companion object {
@@ -120,6 +207,7 @@ class SearchViewModel(
                 val locationRepository = LocationRepositoryImpl(application.applicationContext)
                 return SearchViewModel(
                     locationRepository = locationRepository,
+                    dbNavApiService = HomeViewModel.dbNavApiServiceInstance,
                     punctualityRepository = PunctualityRepository(),
                     interactionRepository = InteractionRepository()
                 ) as T

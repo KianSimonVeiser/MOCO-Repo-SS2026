@@ -20,7 +20,7 @@ class LocationRepositoryImpl(
     private val fusedLocationClient =
         LocationServices.getFusedLocationProviderClient(context)
 
-    override suspend fun getCurrentLocation(): String? {
+    override suspend fun getCurrentLocation(): Location? {
         if (
             ActivityCompat.checkSelfPermission(
                 context,
@@ -35,35 +35,19 @@ class LocationRepositoryImpl(
         }
 
         return try {
-            // Versuche erst den letzten bekannten Standort (schnell)
-            var location: Location? = fusedLocationClient.lastLocation.await()
+            /*
+             * Auf Emulatoren ist lastLocation oft veraltet (USA-Koordinaten).
+             * Wir versuchen daher direkt eine frische Abfrage mit hoher Priorität.
+             */
+            val location = fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                CancellationTokenSource().token
+            ).await()
             
-            // Wenn kein letzter Standort bekannt ist (oft auf Emulatoren), fordere einen neuen an
-            if (location == null) {
-                location = fusedLocationClient.getCurrentLocation(
-                    Priority.PRIORITY_HIGH_ACCURACY,
-                    CancellationTokenSource().token
-                ).await()
-            }
-
-            location?.let {
-                /*getAddressFromLocation(it.latitude, it.longitude)*/
-                "${it.latitude}, ${it.longitude}"
-            }
+            // Falls das fehlschlägt, nehmen wir als Fallback den letzten bekannten Standort
+            location ?: fusedLocationClient.lastLocation.await()
         } catch (e: Exception) {
             null
-        }
-    }
-
-    private fun getAddressFromLocation(lat: Double, lon: Double): String {
-        return try {
-            val geocoder = Geocoder(context, Locale.getDefault())
-            val addresses = geocoder.getFromLocation(lat, lon, 1)
-            // Versuche den Stadtnamen zu bekommen, sonst Fallback auf Koordinaten
-            addresses?.firstOrNull()?.locality ?: "$lat, $lon"
-        } catch (e: Exception) {
-            // Bei Fehlern (z.B. kein Netzwerk) Koordinaten anzeigen
-            "$lat, $lon"
         }
     }
 }

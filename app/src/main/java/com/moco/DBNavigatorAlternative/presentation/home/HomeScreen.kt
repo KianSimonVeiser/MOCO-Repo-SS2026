@@ -1,6 +1,5 @@
 package com.moco.DBNavigatorAlternative.presentation.home
 
-import android.Manifest
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,12 +13,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
-import com.moco.DBNavigatorAlternative.presentation.generalUse.Location.checkLocationPermission
 import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchButton
 import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
+import com.moco.DBNavigatorAlternative.presentation.home.components.ArrivalDepartureSection
+import com.moco.DBNavigatorAlternative.presentation.home.components.DateTimeSection
+import com.moco.DBNavigatorAlternative.presentation.home.components.FavoritesSection
+import com.moco.DBNavigatorAlternative.presentation.home.components.TicketOptionSection
 import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 
 /**
@@ -29,9 +30,9 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
  */
 @Composable
 fun HomeScreen(
-
-    // Das ViewModel wird hier mit der Factory bereitgestellt
-    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+    viewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory()
+    )
 ) {
     // Wir beobachten den Zustand der Daten (uiState) aus dem ViewModel
     val uiState by viewModel.uiState.collectAsState()
@@ -59,15 +60,16 @@ fun HomeScreen(
             ) {
                 // --- 1. SEKTION: DIE SUCHE (VON/BIS) ---
                 SearchSection(
-                    fromValue = uiState.from,
-                    toValue = uiState.to,
+                    fromTextFieldState = uiState.fromTextFieldState,
+                    toTextFieldState = uiState.toTextFieldState,
                     locationNeeded = uiState.locationNeeded,
-                    locationValue = uiState.location,
-                    onFromChange = { viewModel.onFromChanged(it) },
+                    fromSearchResultValue = uiState.fromSearchResult,
+                    toSearchResultValue = uiState.toSearchResult,
+                    onFromChanged = { viewModel.onFromChanged(it) },
                     onToChange = { viewModel.onToChanged(it) },
-                    onLocationDismissed = {viewModel.onLocationDismissed()},
-                    onLocationClick = {viewModel.onLocationNeeded()},
-                    onLocationAccepted = {viewModel.onLocationAccepted()}
+                    onLocationDismissed = { viewModel.onLocationDismissed() },
+                    onLocationClick = { viewModel.onLocationNeeded() },
+                    onLocationAccepted = { viewModel.onLocationAccepted() }
                 )
 
                 // --- 2. SEKTION: DAS DATUM ---

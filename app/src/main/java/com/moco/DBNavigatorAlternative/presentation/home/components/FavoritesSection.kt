@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.presentation.home
+package com.moco.DBNavigatorAlternative.presentation.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

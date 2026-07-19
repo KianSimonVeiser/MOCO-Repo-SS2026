@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -13,43 +14,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
-import com.moco.DBNavigatorAlternative.presentation.home.DateTimeSection
+import com.moco.DBNavigatorAlternative.presentation.home.components.DateTimeSection
 
 /**
  * Der SearchHeader bündelt alle UI-Komponenten für die Verbindungssuche.
- * Er integriert die Sektionen für Start/Ziel und Datum/Uhrzeit.
- * Der Suchen-Button wurde entfernt, da die Suche automatisch aktualisiert.
- * Stattdessen gibt es Optionen für "Früher" und "Später".
  */
 @Composable
-fun SearchHeader(viewModel: SearchViewModel) {
+fun SearchHeader(
+    uiState: SearchUiState,
+    onFromChanged: (TextFieldState) -> Unit,
+    onToChanged: (TextFieldState) -> Unit,
+    onLocationNeeded: () -> Unit,
+    onLocationDismissed: () -> Unit,
+    onLocationAccepted: () -> Unit,
+    onToggleDatePicker: (Boolean) -> Unit,
+    onDateSelected: (Long?) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp),
-        // Abstand zwischen den einzelnen Such-Sektionen
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Eingabebereich für Start und Ziel
         SearchSection(
-            fromValue = viewModel.from,
-            locationNeeded = viewModel.locationNeeded,
-            toValue = viewModel.to,
-            locationValue = "",
-            onFromChange = { viewModel.onFromChanged(it) },
-            onToChange = { viewModel.onToChanged(it) },
-            onLocationClick = { viewModel.onLocationNeeded() },
-            onLocationDismissed = { viewModel.onLocationDismissed() },
-            onLocationAccepted = { viewModel.onLocationAccepted() }
+            fromTextFieldState = uiState.fromTextFieldState,
+            locationNeeded = uiState.locationNeeded,
+            toTextFieldState = uiState.toTextFieldState,
+            fromSearchResultValue = uiState.fromSearchResult,
+            toSearchResultValue = uiState.toSearchResult,
+            onFromChanged = onFromChanged,
+            onToChange = onToChanged,
+            onLocationClick = onLocationNeeded,
+            onLocationDismissed = onLocationDismissed,
+            onLocationAccepted = onLocationAccepted
         )
         
         // Auswahl für Datum und Uhrzeit
         DateTimeSection(
-            dateText = viewModel.date,
-            showDatePicker = viewModel.showDatePicker,
-            onDateClick = { viewModel.toggleDatePicker(true) },
-            onDateSelected = { viewModel.onDateSelected(it) },
-            onDismiss = { viewModel.toggleDatePicker(false) }
+            dateText = uiState.date,
+            showDatePicker = uiState.showDatePicker,
+            onDateClick = { onToggleDatePicker(true) },
+            onDateSelected = onDateSelected,
+            onDismiss = { onToggleDatePicker(false) }
         )
 
         // Früher / Später Optionen
