@@ -3,16 +3,14 @@ package com.moco.DBNavigatorAlternative.presentation.profile
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.data.UserRepository
+import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 
 /**
- * Zentraler Container für die Profil-Funktionalität.
+ * Orchestrator-Komponente für die profilbezogenen Ansichten.
  */
 @Composable
 fun ProfileScreen() {
@@ -20,14 +18,11 @@ fun ProfileScreen() {
     var popupMessage by remember { mutableStateOf<String?>(null) }
     var showEmailDialog by remember { mutableStateOf(false) }
 
-    // Beobachte den globalen Nutzerstatus hiermit
     val currentUser by UserRepository.currentUser.collectAsState()
 
-    // NEU: Variablen für die Anzeige definieren
     val currentUsername = currentUser?.username ?: ""
     val currentEmail = currentUser?.email ?: ""
 
-    // LOGIK ANPASSEN: Erlaubt den Wechsel zu "settings", auch wenn man eingeloggt ist
     val currentView = if (currentUser != null) {
         if (screenState == "settings") "settings" else "loggedIn"
     } else {
@@ -36,43 +31,47 @@ fun ProfileScreen() {
 
     Scaffold(
         topBar = { 
-            CustomProfileTopBar(title = if (currentView == "registration") "Registrierung" else "Profil")
+            val title = when (currentView) {
+                "registration" -> stringResource(id = R.string.register_button)
+                "settings" -> stringResource(id = R.string.settings_title)
+                else -> stringResource(id = R.string.profile_title)
+            }
+            AppTopBar(title = title)
         },
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize()) {
             when (currentView) {
                 "login" -> LoginScreen(
                     onLoginSuccess = { _, _ ->
-                        popupMessage = "Anmeldung erfolgreich"
-                        // Der Wechsel zu loggedIn passiert automatisch durch currentUser State
+                        popupMessage = "Willkommen zurück!"
                     },
                     onRegisterClick = { screenState = "registration" },
                     onForgotPasswordClick = { showEmailDialog = true }
                 )
                 "registration" -> RegistrationScreen(
                     onRegisterSuccess = { 
-                        popupMessage = "Registrierung Erfolgreich"
+                        popupMessage = "Registrierung erfolgreich."
                         screenState = "login" 
                     },
                     onBackToLogin = { screenState = "login" }
                 )
                 "loggedIn" -> LoggedInScreen(
-                    username = currentUser?.username ?: "",
-                    email = currentUser?.email ?: "",
+                    username = currentUsername,
+                    email = currentEmail,
                     onSettingsClick = { screenState = "settings" },
                     onLogoutClick = { 
                         UserRepository.setUser(null)
-                        popupMessage = "Erfolgreich Abgemeldet"
+                        popupMessage = "Abmeldung erfolgreich."
                         screenState = "login" 
                     }
                 )
                 "settings" -> SettingsScreen(
-                    currentUsername = currentUsername, // Nutzt die neue Variable
-                    currentEmail = currentEmail,       // Nutzt die neue Variable
+                    currentUsername = currentUsername,
+                    currentEmail = currentEmail,
                     onBackClick = { screenState = "loggedIn" },
                     onAccountDeleted = {
-                        popupMessage = "Dein Konto wurde gelöscht"
-                        UserRepository.setUser(null) // Nutzer abmelden
+                        popupMessage = "Konto gelöscht."
+                        UserRepository.setUser(null)
                         screenState = "login"
                     }
                 )
@@ -92,28 +91,8 @@ fun ProfileScreen() {
             onDismiss = { showEmailDialog = false },
             onConfirm = {
                 showEmailDialog = false
-                popupMessage = "Ihnen Wurde eine E-Mail zur Passwort-Änderung geschickt"
+                popupMessage = "Link versendet."
             }
         )
-    }
-}
-
-/**
- * Eine benutzerdefinierte Top-AppBar für den Profilbereich.
- */
-@Composable
-fun CustomProfileTopBar(title: String) {
-    Surface(
-        color = Color(0xFFE2D9FF),
-        modifier = Modifier.fillMaxWidth().height(100.dp)
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = title,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Black
-            )
-        }
     }
 }

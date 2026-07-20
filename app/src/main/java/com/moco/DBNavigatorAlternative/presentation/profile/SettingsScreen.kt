@@ -12,13 +12,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.moco.DBNavigatorAlternative.domain.model.StationComment
+import com.moco.DBNavigatorAlternative.R
 
 /**
- * Der Einstellungsbildschirm der Anwendung.
+ * Einstellungen zur Verwaltung des Benutzerprofils und der persönlichen Daten.
  */
 @Composable
 fun SettingsScreen(
@@ -51,12 +51,12 @@ fun SettingsScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // SEKTION: Profil bearbeiten
-        ProfileSectionCard(title = "Profil bearbeiten") {
+        // Profilverwaltung
+        ProfileSectionCard(title = stringResource(id = R.string.edit_profile)) {
             ProfileInputField(
                 value = uiState.username,
                 onValueChange = { viewModel.onUsernameChanged(it) },
-                placeholder = "Anzeigename"
+                placeholder = stringResource(id = R.string.username_label)
             )
             
             ProfileInputField(
@@ -68,18 +68,19 @@ fun SettingsScreen(
             
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
                 ProfileButton(
-                    text = "Änderungen speichern",
+                    text = stringResource(id = R.string.save_changes),
+                    containerColor = MaterialTheme.colorScheme.tertiary, // Pastel-Grün
                     onClick = { viewModel.saveAllSettings() }
                 )
             }
         }
 
-        // SEKTION: Meine Kommentare
-        ProfileSectionCard(title = "Meine Kommentare") {
+        // Benutzerkommentare
+        ProfileSectionCard(title = stringResource(id = R.string.comments)) {
             if (uiState.userComments.isEmpty()) {
                 Text(
                     text = "Keine Kommentare vorhanden.",
@@ -110,37 +111,34 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             ProfileButton(
-                text = "Alle Kommentare löschen",
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                text = stringResource(id = R.string.delete_comments),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer, // Pastel-Gelb
                 onClick = { viewModel.deleteUserComments() }
             )
         }
 
-        // SEKTION: Datenverwaltung (Favoriten)
-        ProfileSectionCard(title = "Datenverwaltung") {
+        // Favoritenverwaltung
+        ProfileSectionCard(title = stringResource(id = R.string.data_management)) {
             ProfileButton(
-                text = "Favoriten löschen",
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                text = stringResource(id = R.string.delete_favorites),
+                containerColor = MaterialTheme.colorScheme.secondaryContainer, // Pastel-Gelb
                 onClick = { viewModel.deleteFavoriteConnections() }
             )
         }
 
-        // Gefahrenzone
-        ProfileSectionCard(title = "Gefahrenzone") {
+        // Accountlöschung
+        ProfileSectionCard(title = stringResource(id = R.string.danger_zone)) {
             ProfileButton(
-                text = "Konto löschen",
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                text = stringResource(id = R.string.delete_account),
+                containerColor = MaterialTheme.colorScheme.error, // Pastel-Rot (Danger)
                 onClick = { viewModel.deleteAccount() }
             )
         }
 
         ProfileButton(
-            text = "Zurück zum Profil",
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = stringResource(id = R.string.back_to_profile),
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.primary,
             onClick = onBackClick
         )
         
@@ -149,7 +147,7 @@ fun SettingsScreen(
 
     if (uiState.isSuccess) {
         ProfilePopup(
-            text = "Änderungen erfolgreich gespeichert",
+            text = stringResource(id = R.string.save_changes) + " erfolgreich.",
             onDismiss = { viewModel.clearStatus() }
         )
     }

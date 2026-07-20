@@ -1,14 +1,7 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +15,9 @@ import androidx.compose.ui.unit.sp
 import com.moco.DBNavigatorAlternative.domain.model.ConnectionSegment
 import com.moco.DBNavigatorAlternative.domain.model.Stop
 
+/**
+ * Komponente zur Darstellung eines einzelnen Verbindungsabschnitts.
+ */
 @Composable
 fun ConnectionSegmentItem(
     connectionSegment: ConnectionSegment,
@@ -62,10 +58,10 @@ private fun ConnectionStop(
     stop: Stop
 ) {
     Text(
-        text = "${stop.time} - ${stop.name} - ${stop.platform}",
+        text = "${stop.time} - ${stop.name} - ${stop.platform ?: ""}",
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(horizontal = 10.dp),
-        fontSize = 20.sp
+        modifier = Modifier.padding(horizontal = 16.dp),
+        fontSize = 18.sp
     )
 }
 
@@ -75,11 +71,11 @@ private fun TrainProgressBar(
 ) {
     Box(
         modifier = Modifier
-            .padding(horizontal = 30.dp)
-            .width(6.dp)
-            .height(250.dp)
+            .padding(horizontal = 32.dp)
+            .width(4.dp)
+            .height(180.dp)
             .clip(RoundedCornerShape(50))
-            .background(Color.LightGray)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Box(
             modifier = Modifier

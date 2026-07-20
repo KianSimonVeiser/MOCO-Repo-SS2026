@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
@@ -28,13 +29,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
+import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.presentation.generalUse.Location.checkLocationPermission
 
 /**
  * DIE SUCHE-KARTE
+ * Komponente für die Auswahl von Start- und Zielbahnhof.
  */
 @Composable
 fun SearchSection(
@@ -70,12 +74,11 @@ fun SearchSection(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Reiseplanung",
+                text = stringResource(id = R.string.travel_planning),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Von
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -90,15 +93,43 @@ fun SearchSection(
                 )
 
                 IconButton(onClick = onLocationClick) {
+                OutlinedTextField(
+                    value = fromValue,
+                    onValueChange = onFromChange,
+                    label = { Text(stringResource(id = R.string.from_label)) },
+                    placeholder = { Text(stringResource(id = R.string.from_placeholder)) },
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null
+                        )
+                    },
+                    shape = MaterialTheme.shapes.medium
+                )
+
+                FilledIconButton(
+                    onClick = onLocationClick,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .padding(bottom = 4.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.MyLocation,
                         contentDescription = "Standort für Start verwenden"
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = stringResource(id = R.string.location_permission_rationale)
                     )
                 }
             }
 
             // Zu
             Row(
+            OutlinedTextField(
+                value = toValue,
+                onValueChange = onToChange,
+                label = { Text(stringResource(id = R.string.to_label)) },
+                placeholder = { Text(stringResource(id = R.string.to_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -130,6 +161,11 @@ fun SearchSection(
                                 IconButton(onClick = onLocationDismissed) {
                                     Icon(imageVector = Icons.Default.Close, contentDescription = "Schließen")
                                 }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(id = R.string.close_dialog)
+                                )
                             }
                         },
                         text = { Text("Um Stationen in deiner Nähe anzuzeigen, musst du den Standort freigeben.") },
@@ -137,9 +173,27 @@ fun SearchSection(
                             TextButton(onClick = {
                                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                     data = Uri.fromParts("package", context.packageName, null)
+                        }
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.location_permission_rationale)
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val intent = Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                ).apply {
+                                    data = Uri.fromParts(
+                                        "package",
+                                        context.packageName,
+                                        null
+                                    )
                                 }
                                 context.startActivity(intent)
-                            }) { Text("Zu den Einstellungen") }
+                            }) { Text(stringResource(id = R.string.go_to_settings)) }
                         }
                     )
                 } else {

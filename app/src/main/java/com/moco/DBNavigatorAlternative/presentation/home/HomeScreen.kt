@@ -24,8 +24,8 @@ import com.moco.DBNavigatorAlternative.presentation.home.components.TicketOption
 import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 
 /**
- * DER HOMESCREEN
- * Dies ist die Hauptseite der App. Sie ist nach dem MVVM-Muster aufgebaut
+ *+ DER HOMESCREEN
+ * Dies ist die Hauptseite der App! Sie ist nach dem MVVM-Muster aufgebaut
 
  */
 @Composable

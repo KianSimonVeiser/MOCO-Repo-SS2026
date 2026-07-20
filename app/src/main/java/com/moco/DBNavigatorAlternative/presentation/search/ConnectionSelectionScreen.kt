@@ -7,7 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 
@@ -45,7 +47,7 @@ fun ConnectionSelectionScreen(
     } else {
         // Standardansicht: Liste der Suchergebnisse
         Scaffold(
-            topBar = { AppTopBar(title = "Verbindungen") }
+            topBar = { AppTopBar(title = stringResource(id = R.string.connections_title)) }
         ) { innerPadding ->
             LazyColumn(
                 modifier = Modifier
