@@ -13,6 +13,9 @@ import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
+/**
+ * Implementierung des LocationRepository unter Verwendung von Google Play Services.
+ */
 class LocationRepositoryImpl(
     private val context: Context
 ) : LocationRepository {
@@ -35,10 +38,10 @@ class LocationRepositoryImpl(
         }
 
         return try {
-            // Versuche erst den letzten bekannten Standort (schnell)
+            // Abruf des zuletzt bekannten Standorts für eine schnelle Antwort
             var location: Location? = fusedLocationClient.lastLocation.await()
             
-            // Wenn kein letzter Standort bekannt ist (oft auf Emulatoren), fordere einen neuen an
+            // Fallback auf aktive Standortanfrage, falls kein Cache-Wert verfügbar ist
             if (location == null) {
                 location = fusedLocationClient.getCurrentLocation(
                     Priority.PRIORITY_HIGH_ACCURACY,
@@ -47,7 +50,6 @@ class LocationRepositoryImpl(
             }
 
             location?.let {
-                /*getAddressFromLocation(it.latitude, it.longitude)*/
                 "${it.latitude}, ${it.longitude}"
             }
         } catch (e: Exception) {
@@ -59,10 +61,8 @@ class LocationRepositoryImpl(
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())
             val addresses = geocoder.getFromLocation(lat, lon, 1)
-            // Versuche den Stadtnamen zu bekommen, sonst Fallback auf Koordinaten
             addresses?.firstOrNull()?.locality ?: "$lat, $lon"
         } catch (e: Exception) {
-            // Bei Fehlern (z.B. kein Netzwerk) Koordinaten anzeigen
             "$lat, $lon"
         }
     }

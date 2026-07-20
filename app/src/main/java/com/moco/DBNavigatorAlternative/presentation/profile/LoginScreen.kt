@@ -2,22 +2,18 @@ package com.moco.DBNavigatorAlternative.presentation.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moco.DBNavigatorAlternative.R
 
 /**
- * Der Login-Bildschirm für die Benutzeranmeldung.
+ * Anmeldebildschirm für registrierte Benutzer.
  */
 @Composable
 fun LoginScreen(
@@ -42,17 +38,17 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ProfileSectionCard(title = "Anmeldung") {
+        ProfileSectionCard(title = stringResource(id = R.string.login_button)) {
             ProfileInputField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChanged(it) },
-                placeholder = "E-Mail"
+                placeholder = stringResource(id = R.string.email_label)
             )
             
             ProfileInputField(
                 value = uiState.password,
                 onValueChange = { viewModel.onPasswordChanged(it) },
-                placeholder = "Passwort", 
+                placeholder = stringResource(id = R.string.password_label), 
                 isPassword = true
             )
             
@@ -60,11 +56,12 @@ fun LoginScreen(
             
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
                 ProfileButton(
-                    text = "Anmelden",
+                    text = stringResource(id = R.string.login_button),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant, // Nutzt das Pastel-Rot
                     onClick = { viewModel.login() }
                 )
             }
@@ -73,7 +70,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = "Passwort vergessen?",
+            text = stringResource(id = R.string.forgot_password),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { onForgotPasswordClick() }
@@ -82,7 +79,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(32.dp))
         
         Text(
-            text = "Noch kein Konto? Hier registrieren",
+            text = stringResource(id = R.string.no_account_yet),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.secondary,

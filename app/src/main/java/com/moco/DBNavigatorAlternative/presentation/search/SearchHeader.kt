@@ -11,7 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
 import com.moco.DBNavigatorAlternative.presentation.home.DateTimeSection
 
@@ -65,7 +67,7 @@ fun SearchHeader(viewModel: SearchViewModel) {
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             ) {
-                Text("Früher")
+                Text(stringResource(id = R.string.earlier))
             }
             Button(
                 onClick = { /* Spätere Verbindungen laden */ },
@@ -75,7 +77,7 @@ fun SearchHeader(viewModel: SearchViewModel) {
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             ) {
-                Text("Später")
+                Text(stringResource(id = R.string.later))
             }
         }
     }

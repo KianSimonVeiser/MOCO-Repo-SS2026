@@ -3,6 +3,8 @@ package com.moco.DBNavigatorAlternative.presentation.generalUse
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -12,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,20 +31,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.presentation.generalUse.Location.checkLocationPermission
-import android.provider.Settings
-import android.net.Uri
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.IconButton
-
 
 /**
- * DIE SUCHE-KARTE
- * Diese Komponente nutzt eine ElevatedCard, um die Eingabefelder
- * für Start und Ziel optisch vom Hintergrund abzuheben.
+ * Komponente für die Auswahl von Start- und Zielbahnhof.
  */
 @Composable
 fun SearchSection(
@@ -56,7 +54,6 @@ fun SearchSection(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    // Sicherer Zugriff auf die Activity für Previews
     val activity = context as? Activity
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
@@ -73,12 +70,11 @@ fun SearchSection(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Reiseplanung",
+                text = stringResource(id = R.string.travel_planning),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Eingabefeld für den Startpunkt mit Location-Button rechts daneben
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
@@ -87,8 +83,8 @@ fun SearchSection(
                 OutlinedTextField(
                     value = fromValue,
                     onValueChange = onFromChange,
-                    label = { Text("Von") },
-                    placeholder = { Text("Startbahnhof") },
+                    label = { Text(stringResource(id = R.string.from_label)) },
+                    placeholder = { Text(stringResource(id = R.string.from_placeholder)) },
                     modifier = Modifier.weight(1f),
                     leadingIcon = {
                         Icon(
@@ -107,17 +103,16 @@ fun SearchSection(
                 ) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Aktuellen Standort verwenden"
+                        contentDescription = stringResource(id = R.string.location_permission_rationale)
                     )
                 }
             }
 
-            // Eingabefeld für das Ziel
             OutlinedTextField(
                 value = toValue,
                 onValueChange = onToChange,
-                label = { Text("Bis") },
-                placeholder = { Text("Zielbahnhof") },
+                label = { Text(stringResource(id = R.string.to_label)) },
+                placeholder = { Text(stringResource(id = R.string.to_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
                     Icon(
@@ -129,13 +124,11 @@ fun SearchSection(
             )
         }
     }
-    //Overlay Location Dialog
+
     if (locationNeeded) {
         val hasPermission = checkLocationPermission(context)
 
         if (hasPermission) {
-            // Falls wir die Berechtigung schon haben, rufen wir onLocationAccepted auf.
-            // Das LaunchedEffect sorgt dafür, dass dies nicht bei jedem Recompose passiert.
             LaunchedEffect(Unit) {
                 onLocationAccepted()
             }
@@ -162,15 +155,14 @@ fun SearchSection(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Dialog schließen"
+                                    contentDescription = stringResource(id = R.string.close_dialog)
                                 )
                             }
                         }
                     },
                     text = {
                         Text(
-                            text = "Um Stationen in deiner Nähe anzuzeigen, " +
-                                    "musst du den Standort freigeben."
+                            text = stringResource(id = R.string.location_permission_rationale)
                         )
                     },
                     confirmButton = {
@@ -188,13 +180,11 @@ fun SearchSection(
                                 context.startActivity(intent)
                             }
                         ) {
-                            Text("Zu den Einstellungen")
+                            Text(stringResource(id = R.string.go_to_settings))
                         }
                     }
                 )
             } else {
-                // Wenn wir keine Rationale zeigen müssen und keine Berechtigung haben,
-                // fragen wir den Nutzer direkt über den System-Dialog.
                 LaunchedEffect(Unit) {
                     launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }

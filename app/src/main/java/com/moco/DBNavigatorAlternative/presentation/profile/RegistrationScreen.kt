@@ -2,21 +2,17 @@ package com.moco.DBNavigatorAlternative.presentation.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.moco.DBNavigatorAlternative.R
 
 /**
- * Der Registrierungsbildschirm zum Erstellen eines neuen Benutzerkontos.
+ * Registrierungsbildschirm zur Erstellung neuer Benutzerkonten.
  */
 @Composable
 fun RegistrationScreen(
@@ -39,30 +35,30 @@ fun RegistrationScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ProfileSectionCard(title = "Registrierung") {
+        ProfileSectionCard(title = stringResource(id = R.string.register_button)) {
             ProfileInputField(
                 value = uiState.username,
                 onValueChange = { viewModel.onUsernameChanged(it) },
-                placeholder = "Nutzername"
+                placeholder = stringResource(id = R.string.username_label)
             )
             
             ProfileInputField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChanged(it) },
-                placeholder = "E-Mail"
+                placeholder = stringResource(id = R.string.email_label)
             )
             
             ProfileInputField(
                 value = uiState.password,
                 onValueChange = { viewModel.onPasswordChanged(it) },
-                placeholder = "Passwort", 
+                placeholder = stringResource(id = R.string.password_label), 
                 isPassword = true
             )
             
             ProfileInputField(
                 value = uiState.confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChanged(it) },
-                placeholder = "Passwort wiederholen", 
+                placeholder = stringResource(id = R.string.confirm_password_label), 
                 isPassword = true
             )
             
@@ -70,11 +66,12 @@ fun RegistrationScreen(
             
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
                 ProfileButton(
-                    text = "Konto erstellen",
+                    text = stringResource(id = R.string.register_button),
+                    containerColor = MaterialTheme.colorScheme.tertiary, // Nutzt das Pastel-Grün
                     onClick = { viewModel.registerUser() }
                 )
             }
@@ -83,7 +80,7 @@ fun RegistrationScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Bereits ein Konto? Zurück zur Anmeldung",
+            text = stringResource(id = R.string.already_have_account),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.clickable { onBackToLogin() }

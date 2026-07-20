@@ -1,25 +1,19 @@
 package com.moco.DBNavigatorAlternative.presentation.profile
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
 /**
- * Eine einheitliche Karte (Kästchen) für den Profilbereich, 
- * passend zum Design der Reiseplanung (SearchSection).
+ * Konsistente Karten-Komponente für Sektionen im Profilbereich.
  */
 @Composable
 fun ProfileSectionCard(
@@ -28,7 +22,10 @@ fun ProfileSectionCard(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -47,7 +44,7 @@ fun ProfileSectionCard(
 }
 
 /**
- * Ein modernisiertes Eingabefeld im Stil der restlichen App.
+ * Standard-Eingabefeld im Design der Anwendung.
  */
 @Composable
 fun ProfileInputField(
@@ -65,12 +62,16 @@ fun ProfileInputField(
         modifier = Modifier.fillMaxWidth(),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         shape = MaterialTheme.shapes.medium,
-        singleLine = true
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+        )
     )
 }
 
 /**
- * Ein einheitlich gestalteter Button für den Profilbereich.
+ * Einheitliche Button-Komponente für Profilaktionen.
  */
 @Composable
 fun ProfileButton(
@@ -84,19 +85,20 @@ fun ProfileButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp),
+            .height(52.dp),
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
-        )
+        ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
     ) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge, fontSize = 18.sp)
+        Text(text = text, style = MaterialTheme.typography.labelLarge, fontSize = 16.sp)
     }
 }
 
 /**
- * Ein standardisiertes Informations-Popup.
+ * Modaler Dialog zur Anzeige von Benutzerinformationen.
  */
 @Composable
 fun ProfilePopup(
@@ -107,7 +109,7 @@ fun ProfilePopup(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("OK")
+                Text(stringResource(id = android.R.string.ok))
             }
         },
         title = {
@@ -116,12 +118,13 @@ fun ProfilePopup(
         text = {
             Text(text = text, style = MaterialTheme.typography.bodyMedium)
         },
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }
 
 /**
- * Ein Dialog zur Eingabe der E-Mail-Adresse für die "Passwort vergessen"-Funktion.
+ * Eingabedialog zum Zurücksetzen des Benutzerpassworts.
  */
 @Composable
 fun EmailInputDialog(
@@ -152,7 +155,7 @@ fun EmailInputDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Abbrechen")
+                Text(stringResource(id = android.R.string.cancel))
             }
         },
         shape = MaterialTheme.shapes.large
