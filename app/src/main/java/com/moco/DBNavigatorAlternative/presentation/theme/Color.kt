@@ -11,15 +11,18 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-// Professionelle Pastell-Palette für das Projekt
-val PastelViolet = Color(0xFFE2D9FF)      // Header & Primär-Hintergrund
-val PastelGreen = Color(0xFFD5E8D4)       // Erfolg & Speichern
-val PastelRed = Color(0xFFFFC1C1)         // Login & Aktions-Buttons
-val PastelDanger = Color(0xFFF8CECC)      // Löschen & Warnungen
-val PastelYellow = Color(0xFFFFE599)      // Sekundär-Aktionen (z.B. Bearbeiten)
-val SoftGray = Color(0xFFF5F5F5)          // Hintergrund für Karten
-val DeepGray = Color(0xFF424242)          // Textfarbe für Kontrast
-val Gold = Color(0xFFFFD700)              // Sterne & Highlights
+// Professionelle Blau-Lila-Grau Palette
+val DeepBlue = Color(0xFF1A237E)          // Primärfarbe (Dunkelblau)
+val SoftBlue = Color(0xFFE3F2FD)          // Hintergründe & Container
+val RoyalPurple = Color(0xFF673AB7)       // Akzentfarbe (Lila)
+val SoftPurple = Color(0xFFF3E5F5)        // Sekundär-Container
+val PastelBlue = Color(0xFFBBDEFB)        // Sanfte Aktionsfarben
+val PastelPurple = Color(0xFFD1C4E9)      // Sanfte Highlights
 
-// Akzentfarben (Dezent eingesetzt)
-val DB_Red_Soft = Color(0xFFFF4D4D)
+val CoolGray = Color(0xFFF5F7FA)          // Sehr helles Grau für den Hintergrund
+val SlateGray = Color(0xFF707070)         // Text- und Linienfarben
+val IronGray = Color(0xFF454545)          // Kontrastreicher Text
+val LightGray = Color(0xFFE0E0E0)         // Dezente Trenner & Rahmen
+
+val Gold = Color(0xFFFFD700)              // Behalten für Sterne (Bewertung)
+val SoftDanger = Color(0xFFFFEBEE)        // Extrem sanftes Rot für Gefahrenzone (kaum auffallend)

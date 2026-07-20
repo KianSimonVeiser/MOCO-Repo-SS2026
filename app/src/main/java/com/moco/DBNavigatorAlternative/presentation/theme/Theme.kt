@@ -17,34 +17,40 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Pink80,
     background = Color(0xFF1C1B1F),
     surface = Color(0xFF1C1B1F),
-    error = PastelDanger
+    error = SoftDanger
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = DB_Red_Soft,                // Sanftes Rot für DB-Branding
+    primary = DeepBlue,                  // Seriöses Dunkelblau
     onPrimary = Color.White,
-    primaryContainer = PastelViolet,      // Sanftes Violett für Header
-    onPrimaryContainer = DeepGray,
+    primaryContainer = SoftBlue,         // Sanftes Hellblau für Header/Container
+    onPrimaryContainer = IronGray,
     
-    secondary = PurpleGrey40,
-    secondaryContainer = PastelYellow,    // Sanftes Gelb
-    onSecondaryContainer = DeepGray,
+    secondary = RoyalPurple,             // Elegantes Lila
+    onSecondary = Color.White,
+    secondaryContainer = PastelPurple,   // Zartes Lila für Akzente
+    onSecondaryContainer = IronGray,
     
-    tertiary = PastelGreen,               // Sanftes Grün
-    onTertiary = DeepGray,
+    tertiary = SoftPurple,               // Ergänzendes sanftes Lila
+    onTertiary = IronGray,
     
-    error = PastelDanger,                 // Sanftes Rot für Warnungen
-    onError = DeepGray,
+    background = CoolGray,               // Kaltes, sauberes Grau für den Hintergrund
+    onBackground = IronGray,
     
-    background = Color.White,
-    surface = SoftGray,                   // Sehr helles Grau für Karten
-    surfaceVariant = PastelRed,           // Zartes Rot für Aktions-Buttons
-    onSurfaceVariant = DeepGray
+    surface = Color.White,               // Weiß für Kartenoberflächen
+    onSurface = IronGray,
+    
+    surfaceVariant = PastelBlue,         // Sanftes Blau für Buttons/Details
+    onSurfaceVariant = IronGray,
+    
+    error = SoftDanger,                  // Dezente Fehlermeldung
+    onError = IronGray
 )
 
 @Composable
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamische Farben deaktiviert, um das gewählte Branding zu erzwingen
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
