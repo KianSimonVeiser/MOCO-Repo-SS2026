@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
 import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
+import com.moco.DBNavigatorAlternative.data.remote.HttpClientFactory
 import com.moco.DBNavigatorAlternative.data.remote.NearbyStationsRemoteImpl
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
@@ -39,24 +40,9 @@ class HomeViewModel(
 
     companion object {
         private const val TAG = "HomeViewModel"
-        private val client = HttpClient {
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    coerceInputValues = true
-                })
-            }
-            install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        Log.d("KTOR_HTTP", message)
-                    }
-                }
-                level = LogLevel.ALL
-            }
-        }
+        
         val dbNavApiServiceInstance: DBNavApiService by lazy {
-            NearbyStationsRemoteImpl(client)
+            NearbyStationsRemoteImpl(HttpClientFactory.client)
         }
     }
 
@@ -118,29 +104,35 @@ class HomeViewModel(
         }
     }
 
+    private var searchJobFrom: kotlinx.coroutines.Job? = null
+    private var searchJobTo: kotlinx.coroutines.Job? = null
+
     fun onFromChanged(newVal: TextFieldState) {
         val query = newVal.text.toString()
+        searchJobFrom?.cancel()
 
-        val possibleStations = listOf(
-            "Darmstadt Hbf",
-            "Frankfurt(Main)Hbf",
-            "Berlin Hbf"
-        )
-
-        _uiState.update {
-            it.copy(
-                fromTextFieldState = newVal,
-                fromSearchResult = if (query.isBlank()) {
+        searchJobFrom = viewModelScope.launch {
+            if (query.isNotBlank()) {
+                kotlinx.coroutines.delay(300) // Debounce
+            }
+            
+            val results = if (query.isBlank()) {
+                emptyList()
+            } else {
+                try {
+                    dbNavApiService.getStationsByName(query)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fehler bei der Stationssuche (Von)", e)
                     emptyList()
-                } else {
-                    possibleStations.filter { station ->
-                        station.contains(
-                            other = query,
-                            ignoreCase = true
-                        )
-                    }
                 }
-            )
+            }
+
+            _uiState.update {
+                it.copy(
+                    fromTextFieldState = newVal,
+                    fromSearchResult = results
+                )
+            }
         }
     }
 
@@ -150,27 +142,30 @@ class HomeViewModel(
 
     fun onToChanged(newVal: TextFieldState) {
         val query = newVal.text.toString()
+        searchJobTo?.cancel()
 
-        val possibleStations = listOf(
-            "München Hbf",
-            "Hamburg Hbf",
-            "Köln Hbf"
-        )
+        searchJobTo = viewModelScope.launch {
+            if (query.isNotBlank()) {
+                kotlinx.coroutines.delay(300) // Debounce
+            }
 
-        _uiState.update {
-            it.copy(
-                toTextFieldState = newVal,
-                toSearchResult = if (query.isBlank()) {
+            val results = if (query.isBlank()) {
+                emptyList()
+            } else {
+                try {
+                    dbNavApiService.getStationsByName(query)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Fehler bei der Stationssuche (Zu)", e)
                     emptyList()
-                } else {
-                    possibleStations.filter { station ->
-                        station.contains(
-                            other = query,
-                            ignoreCase = true
-                        )
-                    }
                 }
-            )
+            }
+
+            _uiState.update {
+                it.copy(
+                    toTextFieldState = newVal,
+                    toSearchResult = results
+                )
+            }
         }
     }
 

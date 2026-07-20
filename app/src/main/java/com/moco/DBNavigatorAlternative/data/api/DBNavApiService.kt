@@ -10,4 +10,8 @@ interface DBNavApiService {
         radius: Int = 400,
         maxResults: Int = 8
     ): List<NearbyLocationDto>
+
+    suspend fun getStationsByName(
+        name: String
+    ): List<String>
 }

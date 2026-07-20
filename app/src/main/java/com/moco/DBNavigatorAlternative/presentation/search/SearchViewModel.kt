@@ -54,37 +54,64 @@ class SearchViewModel(
     // Suchparameter
     // ---------------------------------------------------------
 
+    private var searchJobFrom: kotlinx.coroutines.Job? = null
+    private var searchJobTo: kotlinx.coroutines.Job? = null
+
     fun onFromChanged(newValue: TextFieldState) {
         val query = newValue.text.toString()
-        val results = if (query.isBlank()) {
-            emptyList()
-        } else {
-            listOf("Darmstadt Hbf", "Frankfurt(Main)Hbf", "Berlin Hbf")
-                .filter { it.contains(query, ignoreCase = true) }
-        }
+        searchJobFrom?.cancel()
+        
+        searchJobFrom = viewModelScope.launch {
+            if (query.isNotBlank()) {
+                kotlinx.coroutines.delay(300)
+            }
 
-        _uiState.update {
-            it.copy(
-                fromTextFieldState = newValue,
-                fromSearchResult = results
-            )
+            val results = if (query.isBlank()) {
+                emptyList()
+            } else {
+                try {
+                    dbNavApiService.getStationsByName(query)
+                } catch (e: Exception) {
+                    Log.e("SearchViewModel", "Fehler bei der Stationssuche (Von)", e)
+                    emptyList()
+                }
+            }
+
+            _uiState.update {
+                it.copy(
+                    fromTextFieldState = newValue,
+                    fromSearchResult = results
+                )
+            }
         }
     }
 
     fun onToChanged(newValue: TextFieldState) {
         val query = newValue.text.toString()
-        val results = if (query.isBlank()) {
-            emptyList()
-        } else {
-            listOf("München Hbf", "Hamburg Hbf", "Köln Hbf")
-                .filter { it.contains(query, ignoreCase = true) }
-        }
+        searchJobTo?.cancel()
+        
+        searchJobTo = viewModelScope.launch {
+            if (query.isNotBlank()) {
+                kotlinx.coroutines.delay(300)
+            }
 
-        _uiState.update {
-            it.copy(
-                toTextFieldState = newValue,
-                toSearchResult = results
-            )
+            val results = if (query.isBlank()) {
+                emptyList()
+            } else {
+                try {
+                    dbNavApiService.getStationsByName(query)
+                } catch (e: Exception) {
+                    Log.e("SearchViewModel", "Fehler bei der Stationssuche (Zu)", e)
+                    emptyList()
+                }
+            }
+
+            _uiState.update {
+                it.copy(
+                    toTextFieldState = newValue,
+                    toSearchResult = results
+                )
+            }
         }
     }
 
