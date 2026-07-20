@@ -24,7 +24,7 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 
 /**
  * DER HOMESCREEN
- * Dies ist die Hauptseite der App. Sie ist nach dem MVVM-Muster aufgebaut
+ * Dies ist die Hauptseite der App! Sie ist nach dem MVVM-Muster aufgebaut
 
  */
 @Composable
