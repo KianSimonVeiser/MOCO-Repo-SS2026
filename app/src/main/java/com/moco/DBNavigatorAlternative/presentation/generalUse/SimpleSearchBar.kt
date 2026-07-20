@@ -23,13 +23,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleSearchBar(
     textFieldState: TextFieldState,
     onSearch: (String) -> Unit,
-    searchResults: List<String>,
+    searchResults: List<NearbyLocationDto>,
+    onItemSelected: (NearbyLocationDto) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Controls expansion state of the search bar
@@ -74,10 +76,12 @@ fun SimpleSearchBar(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 searchResults.forEach { result ->
                     ListItem(
-                        headlineContent = { Text(result) },
+                        headlineContent = { Text(result.name) },
+                        supportingContent = { Text(result.locationType) },
                         modifier = Modifier
                             .clickable {
-                                textFieldState.edit { replace(0, length, result) }
+                                textFieldState.edit { replace(0, length, result.name) }
+                                onItemSelected(result)
                                 expanded = false
                             }
                             .fillMaxWidth()

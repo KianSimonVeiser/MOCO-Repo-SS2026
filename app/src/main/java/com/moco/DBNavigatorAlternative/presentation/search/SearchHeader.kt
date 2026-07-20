@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
 import com.moco.DBNavigatorAlternative.presentation.home.components.DateTimeSection
 
@@ -27,6 +28,8 @@ fun SearchHeader(
     onLocationNeeded: () -> Unit,
     onLocationDismissed: () -> Unit,
     onLocationAccepted: () -> Unit,
+    onFromItemSelected: (NearbyLocationDto) -> Unit,
+    onToItemSelected: (NearbyLocationDto) -> Unit,
     onToggleDatePicker: (Boolean) -> Unit,
     onDateSelected: (Long?) -> Unit
 ) {
@@ -45,6 +48,8 @@ fun SearchHeader(
             toSearchResultValue = uiState.toSearchResult,
             onFromChanged = onFromChanged,
             onToChange = onToChanged,
+            onFromItemSelected = onFromItemSelected,
+            onToItemSelected = onToItemSelected,
             onLocationClick = onLocationNeeded,
             onLocationDismissed = onLocationDismissed,
             onLocationAccepted = onLocationAccepted

@@ -30,6 +30,7 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
  */
 @Composable
 fun HomeScreen(
+    onNavigateToSearch: (fromId: String?, toId: String?, date: String) -> Unit,
     viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory()
     )
@@ -67,6 +68,8 @@ fun HomeScreen(
                     toSearchResultValue = uiState.toSearchResult,
                     onFromChanged = { viewModel.onFromChanged(it) },
                     onToChange = { viewModel.onToChanged(it) },
+                    onFromItemSelected = { viewModel.onFromItemSelected(it) },
+                    onToItemSelected = { viewModel.onToItemSelected(it) },
                     onLocationDismissed = { viewModel.onLocationDismissed() },
                     onLocationClick = { viewModel.onLocationNeeded() },
                     onLocationAccepted = { viewModel.onLocationAccepted() }
@@ -100,7 +103,13 @@ fun HomeScreen(
 
                 // --- 5. SEKTION: DER SUCH-BUTTON ---
                 SearchButton(
-                    onClick = { /* Hier würde die Suche ausgelöst werden */ }
+                    onClick = {
+                        onNavigateToSearch(
+                            uiState.fromLocation?.locationId,
+                            uiState.toLocation?.locationId,
+                            uiState.date
+                        )
+                    }
                 )
 
                 // --- 6. SEKTION: MEINE FAVORITEN ---

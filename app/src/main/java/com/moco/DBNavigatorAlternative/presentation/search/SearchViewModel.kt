@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
+import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.model.Connection
@@ -45,7 +46,7 @@ class SearchViewModel(
         _uiState.update {
             it.copy(
                 date = dateFormatter.format(Date()),
-                connections = getMockConnections()
+                //connections = getMockConnections()
             )
         }
     }
@@ -159,16 +160,19 @@ class SearchViewModel(
                     )
 
                     if (nearbyStations.isNotEmpty()) {
-                        val stationNames = nearbyStations.map { it.name }
-                        val nearestStation = stationNames.first()
+                        val nearestStation = nearbyStations.first()
 
                         _uiState.value.fromTextFieldState.edit {
-                            replace(0, length, nearestStation)
+                            replace(0, length, nearestStation.name)
                         }
 
                         _uiState.update {
-                            it.copy(fromSearchResult = stationNames)
+                            it.copy(
+                                fromSearchResult = nearbyStations,
+                                fromLocation = nearestStation
+                            )
                         }
+                        triggerSearch()
                     }
                 }
             } catch (exception: Exception) {
@@ -178,9 +182,56 @@ class SearchViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Suchergebnisse & Pünktlichkeit
-    // ---------------------------------------------------------
+    fun onFromItemSelected(location: NearbyLocationDto) {
+        _uiState.update { it.copy(fromLocation = location, fromSearchResult = emptyList()) }
+        triggerSearch()
+    }
+
+    fun onToItemSelected(location: NearbyLocationDto) {
+        _uiState.update { it.copy(toLocation = location, toSearchResult = emptyList()) }
+        triggerSearch()
+    }
+
+    fun setInitialSearch(fromId: String?, toId: String?, dateStr: String?) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(date = dateStr ?: it.date) }
+            if (fromId != null && toId != null) {
+                performSearch(fromId, toId, dateStr ?: _uiState.value.date)
+            }
+        }
+    }
+
+    private fun triggerSearch() {
+        val state = _uiState.value
+        val fromId = state.fromLocation?.locationId ?: return
+        val toId = state.toLocation?.locationId ?: return
+        performSearch(fromId, toId, state.date)
+    }
+
+    private fun performSearch(fromId: String, toId: String, date: String) {
+        // Umwandlung von dd.MM.yyyy in yyyy-MM-dd für die API
+        val isoDate = try {
+            val parts = date.split(".")
+            if (parts.size == 3) {
+                "${parts[2]}-${parts[1]}-${parts[0]}"
+            } else {
+                "2026-07-21" // Fallback
+            }
+        } catch (e: Exception) {
+            "2026-07-21"
+        }
+        
+        val isoDateTime = "${isoDate}T12:00:00+02:00"
+
+        viewModelScope.launch {
+            try {
+                val results = dbNavApiService.getConnections(fromId, toId, isoDateTime)
+                _uiState.update { it.copy(connections = results) }
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", "Fehler bei Verbindungssuche", e)
+            }
+        }
+    }
 
     fun onConnectionSelected(connection: Connection?) {
         _uiState.update { it.copy(selectedConnection = connection) }

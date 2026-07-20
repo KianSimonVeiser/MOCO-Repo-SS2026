@@ -17,8 +17,18 @@ import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
  */
 @Composable
 fun ConnectionSelectionScreen(
+    initialFromId: String? = null,
+    initialToId: String? = null,
+    initialDate: String? = null,
     viewModel: SearchViewModel = viewModel(factory = SearchViewModel.Factory)
 ) {
+    // Initial-Suche einmalig ausführen
+    LaunchedEffect(Unit) {
+        if (initialFromId != null || initialToId != null) {
+            viewModel.setInitialSearch(initialFromId, initialToId, initialDate)
+        }
+    }
+
     // Status der UI aus dem ViewModel beobachten
     val uiState by viewModel.uiState.collectAsState()
 
@@ -48,6 +58,8 @@ fun ConnectionSelectionScreen(
                         uiState = uiState,
                         onFromChanged = { viewModel.onFromChanged(it) },
                         onToChanged = { viewModel.onToChanged(it) },
+                        onFromItemSelected = { viewModel.onFromItemSelected(it) },
+                        onToItemSelected = { viewModel.onToItemSelected(it) },
                         onLocationNeeded = { viewModel.onLocationNeeded() },
                         onLocationDismissed = { viewModel.onLocationDismissed() },
                         onLocationAccepted = { viewModel.onLocationAccepted() },

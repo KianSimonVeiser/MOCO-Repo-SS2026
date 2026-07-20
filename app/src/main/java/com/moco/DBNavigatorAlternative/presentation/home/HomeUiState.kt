@@ -1,6 +1,7 @@
 package com.moco.DBNavigatorAlternative.presentation.home
 
 import androidx.compose.foundation.text.input.TextFieldState
+import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 
 /**
@@ -16,9 +17,11 @@ data class HomeUiState(
     val showTimePicker: Boolean = false, // Steuert die Sichtbarkeit der Uhr
     val locationNeeded: Boolean = false, // Steuert die Sichtbarkeit des Standort-Dialogs
     val fromTextFieldState: TextFieldState = TextFieldState(),
-    val fromSearchResult: List<String> = emptyList(),
+    val fromSearchResult: List<NearbyLocationDto> = emptyList(),
     val toTextFieldState: TextFieldState = TextFieldState(),
-    val toSearchResult: List<String> = emptyList(),
+    val toSearchResult: List<NearbyLocationDto> = emptyList(),
+    val fromLocation: NearbyLocationDto? = null,
+    val toLocation: NearbyLocationDto? = null,
     val location: String = "",
     val favorites: List<FavoriteConnection> = emptyList() // Favorisierte Verbindungen
 )

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
 import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
+import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.remote.HttpClientFactory
 import com.moco.DBNavigatorAlternative.data.remote.NearbyStationsRemoteImpl
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
@@ -134,6 +135,14 @@ class HomeViewModel(
                 )
             }
         }
+    }
+
+    fun onFromItemSelected(location: NearbyLocationDto) {
+        _uiState.update { it.copy(fromLocation = location, fromSearchResult = emptyList()) }
+    }
+
+    fun onToItemSelected(location: NearbyLocationDto) {
+        _uiState.update { it.copy(toLocation = location, toSearchResult = emptyList()) }
     }
 
     // ---------------------------------------------------------
@@ -277,10 +286,9 @@ class HomeViewModel(
                     return@launch
                 }
 
-                val stationNames = nearbyStations.map { it.name }
-                val nearestStation = stationNames.firstOrNull() ?: return@launch
+                val nearestStation = nearbyStations.firstOrNull() ?: return@launch
 
-                if (nearestStation.isBlank()) {
+                if (nearestStation.name.isBlank()) {
                     return@launch
                 }
 
@@ -288,14 +296,15 @@ class HomeViewModel(
                     replace(
                         start = 0,
                         end = length,
-                        text = nearestStation
+                        text = nearestStation.name
                     )
                 }
 
                 _uiState.update {
                     it.copy(
                         locationNeeded = false,
-                        fromSearchResult = stationNames
+                        fromSearchResult = nearbyStations,
+                        fromLocation = nearestStation
                     )
                 }
 

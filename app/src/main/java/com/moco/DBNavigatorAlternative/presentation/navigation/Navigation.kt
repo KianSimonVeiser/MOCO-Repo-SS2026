@@ -7,12 +7,16 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.moco.DBNavigatorAlternative.presentation.home.HomeScreen
 import com.moco.DBNavigatorAlternative.presentation.search.ConnectionSelectionScreen
 import com.moco.DBNavigatorAlternative.presentation.detail.DetailScreen
 import com.moco.DBNavigatorAlternative.presentation.detail.previewConnection
-import com.moco.DBNavigatorAlternative.presentation.detail.previewCommentList
 import com.moco.DBNavigatorAlternative.presentation.profile.ProfileScreen
+import java.net.URLEncoder
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun AppNavigation() {
@@ -39,8 +43,39 @@ fun AppNavigation() {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeScreen() }
-            composable("search") { ConnectionSelectionScreen() }
+            composable("home") { 
+                HomeScreen(
+                    onNavigateToSearch = { fromId, toId, date ->
+                        val encFrom = fromId?.let { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) } ?: ""
+                        val encTo = toId?.let { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) } ?: ""
+                        navController.navigate("search?fromId=$encFrom&toId=$encTo&date=$date")
+                    }
+                ) 
+            }
+            
+            composable(
+                route = "search?fromId={fromId}&toId={toId}&date={date}",
+                arguments = listOf(
+                    navArgument("fromId") { defaultValue = ""; type = NavType.StringType },
+                    navArgument("toId") { defaultValue = ""; type = NavType.StringType },
+                    navArgument("date") { defaultValue = ""; type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val fromId = backStackEntry.arguments?.getString("fromId")?.let { 
+                    if (it.isBlank()) null else URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
+                }
+                val toId = backStackEntry.arguments?.getString("toId")?.let {
+                    if (it.isBlank()) null else URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
+                }
+                val date = backStackEntry.arguments?.getString("date")
+                
+                ConnectionSelectionScreen(
+                    initialFromId = fromId,
+                    initialToId = toId,
+                    initialDate = date
+                )
+            }
+            
             composable("profile") { ProfileScreen() }
             composable("detail") { DetailScreen(
                 connection = previewConnection

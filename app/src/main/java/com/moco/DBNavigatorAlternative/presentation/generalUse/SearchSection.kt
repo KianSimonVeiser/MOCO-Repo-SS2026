@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.presentation.generalUse.Location.checkLocationPermission
 
 /**
@@ -40,10 +41,12 @@ fun SearchSection(
     fromTextFieldState: TextFieldState,
     toTextFieldState: TextFieldState,
     locationNeeded: Boolean,
-    fromSearchResultValue: List<String>,
-    toSearchResultValue: List<String>,
+    fromSearchResultValue: List<NearbyLocationDto>,
+    toSearchResultValue: List<NearbyLocationDto>,
     onFromChanged: (TextFieldState) -> Unit,
     onToChange: (TextFieldState) -> Unit,
+    onFromItemSelected: (NearbyLocationDto) -> Unit = {},
+    onToItemSelected: (NearbyLocationDto) -> Unit = {},
     onLocationClick: () -> Unit,
     onLocationDismissed: () -> Unit,
     onLocationAccepted: () -> Unit,
@@ -82,6 +85,7 @@ fun SearchSection(
                     textFieldState = fromTextFieldState,
                     onSearch = { onFromChanged(fromTextFieldState) },
                     searchResults = fromSearchResultValue,
+                    onItemSelected = onFromItemSelected,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -103,6 +107,7 @@ fun SearchSection(
                     textFieldState = toTextFieldState,
                     onSearch = { onToChange(toTextFieldState) },
                     searchResults = toSearchResultValue,
+                    onItemSelected = onToItemSelected,
                     modifier = Modifier.weight(1f)
                 )
             }

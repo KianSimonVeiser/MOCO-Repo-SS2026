@@ -1,4 +1,4 @@
-package com.moco.DBNavigatorAlternative.presentation.search
+/*package com.moco.DBNavigatorAlternative.presentation.search
 
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.ConnectionSegment
@@ -152,4 +152,4 @@ fun getMockConnections(): List<Connection> {
             )
         )
     )
-}
+}*/
