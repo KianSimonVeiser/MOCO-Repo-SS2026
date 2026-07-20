@@ -23,7 +23,7 @@ import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
 import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 
 /**
- * DER HOMESCREEN
+ *+ DER HOMESCREEN
  * Dies ist die Hauptseite der App! Sie ist nach dem MVVM-Muster aufgebaut
 
  */
