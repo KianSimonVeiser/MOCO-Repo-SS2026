@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.data.UserRepository
@@ -18,7 +17,6 @@ fun ProfileScreen() {
     var screenState by remember { mutableStateOf("login") }
     var popupMessage by remember { mutableStateOf<String?>(null) }
     var showEmailDialog by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     val currentUser by UserRepository.currentUser.collectAsState()
 
@@ -45,14 +43,14 @@ fun ProfileScreen() {
             when (currentView) {
                 "login" -> LoginScreen(
                     onLoginSuccess = { _, _ ->
-                        popupMessage = context.getString(R.string.welcome_back)
+                        popupMessage = "Willkommen zurück!"
                     },
                     onRegisterClick = { screenState = "registration" },
                     onForgotPasswordClick = { showEmailDialog = true }
                 )
                 "registration" -> RegistrationScreen(
                     onRegisterSuccess = { 
-                        popupMessage = context.getString(R.string.register_button) + " erfolgreich."
+                        popupMessage = "Registrierung erfolgreich."
                         screenState = "login" 
                     },
                     onBackToLogin = { screenState = "login" }
@@ -63,7 +61,7 @@ fun ProfileScreen() {
                     onSettingsClick = { screenState = "settings" },
                     onLogoutClick = { 
                         UserRepository.setUser(null)
-                        popupMessage = context.getString(R.string.logout_button) + " erfolgreich."
+                        popupMessage = "Abmeldung erfolgreich."
                         screenState = "login" 
                     }
                 )
@@ -72,7 +70,7 @@ fun ProfileScreen() {
                     currentEmail = currentEmail,
                     onBackClick = { screenState = "loggedIn" },
                     onAccountDeleted = {
-                        popupMessage = context.getString(R.string.delete_account) + " erfolgreich."
+                        popupMessage = "Konto gelöscht."
                         UserRepository.setUser(null)
                         screenState = "login"
                     }
@@ -93,7 +91,7 @@ fun ProfileScreen() {
             onDismiss = { showEmailDialog = false },
             onConfirm = {
                 showEmailDialog = false
-                popupMessage = context.getString(R.string.password_reset_sent)
+                popupMessage = "Link versendet."
             }
         )
     }

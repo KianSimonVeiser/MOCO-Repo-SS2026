@@ -17,40 +17,39 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Pink80,
     background = Color(0xFF1C1B1F),
     surface = Color(0xFF1C1B1F),
-    error = SoftDanger
+    error = MutedDanger
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = DeepBlue,                  // Seriöses Dunkelblau
+    primary = IndigoBlue,                 // Seriöses Blau
     onPrimary = Color.White,
-    primaryContainer = SoftBlue,         // Sanftes Hellblau für Header/Container
-    onPrimaryContainer = IronGray,
+    primaryContainer = SkyBlueSoft,       // Sanftes Blau-Grau für Header
+    onPrimaryContainer = CharcoalGray,
     
-    secondary = RoyalPurple,             // Elegantes Lila
+    secondary = AmethystPurple,           // Elegantes Lila
     onSecondary = Color.White,
-    secondaryContainer = PastelPurple,   // Zartes Lila für Akzente
-    onSecondaryContainer = IronGray,
+    secondaryContainer = LavenderSoft,    // Zartes Lila für Sektionen
+    onSecondaryContainer = CharcoalGray,
     
-    tertiary = SoftPurple,               // Ergänzendes sanftes Lila
-    onTertiary = IronGray,
+    tertiary = CrystalBlue,               // Kristalblau für Akzente
+    onTertiary = CharcoalGray,
     
-    background = CoolGray,               // Kaltes, sauberes Grau für den Hintergrund
-    onBackground = IronGray,
+    background = OffWhite,                // Sauberer, kühler Hintergrund
+    onBackground = CharcoalGray,
     
-    surface = Color.White,               // Weiß für Kartenoberflächen
-    onSurface = IronGray,
+    surface = Color.White,                // Reinweiß für Karten
+    onSurface = CharcoalGray,
     
-    surfaceVariant = PastelBlue,         // Sanftes Blau für Buttons/Details
-    onSurfaceVariant = IronGray,
+    surfaceVariant = SilverGray,          // Graue Trenner und Rahmen
+    onSurfaceVariant = CharcoalGray,
     
-    error = SoftDanger,                  // Dezente Fehlermeldung
-    onError = IronGray
+    error = MutedDanger,                  // Völlig neutralisierte Gefahrenzone
+    onError = CharcoalGray
 )
 
 @Composable
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamische Farben deaktiviert, um das gewählte Branding zu erzwingen
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
