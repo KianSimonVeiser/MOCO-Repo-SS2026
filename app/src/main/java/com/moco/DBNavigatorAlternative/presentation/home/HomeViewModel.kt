@@ -19,9 +19,9 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -79,9 +79,11 @@ class HomeViewModel(
         viewModelScope.launch {
             userRepository.currentUser.collect { user ->
                 if (user != null) {
-                    interactionRepository.getFavorites(user.userId).collect { favs ->
-                        _uiState.update { it.copy(favorites = favs) }
-                    }
+                    interactionRepository.getFavorites(user.userId)
+                        .catch { e -> Log.e(TAG, "Fehler beim Laden der Favoriten", e) }
+                        .collect { favs ->
+                            _uiState.update { it.copy(favorites = favs) }
+                        }
                 } else {
                     _uiState.update { it.copy(favorites = emptyList()) }
                 }

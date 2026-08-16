@@ -20,6 +20,7 @@ data class SearchUiState(
     val showDatePicker: Boolean = false,
     val locationNeeded: Boolean = false,
     val connections: List<Connection> = emptyList(),
+    val onlyDTicket: Boolean = false,
     val selectedConnection: Connection? = null,
     val punctualityCache: Map<String, PunctualityInfo> = emptyMap(),
     val stationRatingCache: Map<String, StationRatingSummary> = emptyMap()

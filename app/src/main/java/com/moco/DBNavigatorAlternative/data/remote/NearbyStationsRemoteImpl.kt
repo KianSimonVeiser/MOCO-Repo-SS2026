@@ -144,7 +144,8 @@ class NearbyStationsRemoteImpl(
     override suspend fun getConnections(
         fromId: String,
         toId: String,
-        dateTime: String
+        dateTime: String,
+        onlyDTicket: Boolean
     ): List<Connection> {
         val correlationId = createCorrelationId()
         
