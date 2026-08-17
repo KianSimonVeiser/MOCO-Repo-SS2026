@@ -3,6 +3,7 @@ package com.moco.DBNavigatorAlternative.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import com.moco.DBNavigatorAlternative.presentation.home.HomeViewModel.Companion.dbNavApiServiceInstance
@@ -30,10 +31,13 @@ class HomeViewModelFactory : ViewModelProvider.Factory {
             LocationRepositoryImpl(
                 application.applicationContext
             )
+            
+        val settingsPreference = SettingsPreference(application.applicationContext)
 
         return HomeViewModel(
             locationRepository = locationRepository,
-            dbNavApiService = dbNavApiServiceInstance
+            dbNavApiService = dbNavApiServiceInstance,
+            settingsPreference = settingsPreference
         ) as T
     }
 }

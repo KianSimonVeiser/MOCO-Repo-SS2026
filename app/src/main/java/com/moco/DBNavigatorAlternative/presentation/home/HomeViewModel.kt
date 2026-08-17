@@ -10,6 +10,7 @@ import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.remote.HttpClientFactory
 import com.moco.DBNavigatorAlternative.data.remote.NearbyStationsRemoteImpl
+import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import io.ktor.client.HttpClient
@@ -36,7 +37,8 @@ class HomeViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
     private val interactionRepository: InteractionRepository = InteractionRepository(),
-    private val userRepository: UserRepository = UserRepository
+    private val userRepository: UserRepository = UserRepository,
+    private val settingsPreference: SettingsPreference? = null
 ) : ViewModel() {
 
     companion object {
@@ -55,6 +57,17 @@ class HomeViewModel(
 
     init {
         setInitialDateAndTime()
+        observeSettings()
+    }
+
+    private fun observeSettings() {
+        settingsPreference?.let { prefs ->
+            viewModelScope.launch {
+                prefs.onlyDeutschlandticketConnections.collect { active ->
+                    _uiState.update { it.copy(onlyDTicket = active) }
+                }
+            }
+        }
     }
 
     private fun setInitialDateAndTime() {
@@ -246,6 +259,9 @@ class HomeViewModel(
     fun toggleOnlyDTicket(active: Boolean) {
         _uiState.update {
             it.copy(onlyDTicket = active)
+        }
+        viewModelScope.launch {
+            settingsPreference?.setOnlyDeutschlandticketConnections(active)
         }
     }
 

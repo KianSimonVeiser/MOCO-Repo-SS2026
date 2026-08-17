@@ -9,10 +9,17 @@ import kotlinx.serialization.Serializable
 data class JourneyRequestDto(
     val autonomeReservierung: Boolean = false,
     val einstiegsTypList: List<String> = listOf("STANDARD"),
+    val fahrverguenstigungen: FahrverguenstigungenDto? = null,
     val klasse: String = "KLASSE_2",
     val reiseHin: ReiseHinRequestDto,
     val reisendenProfil: ReisendenProfilDto = ReisendenProfilDto(),
     val reservierungsKontingenteVorhanden: Boolean = false
+)
+
+@Serializable
+data class FahrverguenstigungenDto(
+    val deutschlandTicketVorhanden: Boolean = false,
+    val nurDeutschlandTicketVerbindungen: Boolean = false
 )
 
 @Serializable

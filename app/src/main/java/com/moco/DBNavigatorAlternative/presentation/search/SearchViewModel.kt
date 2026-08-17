@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
@@ -34,7 +35,8 @@ class SearchViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
     private val punctualityRepository: PunctualityRepository = PunctualityRepository(),
-    private val interactionRepository: InteractionRepository = InteractionRepository()
+    private val interactionRepository: InteractionRepository = InteractionRepository(),
+    private val settingsPreference: SettingsPreference? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -48,6 +50,23 @@ class SearchViewModel(
                 date = dateFormatter.format(Date()),
                 //connections = getMockConnections()
             )
+        }
+        observeSettings()
+    }
+
+    private fun observeSettings() {
+        settingsPreference?.let { prefs ->
+            viewModelScope.launch {
+                prefs.onlyDeutschlandticketConnections.collect { active ->
+                    val oldActive = _uiState.value.onlyDTicket
+                    _uiState.update { it.copy(onlyDTicket = active) }
+                    
+                    // Falls sich der Wert ändert und wir bereits Orte ausgewählt haben, Suche neu triggern
+                    if (oldActive != active) {
+                        triggerSearch()
+                    }
+                }
+            }
         }
     }
 
@@ -194,14 +213,24 @@ class SearchViewModel(
 
     fun onToggleOnlyDTicket(enabled: Boolean) {
         _uiState.update { it.copy(onlyDTicket = enabled) }
+        viewModelScope.launch {
+            settingsPreference?.setOnlyDeutschlandticketConnections(enabled)
+        }
         triggerSearch()
     }
 
-    fun setInitialSearch(fromId: String?, toId: String?, dateStr: String?) {
+    fun setInitialSearch(fromId: String?, toId: String?, dateStr: String?, onlyDTicket: Boolean? = null) {
         viewModelScope.launch {
-            _uiState.update { it.copy(date = dateStr ?: it.date) }
+            val currentOnlyDTicket = onlyDTicket ?: _uiState.value.onlyDTicket
+            val currentDate = dateStr ?: _uiState.value.date
+            
+            _uiState.update { it.copy(
+                date = currentDate,
+                onlyDTicket = currentOnlyDTicket
+            ) }
+            
             if (fromId != null && toId != null) {
-                performSearch(fromId, toId, dateStr ?: _uiState.value.date, _uiState.value.onlyDTicket)
+                performSearch(fromId, toId, currentDate, currentOnlyDTicket)
             }
         }
     }
@@ -296,11 +325,13 @@ class SearchViewModel(
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val locationRepository = LocationRepositoryImpl(application.applicationContext)
+                val settingsPreference = SettingsPreference(application.applicationContext)
                 return SearchViewModel(
                     locationRepository = locationRepository,
                     dbNavApiService = HomeViewModel.dbNavApiServiceInstance,
                     punctualityRepository = PunctualityRepository(),
-                    interactionRepository = InteractionRepository()
+                    interactionRepository = InteractionRepository(),
+                    settingsPreference = settingsPreference
                 ) as T
             }
         }
