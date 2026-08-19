@@ -45,20 +45,21 @@ fun AppNavigation() {
         ) {
             composable("home") { 
                 HomeScreen(
-                    onNavigateToSearch = { fromId, toId, date ->
+                    onNavigateToSearch = { fromId, toId, date, onlyDTicket ->
                         val encFrom = fromId?.let { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) } ?: ""
                         val encTo = toId?.let { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) } ?: ""
-                        navController.navigate("search?fromId=$encFrom&toId=$encTo&date=$date")
+                        navController.navigate("search?fromId=$encFrom&toId=$encTo&date=$date&onlyDTicket=$onlyDTicket")
                     }
                 ) 
             }
             
             composable(
-                route = "search?fromId={fromId}&toId={toId}&date={date}",
+                route = "search?fromId={fromId}&toId={toId}&date={date}&onlyDTicket={onlyDTicket}",
                 arguments = listOf(
                     navArgument("fromId") { defaultValue = ""; type = NavType.StringType },
                     navArgument("toId") { defaultValue = ""; type = NavType.StringType },
-                    navArgument("date") { defaultValue = ""; type = NavType.StringType }
+                    navArgument("date") { defaultValue = ""; type = NavType.StringType },
+                    navArgument("onlyDTicket") { defaultValue = false; type = NavType.BoolType }
                 )
             ) { backStackEntry ->
                 val fromId = backStackEntry.arguments?.getString("fromId")?.let { 
@@ -68,11 +69,13 @@ fun AppNavigation() {
                     if (it.isBlank()) null else URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
                 }
                 val date = backStackEntry.arguments?.getString("date")
+                val onlyDTicket = backStackEntry.arguments?.getBoolean("onlyDTicket") ?: false
                 
                 ConnectionSelectionScreen(
                     initialFromId = fromId,
                     initialToId = toId,
-                    initialDate = date
+                    initialDate = date,
+                    initialOnlyDTicket = onlyDTicket
                 )
             }
             

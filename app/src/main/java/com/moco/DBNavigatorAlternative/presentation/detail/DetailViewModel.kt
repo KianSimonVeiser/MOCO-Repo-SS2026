@@ -1,5 +1,6 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
@@ -13,6 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -62,15 +64,21 @@ class DetailViewModel(
     private fun observeComments(stationId: String, platform: String?) {
         commentsJob?.cancel()
         commentsJob = viewModelScope.launch {
-            interactionRepository.getCommentsForStation(stationId, platform).collect { comments ->
-                _uiState.update { it.copy(stationComments = comments) }
-            }
+            interactionRepository.getCommentsForStation(stationId, platform)
+                .catch { e -> Log.e("DetailViewModel", "Fehler beim Laden der Kommentare", e) }
+                .collect { comments ->
+                    _uiState.update { it.copy(stationComments = comments) }
+                }
         }
     }
 
     private suspend fun loadRating(stationId: String) {
-        val summary = interactionRepository.getStationRatingSummary(stationId)
-        _uiState.update { it.copy(stationRating = summary) }
+        try {
+            val summary = interactionRepository.getStationRatingSummary(stationId)
+            _uiState.update { it.copy(stationRating = summary) }
+        } catch (e: Exception) {
+            Log.e("DetailViewModel", "Fehler beim Laden der Bewertung", e)
+        }
     }
 
     fun onWarningEnabledChanged(isEnabled: Boolean) {

@@ -22,12 +22,13 @@ fun ConnectionSelectionScreen(
     initialFromId: String? = null,
     initialToId: String? = null,
     initialDate: String? = null,
+    initialOnlyDTicket: Boolean = false,
     viewModel: SearchViewModel = viewModel(factory = SearchViewModel.Factory)
 ) {
     // Initial-Suche einmalig ausführen
     LaunchedEffect(Unit) {
         if (initialFromId != null || initialToId != null) {
-            viewModel.setInitialSearch(initialFromId, initialToId, initialDate)
+            viewModel.setInitialSearch(initialFromId, initialToId, initialDate, initialOnlyDTicket)
         }
     }
 
@@ -66,7 +67,8 @@ fun ConnectionSelectionScreen(
                         onLocationDismissed = { viewModel.onLocationDismissed() },
                         onLocationAccepted = { viewModel.onLocationAccepted() },
                         onToggleDatePicker = { viewModel.toggleDatePicker(it) },
-                        onDateSelected = { viewModel.onDateSelected(it) }
+                        onDateSelected = { viewModel.onDateSelected(it) },
+                        onToggleOnlyDTicket = { viewModel.onToggleOnlyDTicket(it) }
                     )
                 }
                 

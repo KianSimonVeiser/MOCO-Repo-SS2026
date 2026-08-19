@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
+import com.moco.DBNavigatorAlternative.presentation.home.components.TicketOptionSection
 import com.moco.DBNavigatorAlternative.presentation.home.components.DateTimeSection
 
 /**
@@ -33,7 +34,8 @@ fun SearchHeader(
     onFromItemSelected: (NearbyLocationDto) -> Unit,
     onToItemSelected: (NearbyLocationDto) -> Unit,
     onToggleDatePicker: (Boolean) -> Unit,
-    onDateSelected: (Long?) -> Unit
+    onDateSelected: (Long?) -> Unit,
+    onToggleOnlyDTicket: (Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -64,6 +66,12 @@ fun SearchHeader(
             onDateClick = { onToggleDatePicker(true) },
             onDateSelected = onDateSelected,
             onDismiss = { onToggleDatePicker(false) }
+        )
+
+        // Ticket Option (D-Ticket Filter)
+        TicketOptionSection(
+            onlyDTicket = uiState.onlyDTicket,
+            onToggle = onToggleOnlyDTicket
         )
 
         // Früher / Später Optionen

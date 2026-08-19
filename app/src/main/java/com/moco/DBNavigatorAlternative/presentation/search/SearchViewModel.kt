@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
@@ -34,7 +35,8 @@ class SearchViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
     private val punctualityRepository: PunctualityRepository = PunctualityRepository(),
-    private val interactionRepository: InteractionRepository = InteractionRepository()
+    private val interactionRepository: InteractionRepository = InteractionRepository(),
+    private val settingsPreference: SettingsPreference? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -48,6 +50,23 @@ class SearchViewModel(
                 date = dateFormatter.format(Date()),
                 //connections = getMockConnections()
             )
+        }
+        observeSettings()
+    }
+
+    private fun observeSettings() {
+        settingsPreference?.let { prefs ->
+            viewModelScope.launch {
+                prefs.onlyDeutschlandticketConnections.collect { active ->
+                    val oldActive = _uiState.value.onlyDTicket
+                    _uiState.update { it.copy(onlyDTicket = active) }
+                    
+                    // Falls sich der Wert ändert und wir bereits Orte ausgewählt haben, Suche neu triggern
+                    if (oldActive != active) {
+                        triggerSearch()
+                    }
+                }
+            }
         }
     }
 
@@ -192,11 +211,26 @@ class SearchViewModel(
         triggerSearch()
     }
 
-    fun setInitialSearch(fromId: String?, toId: String?, dateStr: String?) {
+    fun onToggleOnlyDTicket(enabled: Boolean) {
+        _uiState.update { it.copy(onlyDTicket = enabled) }
         viewModelScope.launch {
-            _uiState.update { it.copy(date = dateStr ?: it.date) }
+            settingsPreference?.setOnlyDeutschlandticketConnections(enabled)
+        }
+        triggerSearch()
+    }
+
+    fun setInitialSearch(fromId: String?, toId: String?, dateStr: String?, onlyDTicket: Boolean? = null) {
+        viewModelScope.launch {
+            val currentOnlyDTicket = onlyDTicket ?: _uiState.value.onlyDTicket
+            val currentDate = dateStr ?: _uiState.value.date
+            
+            _uiState.update { it.copy(
+                date = currentDate,
+                onlyDTicket = currentOnlyDTicket
+            ) }
+            
             if (fromId != null && toId != null) {
-                performSearch(fromId, toId, dateStr ?: _uiState.value.date)
+                performSearch(fromId, toId, currentDate, currentOnlyDTicket)
             }
         }
     }
@@ -205,10 +239,10 @@ class SearchViewModel(
         val state = _uiState.value
         val fromId = state.fromLocation?.locationId ?: return
         val toId = state.toLocation?.locationId ?: return
-        performSearch(fromId, toId, state.date)
+        performSearch(fromId, toId, state.date, state.onlyDTicket)
     }
 
-    private fun performSearch(fromId: String, toId: String, date: String) {
+    private fun performSearch(fromId: String, toId: String, date: String, onlyDTicket: Boolean) {
         // Umwandlung von dd.MM.yyyy in yyyy-MM-dd für die API
         val isoDate = try {
             val parts = date.split(".")
@@ -225,7 +259,7 @@ class SearchViewModel(
 
         viewModelScope.launch {
             try {
-                val results = dbNavApiService.getConnections(fromId, toId, isoDateTime)
+                val results = dbNavApiService.getConnections(fromId, toId, isoDateTime, onlyDTicket)
                 _uiState.update { it.copy(connections = results) }
             } catch (e: Exception) {
                 Log.e("SearchViewModel", "Fehler bei Verbindungssuche", e)
@@ -241,11 +275,15 @@ class SearchViewModel(
         if (_uiState.value.punctualityCache.containsKey(connection.id)) return
 
         viewModelScope.launch {
-            val info = punctualityRepository.getPunctualityForConnection(connection)
-            _uiState.update {
-                val newCache = it.punctualityCache.toMutableMap()
-                newCache[connection.id] = info
-                it.copy(punctualityCache = newCache)
+            try {
+                val info = punctualityRepository.getPunctualityForConnection(connection)
+                _uiState.update {
+                    val newCache = it.punctualityCache.toMutableMap()
+                    newCache[connection.id] = info
+                    it.copy(punctualityCache = newCache)
+                }
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", "Fehler beim Laden der Pünktlichkeit", e)
             }
         }
     }
@@ -262,13 +300,17 @@ class SearchViewModel(
         if (_uiState.value.stationRatingCache.containsKey(stationId)) return
 
         viewModelScope.launch {
-            val summary = interactionRepository.getStationRatingSummary(stationId)
-            if (summary != null) {
-                _uiState.update {
-                    val newCache = it.stationRatingCache.toMutableMap()
-                    newCache[stationId] = summary
-                    it.copy(stationRatingCache = newCache)
+            try {
+                val summary = interactionRepository.getStationRatingSummary(stationId)
+                if (summary != null) {
+                    _uiState.update {
+                        val newCache = it.stationRatingCache.toMutableMap()
+                        newCache[stationId] = summary
+                        it.copy(stationRatingCache = newCache)
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("SearchViewModel", "Fehler beim Laden der Bahnhofsbewertung für $stationId", e)
             }
         }
     }
@@ -283,11 +325,13 @@ class SearchViewModel(
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
                 val locationRepository = LocationRepositoryImpl(application.applicationContext)
+                val settingsPreference = SettingsPreference(application.applicationContext)
                 return SearchViewModel(
                     locationRepository = locationRepository,
                     dbNavApiService = HomeViewModel.dbNavApiServiceInstance,
                     punctualityRepository = PunctualityRepository(),
-                    interactionRepository = InteractionRepository()
+                    interactionRepository = InteractionRepository(),
+                    settingsPreference = settingsPreference
                 ) as T
             }
         }

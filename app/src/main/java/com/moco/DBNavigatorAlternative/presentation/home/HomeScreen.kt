@@ -30,7 +30,7 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
  */
 @Composable
 fun HomeScreen(
-    onNavigateToSearch: (fromId: String?, toId: String?, date: String) -> Unit,
+    onNavigateToSearch: (fromId: String?, toId: String?, date: String, onlyDTicket: Boolean) -> Unit,
     viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory()
     )
@@ -107,7 +107,8 @@ fun HomeScreen(
                         onNavigateToSearch(
                             uiState.fromLocation?.locationId,
                             uiState.toLocation?.locationId,
-                            uiState.date
+                            uiState.date,
+                            uiState.onlyDTicket
                         )
                     }
                 )

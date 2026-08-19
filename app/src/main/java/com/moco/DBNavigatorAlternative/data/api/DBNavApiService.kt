@@ -16,7 +16,7 @@ interface DBNavApiService {
      * Sucht Stationen nach Namen und gibt vollständige Location-Daten zurück.
      */
     suspend fun getStationsByName(
-        name: String
+        name: String,
     ): List<NearbyLocationDto>
 
     /**
@@ -28,6 +28,7 @@ interface DBNavApiService {
     suspend fun getConnections(
         fromId: String,
         toId: String,
-        dateTime: String
+        dateTime: String,
+        onlyDTicket: Boolean
     ): List<Connection>
 }
