@@ -55,7 +55,6 @@ class InteractionRepository(
                 return@addSnapshotListener
             }
             if (snapshot != null) {
-                // toObjects fängt Fehler nun ab, falls noch "Leichen" im Cache liegen
                 val comments = try {
                     snapshot.toObjects(StationComment::class.java)
                 } catch (e: Exception) {
@@ -89,9 +88,6 @@ class InteractionRepository(
             .toObject(StationRatingSummary::class.java)
     }
 
-    /**
-     * Lädt alle Kommentare eines spezifischen Nutzers.
-     */
     suspend fun getCommentsForUser(userId: String): List<StationComment> {
         return try {
             val snapshot = commentsCollection.whereEqualTo("userId", userId).get().await()
@@ -102,16 +98,10 @@ class InteractionRepository(
         }
     }
 
-    /**
-     * Löscht einen spezifischen Kommentar anhand seiner ID.
-     */
     suspend fun deleteComment(commentId: String) {
         commentsCollection.document(commentId).delete().await()
     }
 
-    /**
-     * Löscht alle Kommentare eines Nutzers.
-     */
     suspend fun clearAllUserComments(userId: String) {
         try {
             val snapshot = commentsCollection.whereEqualTo("userId", userId).get().await()
@@ -126,32 +116,33 @@ class InteractionRepository(
     }
 
     /**
-     * Speichert eine Verbindung als Favorit.
+     * Speichert eine spezifische Verbindung anhand ihrer ID.
      */
     suspend fun addFavorite(favorite: FavoriteConnection) {
-        val docId = "${favorite.userId}_${favorite.fromStation}_${favorite.toStation}"
+        val docId = "${favorite.userId}_${favorite.connectionId}"
         favoritesCollection.document(docId).set(favorite).await()
     }
 
     /**
      * Entfernt eine Verbindung aus den Favoriten.
      */
-    suspend fun removeFavorite(userId: String, from: String, to: String) {
-        val docId = "${userId}_${from}_${to}"
+    suspend fun removeFavorite(userId: String, connectionId: String) {
+        val docId = "${userId}_${connectionId}"
         favoritesCollection.document(docId).delete().await()
     }
 
     /**
-     * Prüft, ob eine Verbindung favorisiert ist.
+     * Prüft, ob diese exakte Verbindung favorisiert ist.
      */
-    suspend fun isFavorite(userId: String, from: String, to: String): Boolean {
-        val docId = "${userId}_${from}_${to}"
-        return favoritesCollection.document(docId).get().await().exists()
+    suspend fun isFavorite(userId: String, connectionId: String): Boolean {
+        val docId = "${userId}_${connectionId}"
+        return try {
+            favoritesCollection.document(docId).get().await().exists()
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    /**
-     * Lädt alle Favoriten eines Nutzers als Flow.
-     */
     fun getFavorites(userId: String): Flow<List<FavoriteConnection>> = callbackFlow {
         val listener = favoritesCollection.whereEqualTo("userId", userId)
             .addSnapshotListener { snapshot, error ->
@@ -167,9 +158,6 @@ class InteractionRepository(
         awaitClose { listener.remove() }
     }
 
-    /**
-     * Löscht alle Favoriten eines Nutzers.
-     */
     suspend fun clearAllFavorites(userId: String) {
         try {
             val snapshot = favoritesCollection.whereEqualTo("userId", userId).get().await()

@@ -29,16 +29,17 @@ class DetailViewModel(
 
     private var commentsJob: Job? = null
 
+    /**
+     * Initialisiert die Verbindungsinformationen und prüft den Favoritenstatus.
+     */
     fun setConnection(connection: Connection) {
         viewModelScope.launch {
             val punctualityInfo = punctualityRepository.getPunctualityForConnection(connection)
             
-            // Favoriten-Status prüfen
+            // Favoriten-Status anhand der exakten Verbindungs-ID prüfen
             val currentUser = userRepository.currentUser.value
             val isFav = if (currentUser != null) {
-                val from = connection.segments.firstOrNull()?.departureStop?.name.orEmpty()
-                val to = connection.segments.lastOrNull()?.arrivalStop?.name.orEmpty()
-                interactionRepository.isFavorite(currentUser.userId, from, to)
+                interactionRepository.isFavorite(currentUser.userId, connection.id)
             } else false
 
             _uiState.update { currentState ->
@@ -86,12 +87,11 @@ class DetailViewModel(
     }
 
     /**
-     * Toggled den Favoriten-Status der aktuellen Verbindung.
+     * Toggled den Favoriten-Status der exakten Verbindung.
      */
     fun onFavoriteToggle(connection: Connection) {
         val currentUser = userRepository.currentUser.value
         
-        // Prüfung: Ist der Nutzer angemeldet?
         if (currentUser == null) {
             _uiState.update { it.copy(showAuthWarning = true) }
             return
@@ -100,18 +100,24 @@ class DetailViewModel(
         val currentState = _uiState.value
         val isCurrentlyFav = currentState.isFavorite
         
-        val from = connection.segments.firstOrNull()?.departureStop?.name.orEmpty()
-        val to = connection.segments.lastOrNull()?.arrivalStop?.name.orEmpty()
+        val firstSeg = connection.segments.firstOrNull()
+        val lastSeg = connection.segments.lastOrNull()
 
         viewModelScope.launch {
             if (isCurrentlyFav) {
-                interactionRepository.removeFavorite(currentUser.userId, from, to)
+                // Löschen über die eindeutige ID
+                interactionRepository.removeFavorite(currentUser.userId, connection.id)
                 _uiState.update { it.copy(isFavorite = false) }
             } else {
+                // Speichern mit allen Reisedetails
                 val favorite = FavoriteConnection(
+                    connectionId = connection.id,
                     userId = currentUser.userId,
-                    fromStation = from,
-                    toStation = to
+                    fromStation = firstSeg?.departureStop?.name.orEmpty(),
+                    toStation = lastSeg?.arrivalStop?.name.orEmpty(),
+                    lineName = firstSeg?.train?.line.orEmpty(),
+                    departureTime = firstSeg?.departureStop?.time.orEmpty(),
+                    arrivalTime = lastSeg?.arrivalStop?.time.orEmpty()
                 )
                 interactionRepository.addFavorite(favorite)
                 _uiState.update { it.copy(isFavorite = true) }
@@ -140,7 +146,6 @@ class DetailViewModel(
         val segment = connection.segments.find { it.id == currentState.selectedSegmentId } ?: return
         val currentUser = userRepository.currentUser.value
         
-        // Nur angemeldete Nutzer dürfen kommentieren (oder wir nutzen Platzhalter falls nicht)
         val userId = currentUser?.userId ?: "anonymous"
         val username = currentUser?.username ?: "Anonymer Reisender"
 
@@ -159,7 +164,7 @@ class DetailViewModel(
     }
 
     fun submitRating(stationId: String, rating: Int) {
-        val currentUser = userRepository.currentUser.value ?: return // Nur angemeldete Nutzer
+        val currentUser = userRepository.currentUser.value ?: return
 
         viewModelScope.launch {
             interactionRepository.addRating(
