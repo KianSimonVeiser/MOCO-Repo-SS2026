@@ -4,14 +4,13 @@ import android.util.Log
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moco.DBNavigatorAlternative.data.InteractionRepository
-import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.remote.HttpClientFactory
 import com.moco.DBNavigatorAlternative.data.remote.NearbyStationsRemoteImpl
 import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
+import com.moco.DBNavigatorAlternative.domain.repository.FavoriteRepository
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -36,8 +35,7 @@ import java.util.Locale
 class HomeViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
-    private val interactionRepository: InteractionRepository = InteractionRepository(),
-    private val userRepository: UserRepository = UserRepository,
+    private val favoriteRepository: FavoriteRepository,
     private val settingsPreference: SettingsPreference? = null
 ) : ViewModel() {
 
@@ -90,17 +88,11 @@ class HomeViewModel(
 
     private fun observeFavorites() {
         viewModelScope.launch {
-            userRepository.currentUser.collect { user ->
-                if (user != null) {
-                    interactionRepository.getFavorites(user.userId)
-                        .catch { e -> Log.e(TAG, "Fehler beim Laden der Favoriten", e) }
-                        .collect { favs ->
-                            _uiState.update { it.copy(favorites = favs) }
-                        }
-                } else {
-                    _uiState.update { it.copy(favorites = emptyList()) }
+            favoriteRepository.getAllFavorites()
+                .catch { e -> Log.e(TAG, "Fehler beim Laden der Favoriten", e) }
+                .collect { favs ->
+                    _uiState.update { it.copy(favorites = favs) }
                 }
-            }
         }
     }
 
@@ -109,15 +101,10 @@ class HomeViewModel(
     // ---------------------------------------------------------
 
     /**
-     * Klick auf einen Favoriten füllt die Felder automatisch aus.
+     * Klick auf einen Favoriten triggert die Detailansicht direkt.
      */
-    fun onFavoriteClicked(favorite: FavoriteConnection) {
-        _uiState.value.fromTextFieldState.edit {
-            replace(0, length, favorite.fromStation)
-        }
-        _uiState.value.toTextFieldState.edit {
-            replace(0, length, favorite.toStation)
-        }
+    fun onFavoriteClicked(favorite: FavoriteConnection, onNavigateToDetail: (connectionId: String, date: String) -> Unit) {
+        onNavigateToDetail(favorite.connectionId, _uiState.value.date)
     }
 
     private var searchJobFrom: kotlinx.coroutines.Job? = null

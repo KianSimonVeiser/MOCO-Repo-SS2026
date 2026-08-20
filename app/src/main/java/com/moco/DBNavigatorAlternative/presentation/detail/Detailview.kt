@@ -24,30 +24,38 @@ import com.moco.DBNavigatorAlternative.presentation.profile.ProfilePopup
 
 @Composable
 fun DetailScreen(
-    connection: Connection,
-    viewModel: DetailViewModel = viewModel()
+    connectionId: String? = null,
+    initialDate: String? = null,
+    connection: Connection? = null,
+    viewModel: DetailViewModel = viewModel(factory = DetailViewModelFactory())
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(connection) {
-        viewModel.setConnection(connection)
+    LaunchedEffect(connection, connectionId) {
+        if (connection != null) {
+            viewModel.setConnection(connection)
+        } else if (connectionId != null) {
+            viewModel.loadConnectionById(connectionId, initialDate)
+        }
     }
 
-    DetailScreenContent(
-        connection = connection,
-        uiState = uiState,
-        onFavoriteToggle = { viewModel.onFavoriteToggle(connection) },
-        onCommentsClick = viewModel::showCommentSheet,
-        onDismissCommentSheet = viewModel::hideCommentSheet,
-        onCommentTextChanged = viewModel::onCommentTextChanged,
-        onSendComment = { viewModel.submitComment(connection) },
-        onSegmentMenuClick = viewModel::showSegmentMenu,
-        onSegmentMenuDismiss = viewModel::hideSegmentMenu,
-        onSegmentSelected = { viewModel.onSegmentSelected(it, connection) },
-        onRatingSelected = { stationId, rating ->
-            viewModel.submitRating(stationId, rating)
-        }
-    )
+    uiState.connection?.let { currentConnection ->
+        DetailScreenContent(
+            connection = currentConnection,
+            uiState = uiState,
+            onFavoriteToggle = { viewModel.onFavoriteToggle(currentConnection) },
+            onCommentsClick = viewModel::showCommentSheet,
+            onDismissCommentSheet = viewModel::hideCommentSheet,
+            onCommentTextChanged = viewModel::onCommentTextChanged,
+            onSendComment = { viewModel.submitComment(currentConnection) },
+            onSegmentMenuClick = viewModel::showSegmentMenu,
+            onSegmentMenuDismiss = viewModel::hideSegmentMenu,
+            onSegmentSelected = { viewModel.onSegmentSelected(it, currentConnection) },
+            onRatingSelected = { stationId, rating ->
+                viewModel.submitRating(stationId, rating)
+            }
+        )
+    }
 
     // Authentifizierungs-Warnung
     if (uiState.showAuthWarning) {

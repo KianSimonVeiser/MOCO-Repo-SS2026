@@ -1,10 +1,12 @@
 package com.moco.DBNavigatorAlternative.presentation.detail
 
+import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
 import com.moco.DBNavigatorAlternative.domain.model.StationComment
 import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
 
 data class DetailUiState(
+    val connection: Connection? = null,
     val isCommentSheetVisible: Boolean = false,
     val isWarningEnabled: Boolean = true,
     val isFavorite: Boolean = false,
