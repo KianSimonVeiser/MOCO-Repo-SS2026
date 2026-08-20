@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.data.SearchStateStore
 import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
@@ -71,17 +72,14 @@ class HomeViewModel(
     }
 
     private fun setInitialDateAndTime() {
-        val now = Calendar.getInstance()
-
+        // Wir nutzen die Werte aus dem globalen SearchStateStore, 
+        // damit sie beim Screen-Wechsel erhalten bleiben.
         _uiState.update {
             it.copy(
-                date = dateFormatter.format(Date()),
-                time = String.format(
-                    Locale.GERMANY,
-                    "%02d:%02d",
-                    now.get(Calendar.HOUR_OF_DAY),
-                    now.get(Calendar.MINUTE)
-                )
+                date = SearchStateStore.date,
+                time = SearchStateStore.time,
+                isArrival = SearchStateStore.isArrival,
+                onlyDTicket = SearchStateStore.onlyDTicket
             )
         }
 
@@ -112,6 +110,10 @@ class HomeViewModel(
      * Klick auf einen Favoriten füllt die Felder automatisch aus.
      */
     fun onFavoriteClicked(favorite: FavoriteConnection) {
+        SearchStateStore.fromLocation = null
+        SearchStateStore.toLocation = null
+        _uiState.update { it.copy(fromLocation = null, toLocation = null) }
+
         _uiState.value.fromTextFieldState.edit {
             replace(0, length, favorite.fromStation)
         }
@@ -153,10 +155,12 @@ class HomeViewModel(
     }
 
     fun onFromItemSelected(location: NearbyLocationDto) {
+        SearchStateStore.fromLocation = location
         _uiState.update { it.copy(fromLocation = location, fromSearchResult = emptyList()) }
     }
 
     fun onToItemSelected(location: NearbyLocationDto) {
+        SearchStateStore.toLocation = location
         _uiState.update { it.copy(toLocation = location, toSearchResult = emptyList()) }
     }
 
@@ -207,6 +211,7 @@ class HomeViewModel(
         millis ?: return
 
         val selectedDate = dateFormatter.format(Date(millis))
+        SearchStateStore.date = selectedDate
 
         _uiState.update {
             it.copy(
@@ -233,6 +238,7 @@ class HomeViewModel(
             hour,
             minute
         )
+        SearchStateStore.time = selectedTime
 
         _uiState.update {
             it.copy(
@@ -247,6 +253,7 @@ class HomeViewModel(
     // ---------------------------------------------------------
 
     fun toggleArrival(arrival: Boolean) {
+        SearchStateStore.isArrival = arrival
         _uiState.update {
             it.copy(isArrival = arrival)
         }
@@ -257,6 +264,7 @@ class HomeViewModel(
     // ---------------------------------------------------------
 
     fun toggleOnlyDTicket(active: Boolean) {
+        SearchStateStore.onlyDTicket = active
         _uiState.update {
             it.copy(onlyDTicket = active)
         }
@@ -317,6 +325,8 @@ class HomeViewModel(
                         text = nearestStation.name
                     )
                 }
+                
+                SearchStateStore.fromLocation = nearestStation
 
                 _uiState.update {
                     it.copy(

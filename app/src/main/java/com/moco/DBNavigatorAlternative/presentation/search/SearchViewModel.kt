@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
+import com.moco.DBNavigatorAlternative.data.SearchStateStore
 import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
@@ -47,8 +48,8 @@ class SearchViewModel(
     init {
         _uiState.update {
             it.copy(
-                date = dateFormatter.format(Date()),
-                //connections = getMockConnections()
+                date = SearchStateStore.date,
+                onlyDTicket = SearchStateStore.onlyDTicket
             )
         }
         observeSettings()
@@ -146,6 +147,7 @@ class SearchViewModel(
     fun onDateSelected(millis: Long?) {
         millis?.let {
             val selectedDate = dateFormatter.format(Date(it))
+            SearchStateStore.date = selectedDate
             _uiState.update {
                 it.copy(
                     date = selectedDate,
@@ -184,6 +186,8 @@ class SearchViewModel(
                         _uiState.value.fromTextFieldState.edit {
                             replace(0, length, nearestStation.name)
                         }
+                        
+                        SearchStateStore.fromLocation = nearestStation
 
                         _uiState.update {
                             it.copy(
@@ -202,16 +206,19 @@ class SearchViewModel(
     }
 
     fun onFromItemSelected(location: NearbyLocationDto) {
+        SearchStateStore.fromLocation = location
         _uiState.update { it.copy(fromLocation = location, fromSearchResult = emptyList()) }
         triggerSearch()
     }
 
     fun onToItemSelected(location: NearbyLocationDto) {
+        SearchStateStore.toLocation = location
         _uiState.update { it.copy(toLocation = location, toSearchResult = emptyList()) }
         triggerSearch()
     }
 
     fun onToggleOnlyDTicket(enabled: Boolean) {
+        SearchStateStore.onlyDTicket = enabled
         _uiState.update { it.copy(onlyDTicket = enabled) }
         viewModelScope.launch {
             settingsPreference?.setOnlyDeutschlandticketConnections(enabled)
@@ -224,6 +231,10 @@ class SearchViewModel(
             val currentOnlyDTicket = onlyDTicket ?: _uiState.value.onlyDTicket
             val currentDate = dateStr ?: _uiState.value.date
             
+            // Globalen Store aktualisieren, damit die Werte beim Zurückgehen erhalten bleiben
+            SearchStateStore.date = currentDate
+            onlyDTicket?.let { SearchStateStore.onlyDTicket = it }
+
             _uiState.update { it.copy(
                 date = currentDate,
                 onlyDTicket = currentOnlyDTicket
