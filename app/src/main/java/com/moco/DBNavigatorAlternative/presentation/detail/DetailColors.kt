@@ -7,14 +7,15 @@ import com.moco.DBNavigatorAlternative.domain.model.TrainType
  * Definiert die Farben für die verschiedenen Zugtypen.
  */
 fun TrainType.color(): Color = when (this) {
-    TrainType.ICE -> Color.LightGray
-    TrainType.IC -> Color.LightGray
-    TrainType.RE -> Color(0xFFE2104E)
-    TrainType.RB -> Color(0xFFE2104E)
+    TrainType.ICE -> Color(0xFFEF576E)
+    TrainType.IC -> Color(0xFF9FDA5A)
+    TrainType.RE -> Color(0xFF5A8DD3)
+    TrainType.RB -> Color(0xFF689EC5)
     TrainType.S_BAHN -> Color(0xFF43A047)
     TrainType.U_BAHN -> Color(0xFF1565C0)
     TrainType.TRAM -> Color(0xFF8E24AA)
-    TrainType.BUS -> Color(0xFFFF8F00)
+    TrainType.BUS -> Color(0xFF009688)
+    TrainType.WALK -> Color(0xFFD5D4D4)
 }
 
 /**

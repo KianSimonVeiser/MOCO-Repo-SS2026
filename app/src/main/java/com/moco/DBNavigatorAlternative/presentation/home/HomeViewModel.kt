@@ -122,6 +122,14 @@ class HomeViewModel(
         }
     }
 
+    fun onDeleteFavorite(favorite: FavoriteConnection) {
+        viewModelScope.launch {
+            userRepository.currentUser.value?.let { user ->
+                interactionRepository.removeFavorite(user.userId, favorite.connectionId)
+            }
+        }
+    }
+
     private var searchJobFrom: kotlinx.coroutines.Job? = null
     private var searchJobTo: kotlinx.coroutines.Job? = null
 

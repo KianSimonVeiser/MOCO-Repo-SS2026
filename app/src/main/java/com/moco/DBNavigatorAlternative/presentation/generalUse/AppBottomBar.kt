@@ -3,9 +3,10 @@ package com.moco.DBNavigatorAlternative.presentation.generalUse
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AreaChart
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
@@ -14,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppBottomBar(
@@ -33,9 +35,10 @@ fun AppBottomBar(
                     onClick = onAddClick,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AddCircle,
-                        contentDescription = "Hinzufügen",
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Home",
                         tint = if (selectedItem == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = if (selectedItem == 0) Modifier.size(30.dp) else Modifier.size(24.dp)
                     )
                 }
 
@@ -46,6 +49,7 @@ fun AppBottomBar(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Suchen",
                         tint = if (selectedItem == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = if (selectedItem == 1) Modifier.size(30.dp) else Modifier.size(24.dp)
                     )
                 }
 
@@ -56,6 +60,7 @@ fun AppBottomBar(
                         imageVector = Icons.Default.AreaChart,
                         contentDescription = "Statistik",
                         tint = if (selectedItem == 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = if (selectedItem == 2) Modifier.size(30.dp) else Modifier.size(24.dp)
                     )
                 }
 
@@ -66,6 +71,7 @@ fun AppBottomBar(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profil",
                         tint = if (selectedItem == 3) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = if (selectedItem == 3) Modifier.size(30.dp) else Modifier.size(24.dp)
                     )
                 }
             }

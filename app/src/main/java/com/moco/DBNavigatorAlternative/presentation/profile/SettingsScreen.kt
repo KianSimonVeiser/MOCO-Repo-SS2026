@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -73,7 +74,8 @@ fun SettingsScreen(
             } else {
                 ProfileButton(
                     text = stringResource(id = R.string.save_changes),
-                    containerColor = MaterialTheme.colorScheme.tertiary, // Pastel-Grün
+                    containerColor = Color(0xFFBA1A1A),
+                    contentColor = Color.White,
                     onClick = { viewModel.saveAllSettings() }
                 )
             }

@@ -3,9 +3,11 @@ package com.moco.DBNavigatorAlternative.presentation.generalUse
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
@@ -22,16 +24,46 @@ import java.nio.charset.StandardCharsets
 fun AppNavigation() {
     val navController = rememberNavController() //zentrales steuerelement für die navigation
 
+    // Beobachtet die aktuelle Route, um den Zustand der BottomBar zu aktualisieren
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val selectedIndex = when {
+        currentRoute == "home" -> 0
+        currentRoute?.startsWith("search") == true -> 1
+        currentRoute == "detail" -> 2
+        currentRoute == "profile" -> 3
+        else -> -1
+    }
 
     Scaffold(
         bottomBar = {
             // Die BottomBar wird nur EINMAL hier definiert
             //routing logik
             AppBottomBar(
-                onAddClick = { navController.navigate("home") },
-                onSearchClick = { navController.navigate("search") },
-                onChartClick = { navController.navigate("detail") },
-                onProfileClick = { navController.navigate("profile") }
+                selectedItem = selectedIndex,
+                onAddClick = { 
+                    if (currentRoute != "home") {
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    }
+                },
+                onSearchClick = { 
+                    if (currentRoute != "search") {
+                        navController.navigate("search")
+                    }
+                },
+                onChartClick = { 
+                    if (currentRoute != "detail") {
+                        navController.navigate("detail")
+                    }
+                },
+                onProfileClick = { 
+                    if (currentRoute != "profile") {
+                        navController.navigate("profile")
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -75,14 +107,16 @@ fun AppNavigation() {
                     initialFromId = fromId,
                     initialToId = toId,
                     initialDate = date,
-                    initialOnlyDTicket = onlyDTicket
+                    initialOnlyDTicket = onlyDTicket,
+                    onNavigateToDetail = { navController.navigate("detail") }
                 )
             }
             
             composable("profile") { ProfileScreen() }
-            composable("detail") { DetailScreen(
-                connection = previewConnection
-            ) }
+            composable("detail") { 
+                val connection = com.moco.DBNavigatorAlternative.data.SearchStateStore.selectedConnection ?: previewConnection
+                DetailScreen(connection = connection) 
+            }
         }
     }
 }

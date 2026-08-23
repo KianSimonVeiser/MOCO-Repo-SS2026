@@ -37,5 +37,6 @@ enum class TrainType {
     S_BAHN,
     U_BAHN,
     TRAM,
-    BUS
+    BUS,
+    WALK
 }

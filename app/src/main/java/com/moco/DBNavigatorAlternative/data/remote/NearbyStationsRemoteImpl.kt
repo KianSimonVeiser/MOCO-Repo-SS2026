@@ -225,7 +225,11 @@
                             ),
                             train = Train(
                                 id = abschnitt.zugNummer ?: UUID.randomUUID().toString(),
-                                type = mapToTrainType(abschnitt.produktGattung),
+                                type = if (abschnitt.typ?.uppercase() == "FUSSWEG" || abschnitt.typ?.uppercase() == "WALK") {
+                                    TrainType.WALK
+                                } else {
+                                    mapToTrainType(abschnitt.produktGattung)
+                                },
                                 line = abschnitt.mitteltext ?: abschnitt.typ
                             ),
                             currentProgress = 0f // Standardwert

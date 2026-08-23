@@ -279,6 +279,7 @@ class SearchViewModel(
     }
 
     fun onConnectionSelected(connection: Connection?) {
+        SearchStateStore.selectedConnection = connection
         _uiState.update { it.copy(selectedConnection = connection) }
     }
 

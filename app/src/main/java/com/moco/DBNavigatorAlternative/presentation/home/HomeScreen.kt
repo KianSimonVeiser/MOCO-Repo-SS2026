@@ -116,7 +116,8 @@ fun HomeScreen(
                 // --- 6. SEKTION: MEINE FAVORITEN ---
                 FavoritesSection(
                     favorites = uiState.favorites,
-                    onFavoriteClick = { viewModel.onFavoriteClicked(it) }
+                    onFavoriteClick = { viewModel.onFavoriteClicked(it) },
+                    onDeleteFavorite = { viewModel.onDeleteFavorite(it) }
                 )
             }
         }

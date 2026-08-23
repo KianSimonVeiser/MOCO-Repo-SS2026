@@ -27,7 +27,7 @@
     <string name="delete_account">Konto unwiderruflich löschen</string>
     <string name="historical_punctuality">Historische Pünktlichkeit</string>
     <string name="comments">Kommentare</string>
-    <string name="station_rating">Bahnhofsbewertung</string>
+    <string name="station_rating">Streckenbewertung</string>
     <string name="departure">Abfahrt</string>
     <string name="arrival">Ankunft</string>
     <string name="welcome_back">Willkommen zurück!</string>

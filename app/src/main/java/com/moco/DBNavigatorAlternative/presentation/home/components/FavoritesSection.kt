@@ -2,8 +2,11 @@ package com.moco.DBNavigatorAlternative.presentation.home.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
@@ -16,6 +19,7 @@ import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 fun FavoritesSection(
     favorites: List<FavoriteConnection>,
     onFavoriteClick: (FavoriteConnection) -> Unit,
+    onDeleteFavorite: (FavoriteConnection) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (favorites.isEmpty()) return // Zeige nichts an, wenn keine Favoriten da sind
@@ -35,7 +39,8 @@ fun FavoritesSection(
                 favorites.forEachIndexed { index, favorite ->
                     FavoriteItem(
                         text = "${favorite.fromStation} → ${favorite.toStation}",
-                        onClick = { onFavoriteClick(favorite) }
+                        onClick = { onFavoriteClick(favorite) },
+                        onDeleteClick = { onDeleteFavorite(favorite) }
                     )
                     
                     if (index < favorites.size - 1) {
@@ -51,16 +56,30 @@ fun FavoritesSection(
 }
 
 /**
- * Ein einzelner klickbarer Favoriten-Eintrag.
+ * Ein einzelner klickbarer Favoriten-Eintrag mit Lösch-Button.
  */
 @Composable
-private fun FavoriteItem(text: String, onClick: () -> Unit) {
-    Box(
+private fun FavoriteItem(
+    text: String, 
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = text, style = MaterialTheme.typography.bodyLarge)
+        Text(text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        
+        IconButton(onClick = onDeleteClick) {
+            Icon(
+                imageVector = Icons.Default.Delete, 
+                contentDescription = "Löschen",
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }

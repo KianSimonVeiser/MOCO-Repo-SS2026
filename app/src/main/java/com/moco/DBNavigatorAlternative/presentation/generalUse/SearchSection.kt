@@ -79,6 +79,7 @@ fun SearchSection(
                     onSearch = { onFromChanged(fromTextFieldState) },
                     searchResults = fromSearchResultValue,
                     onItemSelected = onFromItemSelected,
+                    placeholder = "Abfahrt:",
                     modifier = Modifier.weight(1f)
                 )
 
@@ -99,6 +100,7 @@ fun SearchSection(
                 onSearch = { onToChange(toTextFieldState) },
                 searchResults = toSearchResultValue,
                 onItemSelected = onToItemSelected,
+                placeholder = "Ankunft:",
                 modifier = Modifier.fillMaxWidth()
             )
         }

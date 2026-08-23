@@ -16,6 +16,9 @@ object SearchStateStore {
     var fromLocation: NearbyLocationDto? = null
     var toLocation: NearbyLocationDto? = null
     
+    // Hält die aktuell ausgewählte Verbindung für die Detailansicht bereit
+    var selectedConnection: com.moco.DBNavigatorAlternative.domain.model.Connection? = null
+    
     private val dateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
     
     var date: String = dateFormatter.format(Date())
