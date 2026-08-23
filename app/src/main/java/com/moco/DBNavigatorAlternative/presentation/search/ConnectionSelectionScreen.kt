@@ -62,7 +62,7 @@ fun ConnectionSelectionScreen(
                 )
             }
             
-            // Dynamische Liste der Zugverbindungen
+            // Dynamische Liste der Zugverbindungen!
             items(uiState.connections) { connection ->
                 // Starte das Laden der Pünktlichkeitsdaten und Bahnhofsbewertungen
                 LaunchedEffect(connection.id) {
