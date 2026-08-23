@@ -15,6 +15,7 @@ import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
 import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
 import com.moco.DBNavigatorAlternative.domain.model.TrainType
+import com.moco.DBNavigatorAlternative.presentation.theme.*
 
 /**
  * Eine Karte, die eine einzelne Zugverbindung in der Ergebnisliste darstellt.
@@ -45,7 +46,7 @@ fun ConnectionCard(
                         text = "${connection.segments.firstOrNull()?.departureStop?.time} → ${connection.segments.lastOrNull()?.arrivalStop?.time}",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = if (isCritical) Color(0xFFE2104E) else MaterialTheme.colorScheme.onSurface
+                        color = if (isCritical) Color(0xFFBA1A1A) else MaterialTheme.colorScheme.onSurface
                     )
                     
                     // Anzeige der Bahnhofsbewertung
@@ -53,7 +54,7 @@ fun ConnectionCard(
                         Text(
                             text = "Bahnhof: %.1f ★ (%d)".format(stationRating.averageRating, stationRating.reviewCount),
                             fontSize = 12.sp,
-                            color = Color(0xFFFFD700)
+                            color = Color(0xFF6B5E00) // Muted Gold
                         )
                     }
                 }
@@ -81,18 +82,18 @@ fun ConnectionCard(
  */
 @Composable
 fun ScoreBadge(score: Double?) {
-    val color = when {
-        score == null -> Color.Gray
-        score >= 8.0 -> Color(0xFF76B82A) // Grün
-        score >= 5.0 -> Color(0xFFFFD700) // Gelb
-        else -> Color(0xFFE2104E)        // Rot
+    val (color, onColor) = when {
+        score == null -> Color(0xFF73777F) to Color.White
+        score >= 8.0 -> Color(0xFF426915) to Color.White // Clean Green
+        score >= 5.0 -> Color(0xFF6B5E00) to Color.White // Clean Yellow/Gold
+        else -> Color(0xFFBA1A1A) to Color.White // Clean Red
     }
     Surface(color = color, shape = RoundedCornerShape(8.dp)) {
         Text(
             text = score?.let { "%.1f".format(it) } ?: "...",
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             fontWeight = FontWeight.Bold,
-            color = if (score != null && score >= 5.0 && score < 8.0) Color.Black else Color.White
+            color = onColor
         )
     }
 }
@@ -100,26 +101,29 @@ fun ScoreBadge(score: Double?) {
 @Composable
 fun TrainBadge(name: String, type: TrainType) {
     val color = when(type) {
-        TrainType.ICE -> Color.LightGray
-        TrainType.RE, TrainType.RB -> Color(0xFFE2104E)
+        TrainType.ICE -> Color(0xFFDFE2EB)
+        TrainType.RE, TrainType.RB -> Color(0xFFBA1A1A).copy(alpha = 0.1f) // Light Red for Regio
         else -> MaterialTheme.colorScheme.secondaryContainer
     }
+    val textColor = if (type == TrainType.ICE) Color(0xFF43474E) else if (type == TrainType.RE || type == TrainType.RB) Color(0xFFBA1A1A) else MaterialTheme.colorScheme.onSecondaryContainer
+
     Surface(color = color, shape = RoundedCornerShape(8.dp)) {
-        Text(name, Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelMedium)
+        Text(name, Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelMedium, color = textColor)
     }
 }
 
 @Composable
 fun BindingHint(probPercent: Int) {
     Surface(
-        color = Color(0xFF76B82A).copy(0.2f), 
+        color = Color(0xFF426915).copy(0.1f), 
         shape = RoundedCornerShape(8.dp), 
-        border = BorderStroke(1.dp, Color(0xFF76B82A))
+        border = BorderStroke(1.dp, Color(0xFF426915))
     ) {
         Text(
             text = "Zugbindung aufgehoben ($probPercent% Wahrscheinlichkeit)", 
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), 
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
+            color = Color(0xFF426915)
         )
     }
 }

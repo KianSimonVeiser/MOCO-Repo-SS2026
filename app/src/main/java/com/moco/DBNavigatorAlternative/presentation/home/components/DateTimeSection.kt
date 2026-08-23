@@ -42,7 +42,6 @@ fun DateTimeSection(
         }
     }
 
-    // Eine OutlinedCard (mit Rahmen), die beim Anklicken den Kalender öffnet
     OutlinedCard(
         onClick = onDateClick,
         modifier = modifier.fillMaxWidth(),

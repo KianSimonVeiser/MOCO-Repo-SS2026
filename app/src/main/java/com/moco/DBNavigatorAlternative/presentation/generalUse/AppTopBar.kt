@@ -20,7 +20,7 @@ fun AppTopBar(
         },
         actions = actions,
         colors = topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            containerColor = MaterialTheme.colorScheme.surface,
             titleContentColor = MaterialTheme.colorScheme.primary
         )
     )

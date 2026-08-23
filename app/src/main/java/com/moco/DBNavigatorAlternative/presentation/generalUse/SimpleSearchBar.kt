@@ -66,7 +66,7 @@ fun SimpleSearchBar(
                     },
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
-                    placeholder = { Text("Suche...") }
+                    placeholder = { Text("Wohin soll es gehen?") }
                 )
             },
             expanded = expanded,

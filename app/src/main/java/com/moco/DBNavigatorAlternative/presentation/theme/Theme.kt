@@ -12,39 +12,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = Color(0xFF1C1B1F),
-    surface = Color(0xFF1C1B1F),
-    error = MutedDanger
+    primary = Color(0xFFA1C9FF),
+    onPrimary = Color(0xFF003258),
+    primaryContainer = Color(0xFF00497D),
+    onPrimaryContainer = Color(0xFFD1E4FF),
+    
+    secondary = Color(0xFFBBC7DB),
+    onSecondary = Color(0xFF253140),
+    secondaryContainer = Color(0xFF3B4858),
+    onSecondaryContainer = Color(0xFFD7E3F7),
+    
+    tertiary = Color(0xFFD6BEE4),
+    onTertiary = Color(0xFF3B2948),
+    tertiaryContainer = Color(0xFF523F5F),
+    onTertiaryContainer = Color(0xFFF2DAFF),
+    
+    background = Color(0xFF191C1E),
+    onBackground = Color(0xFFE2E2E6),
+    surface = Color(0xFF191C1E),
+    onSurface = Color(0xFFE2E2E6),
+    error = Color(0xFFFFB4AB)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = IndigoBlue,                 // Seriöses Blau
-    onPrimary = Color.White,
-    primaryContainer = SkyBlueSoft,       // Sanftes Blau-Grau für Header
-    onPrimaryContainer = CharcoalGray,
+    primary = CleanBlue,
+    onPrimary = OnCleanBlue,
+    primaryContainer = CleanBlueContainer,
+    onPrimaryContainer = OnCleanBlueContainer,
     
-    secondary = AmethystPurple,           // Elegantes Lila
-    onSecondary = Color.White,
-    secondaryContainer = LavenderSoft,    // Zartes Lila für Sektionen
-    onSecondaryContainer = CharcoalGray,
+    secondary = CleanSecondaryBlue,
+    onSecondary = OnCleanSecondaryBlue,
+    secondaryContainer = CleanSecondaryBlueContainer,
+    onSecondaryContainer = OnCleanSecondaryBlueContainer,
     
-    tertiary = CrystalBlue,               // Kristalblau für Akzente
-    onTertiary = CharcoalGray,
+    tertiary = CleanTertiaryBlue,
+    onTertiary = OnCleanTertiaryBlue,
+    tertiaryContainer = CleanTertiaryBlueContainer,
+    onTertiaryContainer = OnCleanTertiaryBlueContainer,
     
-    background = OffWhite,                // Sauberer, kühler Hintergrund
-    onBackground = CharcoalGray,
+    background = CleanBackground,
+    onBackground = CleanOnSurface,
     
-    surface = Color.White,                // Reinweiß für Karten
-    onSurface = CharcoalGray,
+    surface = CleanSurface,
+    onSurface = CleanOnSurface,
     
-    surfaceVariant = SilverGray,          // Graue Trenner und Rahmen
-    onSurfaceVariant = CharcoalGray,
+    surfaceVariant = CleanSurfaceVariant,
+    onSurfaceVariant = CleanOnSurfaceVariant,
     
-    error = MutedDanger,                  // Völlig neutralisierte Gefahrenzone
-    onError = CharcoalGray
+    outline = CleanOutline,
+    error = Color(0xFFBA1A1A)
 )
 
 @Composable
