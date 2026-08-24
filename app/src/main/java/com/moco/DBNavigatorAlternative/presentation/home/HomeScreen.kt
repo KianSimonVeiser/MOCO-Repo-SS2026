@@ -31,6 +31,7 @@ import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 @Composable
 fun HomeScreen(
     onNavigateToSearch: (fromId: String?, toId: String?, date: String, onlyDTicket: Boolean) -> Unit,
+    onNavigateToDetail: (connectionId: String, date: String) -> Unit,
     viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory()
     )
@@ -116,7 +117,7 @@ fun HomeScreen(
                 // --- 6. SEKTION: MEINE FAVORITEN ---
                 FavoritesSection(
                     favorites = uiState.favorites,
-                    onFavoriteClick = { viewModel.onFavoriteClicked(it) },
+                    onFavoriteClick = { viewModel.onFavoriteClicked(it, onNavigateToDetail) },
                     onDeleteFavorite = { viewModel.onDeleteFavorite(it) }
                 )
             }

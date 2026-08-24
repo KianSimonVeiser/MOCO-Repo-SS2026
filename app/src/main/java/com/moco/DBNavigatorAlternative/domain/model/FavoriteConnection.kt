@@ -8,7 +8,9 @@ data class FavoriteConnection(
     val connectionId: String = "",    // Der eindeutige Checksum/ID der API
     val userId: String = "",          // Verknüpfung zum Nutzer
     val fromStation: String = "",
+    val fromId: String = "",          // Location ID für API
     val toStation: String = "",
+    val toId: String = "",            // Location ID für API
     val lineName: String = "",        // Z.B. "ICE 572"
     val departureTime: String = "",   // Z.B. "14:30"
     val arrivalTime: String = "",     // Z.B. "15:50"

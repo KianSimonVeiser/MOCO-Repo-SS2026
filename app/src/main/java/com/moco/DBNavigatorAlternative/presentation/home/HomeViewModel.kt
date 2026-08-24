@@ -13,6 +13,7 @@ import com.moco.DBNavigatorAlternative.data.remote.HttpClientFactory
 import com.moco.DBNavigatorAlternative.data.remote.NearbyStationsRemoteImpl
 import com.moco.DBNavigatorAlternative.data.local.SettingsPreference
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
+import com.moco.DBNavigatorAlternative.domain.repository.FavoriteRepository
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -37,8 +38,7 @@ import java.util.Locale
 class HomeViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
-    private val interactionRepository: InteractionRepository = InteractionRepository(),
-    private val userRepository: UserRepository = UserRepository,
+    private val favoriteRepository: FavoriteRepository,
     private val settingsPreference: SettingsPreference? = null
 ) : ViewModel() {
 
@@ -59,6 +59,17 @@ class HomeViewModel(
     init {
         setInitialDateAndTime()
         observeSettings()
+        observeUserAndSync()
+    }
+
+    private fun observeUserAndSync() {
+        viewModelScope.launch {
+            UserRepository.currentUser.collect { user ->
+                if (user != null) {
+                    favoriteRepository.syncWithRemote()
+                }
+            }
+        }
     }
 
     private fun observeSettings() {
@@ -88,17 +99,11 @@ class HomeViewModel(
 
     private fun observeFavorites() {
         viewModelScope.launch {
-            userRepository.currentUser.collect { user ->
-                if (user != null) {
-                    interactionRepository.getFavorites(user.userId)
-                        .catch { e -> Log.e(TAG, "Fehler beim Laden der Favoriten", e) }
-                        .collect { favs ->
-                            _uiState.update { it.copy(favorites = favs) }
-                        }
-                } else {
-                    _uiState.update { it.copy(favorites = emptyList()) }
+            favoriteRepository.getAllFavorites()
+                .catch { e -> Log.e(TAG, "Fehler beim Laden der Favoriten", e) }
+                .collect { favs ->
+                    _uiState.update { it.copy(favorites = favs) }
                 }
-            }
         }
     }
 
@@ -107,9 +112,9 @@ class HomeViewModel(
     // ---------------------------------------------------------
 
     /**
-     * Klick auf einen Favoriten füllt die Felder automatisch aus.
+     * Klick auf einen Favoriten triggert die Detailansicht direkt.
      */
-    fun onFavoriteClicked(favorite: FavoriteConnection) {
+    fun onFavoriteClicked(favorite: FavoriteConnection, onNavigateToDetail: (connectionId: String, date: String) -> Unit) {
         SearchStateStore.fromLocation = null
         SearchStateStore.toLocation = null
         _uiState.update { it.copy(fromLocation = null, toLocation = null) }
@@ -120,13 +125,16 @@ class HomeViewModel(
         _uiState.value.toTextFieldState.edit {
             replace(0, length, favorite.toStation)
         }
+        
+        onNavigateToDetail(favorite.connectionId, _uiState.value.date)
     }
 
     fun onDeleteFavorite(favorite: FavoriteConnection) {
         viewModelScope.launch {
-            userRepository.currentUser.value?.let { user ->
-                interactionRepository.removeFavorite(user.userId, favorite.connectionId)
+            UserRepository.currentUser.value?.let { user ->
+                InteractionRepository().removeFavorite(user.userId, favorite.connectionId)
             }
+            favoriteRepository.deleteFavoriteByChecksum(favorite.connectionId)
         }
     }
 

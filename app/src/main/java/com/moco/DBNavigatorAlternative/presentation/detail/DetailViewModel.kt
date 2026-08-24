@@ -5,23 +5,31 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
 import com.moco.DBNavigatorAlternative.data.UserRepository
+import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.StationComment
 import com.moco.DBNavigatorAlternative.domain.model.StationRating
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
+import com.moco.DBNavigatorAlternative.domain.repository.FavoriteRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class DetailViewModel(
+    private val dbNavApiService: DBNavApiService,
     private val punctualityRepository: PunctualityRepository = PunctualityRepository(),
     private val interactionRepository: InteractionRepository = InteractionRepository(),
-    private val userRepository: UserRepository = UserRepository
+    private val userRepository: UserRepository = UserRepository,
+    private val favoriteRepository: FavoriteRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
@@ -36,11 +44,8 @@ class DetailViewModel(
         viewModelScope.launch {
             val punctualityInfo = punctualityRepository.getPunctualityForConnection(connection)
             
-            // Favoriten-Status anhand der exakten Verbindungs-ID prüfen
-            val currentUser = userRepository.currentUser.value
-            val isFav = if (currentUser != null) {
-                interactionRepository.isFavorite(currentUser.userId, connection.id)
-            } else false
+            // Favoriten-Status lokal prüfen
+            val isFav = favoriteRepository?.isFavorite(connection.id)?.firstOrNull() ?: false
 
             _uiState.update { currentState ->
                 val firstSegment = connection.segments.firstOrNull()
@@ -49,6 +54,7 @@ class DetailViewModel(
                 }
                 
                 currentState.copy(
+                    connection = connection,
                     selectedSegmentId = selectedId,
                     punctualityInfo = punctualityInfo,
                     isFavorite = isFav
@@ -60,6 +66,89 @@ class DetailViewModel(
                 loadRating(stop.id)
             }
         }
+    }
+
+    /**
+     * Lädt eine Verbindung anhand der ID aus den Favoriten und aktualisiert sie via API.
+     */
+    fun loadConnectionById(connectionId: String, initialDate: String? = null) {
+        viewModelScope.launch {
+            val fav = favoriteRepository?.getFavoriteByChecksum(connectionId)
+            if (fav != null) {
+                // Versuche die Verbindung aktuell über die API abzurufen
+                
+                val dateToUse = if (!initialDate.isNullOrBlank()) {
+                    // Konvertiere dd.MM.yyyy -> yyyy-MM-dd
+                    try {
+                        val parts = initialDate.split(".")
+                        "${parts[2]}-${parts[1]}-${parts[0]}T12:00:00+02:00"
+                    } catch (e: Exception) {
+                        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+02:00", Locale.GERMANY).format(Date())
+                    }
+                } else {
+                    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss+02:00", Locale.GERMANY).format(Date())
+                }
+                
+                try {
+                    val connections = dbNavApiService.getConnections(
+                        fromId = fav.fromId,
+                        toId = fav.toId,
+                        dateTime = dateToUse,
+                        onlyDTicket = false
+                    )
+                    
+                    // Finde die exakte Verbindung per Checksum/ID wieder
+                    val liveConnection = connections.find { it.id == connectionId }
+                    
+                    if (liveConnection != null) {
+                        setConnection(liveConnection)
+                    } else {
+                        // Falls nicht gefunden (z.B. Zeit zu weit weg), nimm die erste Ähnliche oder Fallback
+                        val bestMatch = connections.firstOrNull { it.segments.firstOrNull()?.departureStop?.time == fav.departureTime }
+                            ?: connections.firstOrNull()
+                        
+                        if (bestMatch != null) {
+                            setConnection(bestMatch)
+                        } else {
+                            showFallback(fav)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("DetailViewModel", "Fehler beim API-Refresh des Favoriten", e)
+                    showFallback(fav)
+                }
+            }
+        }
+    }
+
+    private fun showFallback(fav: FavoriteConnection) {
+        val fallbackConnection = Connection(
+            id = fav.connectionId,
+            totalDurationMinutes = 0,
+            transferCount = 0,
+            segments = listOf(
+                com.moco.DBNavigatorAlternative.domain.model.ConnectionSegment(
+                    id = "fav_seg",
+                    departureStop = com.moco.DBNavigatorAlternative.domain.model.Stop(
+                        id = fav.fromId,
+                        name = fav.fromStation,
+                        time = fav.departureTime
+                    ),
+                    arrivalStop = com.moco.DBNavigatorAlternative.domain.model.Stop(
+                        id = fav.toId,
+                        name = fav.toStation,
+                        time = fav.arrivalTime
+                    ),
+                    train = com.moco.DBNavigatorAlternative.domain.model.Train(
+                        id = "fav_train",
+                        type = com.moco.DBNavigatorAlternative.domain.model.TrainType.RB,
+                        line = fav.lineName
+                    ),
+                    currentProgress = 0f
+                )
+            )
+        )
+        setConnection(fallbackConnection)
     }
 
     private fun observeComments(stationId: String, platform: String?) {
@@ -87,16 +176,9 @@ class DetailViewModel(
     }
 
     /**
-     * Toggled den Favoriten-Status der exakten Verbindung.
+     * Toggled den Favoriten-Status der exakten Verbindung lokal.
      */
     fun onFavoriteToggle(connection: Connection) {
-        val currentUser = userRepository.currentUser.value
-        
-        if (currentUser == null) {
-            _uiState.update { it.copy(showAuthWarning = true) }
-            return
-        }
-
         val currentState = _uiState.value
         val isCurrentlyFav = currentState.isFavorite
         
@@ -105,21 +187,22 @@ class DetailViewModel(
 
         viewModelScope.launch {
             if (isCurrentlyFav) {
-                // Löschen über die eindeutige ID
-                interactionRepository.removeFavorite(currentUser.userId, connection.id)
+                favoriteRepository?.deleteFavoriteByChecksum(connection.id)
                 _uiState.update { it.copy(isFavorite = false) }
             } else {
-                // Speichern mit allen Reisedetails
+                val userId = userRepository.currentUser.value?.userId ?: "local_user"
                 val favorite = FavoriteConnection(
                     connectionId = connection.id,
-                    userId = currentUser.userId,
+                    userId = userId,
                     fromStation = firstSeg?.departureStop?.name.orEmpty(),
+                    fromId = firstSeg?.departureStop?.id.orEmpty(),
                     toStation = lastSeg?.arrivalStop?.name.orEmpty(),
+                    toId = lastSeg?.arrivalStop?.id.orEmpty(),
                     lineName = firstSeg?.train?.line.orEmpty(),
                     departureTime = firstSeg?.departureStop?.time.orEmpty(),
                     arrivalTime = lastSeg?.arrivalStop?.time.orEmpty()
                 )
-                interactionRepository.addFavorite(favorite)
+                favoriteRepository?.insertFavorite(favorite)
                 _uiState.update { it.copy(isFavorite = true) }
             }
         }

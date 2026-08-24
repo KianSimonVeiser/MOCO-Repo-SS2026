@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
@@ -55,16 +56,19 @@ fun ProfileScreen() {
                     },
                     onBackToLogin = { screenState = "login" }
                 )
-                "loggedIn" -> LoggedInScreen(
-                    username = currentUsername,
-                    email = currentEmail,
-                    onSettingsClick = { screenState = "settings" },
-                    onLogoutClick = { 
-                        UserRepository.setUser(null)
-                        popupMessage = "Abmeldung erfolgreich."
-                        screenState = "login" 
-                    }
-                )
+                "loggedIn" -> {
+                    val viewModel: LoginViewModel = viewModel()
+                    LoggedInScreen(
+                        username = currentUsername,
+                        email = currentEmail,
+                        onSettingsClick = { screenState = "settings" },
+                        onLogoutClick = { 
+                            viewModel.logout()
+                            popupMessage = "Abmeldung erfolgreich."
+                            screenState = "login" 
+                        }
+                    )
+                }
                 "settings" -> SettingsScreen(
                     currentUsername = currentUsername,
                     currentEmail = currentEmail,
