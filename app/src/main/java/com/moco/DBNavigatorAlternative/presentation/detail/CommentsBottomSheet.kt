@@ -11,11 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.domain.model.Connection
-import com.moco.DBNavigatorAlternative.domain.model.StationComment
+import com.moco.DBNavigatorAlternative.domain.model.LineComment
+import com.moco.DBNavigatorAlternative.domain.model.TrainType
 
 @Composable
 fun CommentsBottomSheet(
-    comments: List<StationComment>,
+    comments: List<LineComment>,
     connection: Connection,
     newCommentText: String,
     selectedSegmentId: String,
@@ -37,7 +38,7 @@ fun CommentsBottomSheet(
             .padding(top = 8.dp)
     ) {
         Text(
-            text = "Kommentare zu ${selectedSegment?.departureStop?.name ?: "Bahnhof"}",
+            text = "Kommentare zu ${selectedSegment?.train?.line ?: "Linie"}",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -82,8 +83,8 @@ fun CommentsBottomSheet(
                     ) {
                         Text(
                             text = if (selectedSegment != null) 
-                                "${selectedSegment.departureStop.name} (Gleis ${selectedSegment.departureStop.platform})" 
-                                else "Bahnhof auswählen"
+                                "Linie: ${selectedSegment.train.line}" 
+                                else "Linie auswählen"
                         )
                     }
 
@@ -91,16 +92,18 @@ fun CommentsBottomSheet(
                         expanded = segmentMenuExpanded,
                         onDismissRequest = onSegmentMenuDismiss
                     ) {
-                        connection.segments.forEach { segment ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(text = "${segment.departureStop.name} (Gleis ${segment.departureStop.platform})")
-                                },
-                                onClick = {
-                                    onSegmentSelected(segment.id)
-                                }
-                            )
-                        }
+                        connection.segments
+                            .filter { it.train.type != TrainType.WALK }
+                            .forEach { segment ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = "Linie: ${segment.train.line}")
+                                    },
+                                    onClick = {
+                                        onSegmentSelected(segment.id)
+                                    }
+                                )
+                            }
                     }
                 }
 

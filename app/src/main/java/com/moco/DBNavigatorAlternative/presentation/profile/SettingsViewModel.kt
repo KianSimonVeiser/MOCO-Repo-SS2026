@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.moco.DBNavigatorAlternative.data.InteractionRepository
-import com.moco.DBNavigatorAlternative.domain.model.StationComment
+import com.moco.DBNavigatorAlternative.domain.model.LineComment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -21,7 +21,7 @@ data class SettingsUiState(
     val isSuccess: Boolean = false,
     val isDeleted: Boolean = false,
     val errorMessage: String? = null,
-    val userComments: List<StationComment> = emptyList() // NEU: Liste der eigenen Kommentare
+    val userComments: List<LineComment> = emptyList() // NEU: Liste der eigenen Kommentare
 )
 
 /**

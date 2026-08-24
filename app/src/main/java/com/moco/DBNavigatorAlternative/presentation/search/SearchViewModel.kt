@@ -15,7 +15,7 @@ import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.data.repository.LocationRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
-import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
 import com.moco.DBNavigatorAlternative.domain.repository.LocationRepository
 import com.moco.DBNavigatorAlternative.presentation.home.HomeViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -305,30 +305,30 @@ class SearchViewModel(
     }
 
     // ---------------------------------------------------------
-    // Bahnhofsbewertungen
+    // Linienbewertungen
     // ---------------------------------------------------------
 
-    fun loadStationRating(stationId: String) {
-        if (_uiState.value.stationRatingCache.containsKey(stationId)) return
+    fun loadLineRating(lineId: String) {
+        if (_uiState.value.stationRatingCache.containsKey(lineId)) return
 
         viewModelScope.launch {
             try {
-                val summary = interactionRepository.getStationRatingSummary(stationId)
+                val summary = interactionRepository.getLineRatingSummary(lineId)
                 if (summary != null) {
                     _uiState.update {
                         val newCache = it.stationRatingCache.toMutableMap()
-                        newCache[stationId] = summary
+                        newCache[lineId] = summary
                         it.copy(stationRatingCache = newCache)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("SearchViewModel", "Fehler beim Laden der Bahnhofsbewertung für $stationId", e)
+                Log.e("SearchViewModel", "Fehler beim Laden der Linienbewertung für $lineId", e)
             }
         }
     }
 
-    fun getStationRating(stationId: String): StationRatingSummary? {
-        return _uiState.value.stationRatingCache[stationId]
+    fun getLineRating(lineId: String): com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary? {
+        return _uiState.value.stationRatingCache[lineId] as? com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
     }
 
     companion object {

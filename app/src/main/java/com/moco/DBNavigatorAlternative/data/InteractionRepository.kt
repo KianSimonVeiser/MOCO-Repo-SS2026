@@ -1,9 +1,9 @@
 package com.moco.DBNavigatorAlternative.data
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.moco.DBNavigatorAlternative.domain.model.StationComment
-import com.moco.DBNavigatorAlternative.domain.model.StationRating
-import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.LineComment
+import com.moco.DBNavigatorAlternative.domain.model.LineRating
+import com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -15,14 +15,14 @@ import java.util.*
 class InteractionRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
-    private val commentsCollection = firestore.collection("comments")
-    private val ratingsCollection = firestore.collection("ratings")
-    private val stationSummariesCollection = firestore.collection("stationSummaries")
+    private val commentsCollection = firestore.collection("lineComments")
+    private val ratingsCollection = firestore.collection("lineRatings")
+    private val summariesCollection = firestore.collection("lineSummaries")
     private val countersCollection = firestore.collection("metadata")
     private val favoritesCollection = firestore.collection("favorites")
 
-    suspend fun addComment(comment: StationComment) {
-        val counterRef = countersCollection.document("comment_counter")
+    suspend fun addComment(comment: LineComment) {
+        val counterRef = countersCollection.document("line_comment_counter")
         val now = Date()
         val formattedDate = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY).format(now)
 
@@ -43,11 +43,8 @@ class InteractionRepository(
         }.await()
     }
 
-    fun getCommentsForStation(stationId: String, platform: String? = null): Flow<List<StationComment>> = callbackFlow {
-        var query = commentsCollection.whereEqualTo("stationId", stationId)
-        if (platform != null) {
-            query = query.whereEqualTo("platform", platform)
-        }
+    fun getCommentsForLine(lineId: String): Flow<List<LineComment>> = callbackFlow {
+        val query = commentsCollection.whereEqualTo("lineId", lineId)
         
         val listener = query.addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -56,9 +53,9 @@ class InteractionRepository(
             }
             if (snapshot != null) {
                 val comments = try {
-                    snapshot.toObjects(StationComment::class.java)
+                    snapshot.toObjects(LineComment::class.java)
                 } catch (e: Exception) {
-                    emptyList<StationComment>()
+                    emptyList<LineComment>()
                 }
                 trySend(comments.sortedByDescending { it.timestamp })
             }
@@ -66,32 +63,32 @@ class InteractionRepository(
         awaitClose { listener.remove() }
     }
 
-    suspend fun addRating(rating: StationRating) {
-        val docId = "${rating.stationId}_${rating.userId}"
+    suspend fun addRating(rating: LineRating) {
+        val docId = "${rating.lineId}_${rating.userId}"
         ratingsCollection.document(docId).set(rating).await()
-        updateStationSummary(rating.stationId)
+        updateLineSummary(rating.lineId)
     }
 
-    private suspend fun updateStationSummary(stationId: String) {
-        val ratings = ratingsCollection.whereEqualTo("stationId", stationId).get().await()
+    private suspend fun updateLineSummary(lineId: String) {
+        val ratings = ratingsCollection.whereEqualTo("lineId", lineId).get().await()
         val totalRatings = ratings.size()
         if (totalRatings > 0) {
             val sum = ratings.documents.sumOf { it.getLong("rating") ?: 0L }
             val average = sum.toFloat() / totalRatings
-            val summary = StationRatingSummary(stationId, average, totalRatings)
-            stationSummariesCollection.document(stationId).set(summary).await()
+            val summary = LineRatingSummary(lineId, average, totalRatings)
+            summariesCollection.document(lineId).set(summary).await()
         }
     }
 
-    suspend fun getStationRatingSummary(stationId: String): StationRatingSummary? {
-        return stationSummariesCollection.document(stationId).get().await()
-            .toObject(StationRatingSummary::class.java)
+    suspend fun getLineRatingSummary(lineId: String): LineRatingSummary? {
+        return summariesCollection.document(lineId).get().await()
+            .toObject(LineRatingSummary::class.java)
     }
 
-    suspend fun getCommentsForUser(userId: String): List<StationComment> {
+    suspend fun getCommentsForUser(userId: String): List<LineComment> {
         return try {
             val snapshot = commentsCollection.whereEqualTo("userId", userId).get().await()
-            snapshot.toObjects(StationComment::class.java).sortedByDescending { it.timestamp }
+            snapshot.toObjects(LineComment::class.java).sortedByDescending { it.timestamp }
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()

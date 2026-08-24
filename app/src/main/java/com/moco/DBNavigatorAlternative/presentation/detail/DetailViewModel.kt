@@ -8,8 +8,9 @@ import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.repository.PunctualityRepository
 import com.moco.DBNavigatorAlternative.domain.model.Connection
-import com.moco.DBNavigatorAlternative.domain.model.StationComment
-import com.moco.DBNavigatorAlternative.domain.model.StationRating
+import com.moco.DBNavigatorAlternative.domain.model.TrainType
+import com.moco.DBNavigatorAlternative.domain.model.LineComment
+import com.moco.DBNavigatorAlternative.domain.model.LineRating
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 import com.moco.DBNavigatorAlternative.domain.repository.FavoriteRepository
 import kotlinx.coroutines.Job
@@ -48,9 +49,11 @@ class DetailViewModel(
             val isFav = favoriteRepository?.isFavorite(connection.id)?.firstOrNull() ?: false
 
             _uiState.update { currentState ->
-                val firstSegment = connection.segments.firstOrNull()
+                val nonWalkSegments = connection.segments.filter { it.train.type != TrainType.WALK }
+                val defaultSegmentId = nonWalkSegments.firstOrNull()?.id ?: connection.segments.firstOrNull()?.id.orEmpty()
+                
                 val selectedId = currentState.selectedSegmentId.ifBlank {
-                    firstSegment?.id.orEmpty()
+                    defaultSegmentId
                 }
                 
                 currentState.copy(
@@ -61,9 +64,9 @@ class DetailViewModel(
                 )
             }
             
-            connection.segments.firstOrNull()?.departureStop?.let { stop ->
-                observeComments(stop.id, stop.platform)
-                loadRating(stop.id)
+            connection.segments.firstOrNull()?.let { segment ->
+                observeComments(segment.train.line)
+                loadRating(segment.train.line)
             }
         }
     }
@@ -151,21 +154,21 @@ class DetailViewModel(
         setConnection(fallbackConnection)
     }
 
-    private fun observeComments(stationId: String, platform: String?) {
+    private fun observeComments(lineId: String) {
         commentsJob?.cancel()
         commentsJob = viewModelScope.launch {
-            interactionRepository.getCommentsForStation(stationId, platform)
+            interactionRepository.getCommentsForLine(lineId)
                 .catch { e -> Log.e("DetailViewModel", "Fehler beim Laden der Kommentare", e) }
                 .collect { comments ->
-                    _uiState.update { it.copy(stationComments = comments) }
+                    _uiState.update { it.copy(lineComments = comments) }
                 }
         }
     }
 
-    private suspend fun loadRating(stationId: String) {
+    private suspend fun loadRating(lineId: String) {
         try {
-            val summary = interactionRepository.getStationRatingSummary(stationId)
-            _uiState.update { it.copy(stationRating = summary) }
+            val summary = interactionRepository.getLineRatingSummary(lineId)
+            _uiState.update { it.copy(lineRating = summary) }
         } catch (e: Exception) {
             Log.e("DetailViewModel", "Fehler beim Laden der Bewertung", e)
         }
@@ -233,10 +236,9 @@ class DetailViewModel(
         val username = currentUser?.username ?: "Anonymer Reisender"
 
         viewModelScope.launch {
-            val comment = StationComment(
-                stationId = segment.departureStop.id,
-                stationName = segment.departureStop.name,
-                platform = segment.departureStop.platform,
+            val comment = LineComment(
+                lineId = segment.train.line,
+                lineName = segment.train.line,
                 userId = userId,
                 username = username,
                 content = currentState.newCommentText
@@ -246,18 +248,18 @@ class DetailViewModel(
         }
     }
 
-    fun submitRating(stationId: String, rating: Int) {
+    fun submitRating(lineId: String, rating: Int) {
         val currentUser = userRepository.currentUser.value ?: return
 
         viewModelScope.launch {
             interactionRepository.addRating(
-                StationRating(
-                    stationId = stationId,
+                LineRating(
+                    lineId = lineId,
                     userId = currentUser.userId,
                     rating = rating
                 )
             )
-            loadRating(stationId)
+            loadRating(lineId)
         }
     }
 
@@ -273,9 +275,9 @@ class DetailViewModel(
         _uiState.update { it.copy(selectedSegmentId = segmentId, isSegmentMenuExpanded = false) }
         
         val segment = connection.segments.find { it.id == segmentId }
-        segment?.departureStop?.let { stop ->
-            observeComments(stop.id, stop.platform)
-            viewModelScope.launch { loadRating(stop.id) }
+        segment?.let {
+            observeComments(it.train.line)
+            viewModelScope.launch { loadRating(it.train.line) }
         }
     }
 }

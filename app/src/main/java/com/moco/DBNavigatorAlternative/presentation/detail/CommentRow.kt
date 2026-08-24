@@ -8,11 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.moco.DBNavigatorAlternative.domain.model.StationComment
+import com.moco.DBNavigatorAlternative.domain.model.LineComment
 
 @Composable
 fun CommentRow(
-    comment: StationComment,
+    comment: LineComment,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -26,14 +26,6 @@ fun CommentRow(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.secondary
         )
-
-        if (comment.platform != null) {
-            Text(
-                text = "Gleis ${comment.platform}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-        }
 
         Text(
             text = comment.content,

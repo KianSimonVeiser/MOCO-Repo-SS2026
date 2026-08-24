@@ -5,26 +5,24 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Repräsentiert einen Kommentar zu einem Bahnhof oder einem spezifischen Gleis.
+ * Repräsentiert einen Kommentar zu einer Verkehrslinie (z.B. Bus 123 oder ICE 549).
  */
-data class StationComment(
+data class LineComment(
     val commentId: String = "",
-    val stationId: String = "",
-    val stationName: String = "",
-    val platform: String? = null,
+    val lineId: String = "",
+    val lineName: String = "",
     val userId: String = "",
     val username: String = "",
     val content: String = "",
-    // Wir nutzen neue Feldnamen, um Konflikte mit alten Cache-Daten zu vermeiden
     val dateText: String = "", 
-    val timestamp: Long = 0L // Wir behalten Long für die Sortierung bei
+    val timestamp: Long = 0L 
 )
 
 /**
- * Repräsentiert eine Bewertung für einen Bahnhof.
+ * Repräsentiert eine Bewertung für eine Verkehrslinie.
  */
-data class StationRating(
-    val stationId: String = "",
+data class LineRating(
+    val lineId: String = "",
     val userId: String = "",
     val rating: Int = 0,
     val timestamp: Long = Date().time
@@ -33,8 +31,8 @@ data class StationRating(
 /**
  * Aggregierte Bewertungsinformationen für die Anzeige in der UI.
  */
-data class StationRatingSummary(
-    val stationId: String = "",
+data class LineRatingSummary(
+    val lineId: String = "",
     val averageRating: Float = 0f,
     val reviewCount: Int = 0
 )

@@ -97,7 +97,7 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = comment.stationName, style = MaterialTheme.typography.labelLarge)
+                            Text(text = "Linie: ${comment.lineName}", style = MaterialTheme.typography.labelLarge)
                             Text(text = comment.content, style = MaterialTheme.typography.bodySmall)
                         }
                         IconButton(onClick = { viewModel.deleteSingleComment(comment.commentId) }) {

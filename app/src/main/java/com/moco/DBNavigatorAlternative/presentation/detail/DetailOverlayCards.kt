@@ -15,7 +15,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.R
-import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.Connection
+import com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.TrainType
 import com.moco.DBNavigatorAlternative.presentation.theme.Gold
 
 /**
@@ -24,12 +26,20 @@ import com.moco.DBNavigatorAlternative.presentation.theme.Gold
  */
 @Composable
 fun DetailOverlayCards(
+    connection: Connection,
+    selectedSegmentId: String,
     historicalPunctualityScore: Float?,
     bindingLossProbability: Float? = null,
     onCommentsClick: () -> Unit,
-    stationRating: StationRatingSummary? = null,
-    onRatingSelected: (Int) -> Unit = {}
+    lineRating: LineRatingSummary? = null,
+    onRatingSelected: (Int) -> Unit = {},
+    isSegmentMenuExpanded: Boolean = false,
+    onSegmentMenuClick: () -> Unit = {},
+    onSegmentMenuDismiss: () -> Unit = {},
+    onSegmentSelected: (String) -> Unit = {}
 ) {
+    val selectedSegment = connection.segments.find { it.id == selectedSegmentId }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomCenter
@@ -41,7 +51,7 @@ fun DetailOverlayCards(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Kombinierte Karte für Pünktlichkeit und Bewertung!
+            // Kombinierte Karte für Pünktlichkeit und Bewertung
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large
@@ -67,42 +77,79 @@ fun DetailOverlayCards(
                     HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
 
                     // Bewertungs-Zeile
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(
-                                text = stringResource(id = R.string.station_rating),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                repeat(5) { index ->
-                                    Icon(
-                                        imageVector = if (index < (stationRating?.averageRating?.toInt() ?: 0)) 
-                                            Icons.Default.Star else Icons.Default.StarBorder,
-                                        contentDescription = null,
-                                        tint = Gold,
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .clickable { onRatingSelected(index + 1) }
+                    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Linienbewertung",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    repeat(5) { index ->
+                                        Icon(
+                                            imageVector = if (index < (lineRating?.averageRating?.toInt() ?: 0)) 
+                                                Icons.Default.Star else Icons.Default.StarBorder,
+                                            contentDescription = null,
+                                            tint = Gold,
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clickable { onRatingSelected(index + 1) }
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = if (lineRating != null) "%.1f".format(lineRating.averageRating) else "0.0",
+                                        style = MaterialTheme.typography.bodyMedium
                                     )
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            
+                            Text(
+                                text = "${lineRating?.reviewCount ?: 0} Stimmen",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+
+                        // NEU: Linien-Auswahl für die Bewertung
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedButton(
+                                onClick = onSegmentMenuClick,
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                shape = MaterialTheme.shapes.small
+                            ) {
                                 Text(
-                                    text = if (stationRating != null) "%.1f".format(stationRating.averageRating) else "0.0",
-                                    style = MaterialTheme.typography.bodyMedium
+                                    text = if (selectedSegment != null) 
+                                        "Bewertung für: ${selectedSegment.train.line}" 
+                                        else "Linie wählen",
+                                    style = MaterialTheme.typography.bodySmall
                                 )
                             }
+
+                            DropdownMenu(
+                                expanded = isSegmentMenuExpanded,
+                                onDismissRequest = onSegmentMenuDismiss
+                            ) {
+                                connection.segments
+                                    .filter { it.train.type != TrainType.WALK }
+                                    .forEach { segment ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(text = "Linie: ${segment.train.line}")
+                                            },
+                                            onClick = {
+                                                onSegmentSelected(segment.id)
+                                            }
+                                        )
+                                    }
+                            }
                         }
-                        
-                        Text(
-                            text = "${stationRating?.reviewCount ?: 0} Stimmen",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
                     }
                 }
             }

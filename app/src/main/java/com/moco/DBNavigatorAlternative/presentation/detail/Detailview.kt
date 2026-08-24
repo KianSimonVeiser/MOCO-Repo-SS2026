@@ -51,8 +51,8 @@ fun DetailScreen(
             onSegmentMenuClick = viewModel::showSegmentMenu,
             onSegmentMenuDismiss = viewModel::hideSegmentMenu,
             onSegmentSelected = { viewModel.onSegmentSelected(it, currentConnection) },
-            onRatingSelected = { stationId, rating ->
-                viewModel.submitRating(stationId, rating)
+            onRatingSelected = { lineId, rating ->
+                viewModel.submitRating(lineId, rating)
             }
         )
     }
@@ -113,15 +113,21 @@ fun DetailScreenContent(
             }
 
             DetailOverlayCards(
+                connection = connection,
+                selectedSegmentId = uiState.selectedSegmentId,
                 historicalPunctualityScore = uiState.punctualityInfo?.score,
                 bindingLossProbability = uiState.punctualityInfo?.bindingLossProbability,
                 onCommentsClick = onCommentsClick,
-                stationRating = uiState.stationRating,
+                lineRating = uiState.lineRating,
                 onRatingSelected = { rating -> 
-                    selectedSegment?.departureStop?.id?.let { id ->
-                        onRatingSelected(id, rating)
+                    selectedSegment?.train?.line?.let { lineId ->
+                        onRatingSelected(lineId, rating)
                     }
-                }
+                },
+                isSegmentMenuExpanded = uiState.isSegmentMenuExpanded,
+                onSegmentMenuClick = onSegmentMenuClick,
+                onSegmentMenuDismiss = onSegmentMenuDismiss,
+                onSegmentSelected = onSegmentSelected
             )
         }
 
@@ -131,7 +137,7 @@ fun DetailScreenContent(
                 sheetState = sheetState
             ) {
                 CommentsBottomSheet(
-                    comments = uiState.stationComments,
+                    comments = uiState.lineComments,
                     connection = connection,
                     newCommentText = uiState.newCommentText,
                     selectedSegmentId = uiState.selectedSegmentId,

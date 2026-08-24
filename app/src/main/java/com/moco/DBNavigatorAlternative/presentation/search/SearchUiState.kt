@@ -4,7 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
-import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
 
 import com.moco.DBNavigatorAlternative.data.SearchStateStore
 
@@ -25,5 +25,5 @@ data class SearchUiState(
     val onlyDTicket: Boolean = SearchStateStore.onlyDTicket,
     val selectedConnection: Connection? = null,
     val punctualityCache: Map<String, PunctualityInfo> = emptyMap(),
-    val stationRatingCache: Map<String, StationRatingSummary> = emptyMap()
+    val stationRatingCache: Map<String, Any> = emptyMap() // Speichert jetzt verschiedene Rating-Typen (generisch)
 )

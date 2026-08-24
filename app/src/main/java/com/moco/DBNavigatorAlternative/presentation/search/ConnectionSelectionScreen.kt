@@ -61,22 +61,21 @@ fun ConnectionSelectionScreen(
                     onToggleOnlyDTicket = { viewModel.onToggleOnlyDTicket(it) }
                 )
             }
-            
-            // Dynamische Liste der Zugverbindungen!
+                    // Dynamische Liste der Zugverbindungen
             items(uiState.connections) { connection ->
-                // Starte das Laden der Pünktlichkeitsdaten und Bahnhofsbewertungen
+                // Starte das Laden der Pünktlichkeitsdaten und Linienbewertungen
                 LaunchedEffect(connection.id) {
                     viewModel.loadPunctualityInfo(connection)
-                    connection.segments.firstOrNull()?.departureStop?.id?.let {
-                        viewModel.loadStationRating(it)
+                    connection.segments.firstOrNull()?.train?.line?.let {
+                        viewModel.loadLineRating(it)
                     }
                 }
 
                 ConnectionCard(
                     connection = connection,
                     punctualityInfo = viewModel.getPunctualityInfo(connection),
-                    stationRating = connection.segments.firstOrNull()?.departureStop?.id?.let {
-                        viewModel.getStationRating(it)
+                    lineRating = connection.segments.firstOrNull()?.train?.line?.let {
+                        viewModel.getLineRating(it)
                     },
                     onClick = {
                         viewModel.onConnectionSelected(connection)

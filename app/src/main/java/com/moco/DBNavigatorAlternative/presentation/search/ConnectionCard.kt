@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.domain.model.PunctualityInfo
-import com.moco.DBNavigatorAlternative.domain.model.StationRatingSummary
+import com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
 import com.moco.DBNavigatorAlternative.domain.model.TrainType
 import com.moco.DBNavigatorAlternative.presentation.theme.*
 import com.moco.DBNavigatorAlternative.presentation.detail.color
@@ -29,7 +29,7 @@ import com.moco.DBNavigatorAlternative.presentation.detail.punctualityColor
 fun ConnectionCard(
     connection: Connection,
     punctualityInfo: PunctualityInfo?,
-    stationRating: StationRatingSummary?,
+    lineRating: LineRatingSummary?,
     onClick: () -> Unit
 ) {
     ElevatedCard(
@@ -53,10 +53,10 @@ fun ConnectionCard(
                         color = if (isCritical) Color(0xFFBA1A1A) else MaterialTheme.colorScheme.onSurface
                     )
                     
-                    // Anzeige der Streckenbewertung
-                    if (stationRating != null) {
+                    // Anzeige der Linienbewertung
+                    if (lineRating != null) {
                         Text(
-                            text = "${stringResource(id = R.string.station_rating)}: %.1f ★ (%d)".format(stationRating.averageRating, stationRating.reviewCount),
+                            text = "Linienbewertung: %.1f ★ (%d)".format(lineRating.averageRating, lineRating.reviewCount),
                             fontSize = 12.sp,
                             color = Color(0xFF6B5E00) // Muted Gold
                         )
