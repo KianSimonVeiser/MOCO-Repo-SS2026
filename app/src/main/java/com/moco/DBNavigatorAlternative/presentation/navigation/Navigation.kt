@@ -81,6 +81,9 @@ fun AppNavigation() {
                         val encFrom = fromId?.let { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) } ?: ""
                         val encTo = toId?.let { URLEncoder.encode(it, StandardCharsets.UTF_8.toString()) } ?: ""
                         navController.navigate("search?fromId=$encFrom&toId=$encTo&date=$date&onlyDTicket=$onlyDTicket")
+                    },
+                    onNavigateToDetail = { connectionId, date ->
+                        navController.navigate("detail?connectionId=$connectionId&date=$date")
                     }
                 ) 
             }
@@ -113,9 +116,25 @@ fun AppNavigation() {
             }
             
             composable("profile") { ProfileScreen() }
-            composable("detail") { 
+            composable(
+                route = "detail?connectionId={connectionId}&date={date}",
+                arguments = listOf(
+                    navArgument("connectionId") { defaultValue = ""; type = NavType.StringType },
+                    navArgument("date") { defaultValue = ""; type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val connectionId = backStackEntry.arguments?.getString("connectionId") ?: ""
+                val date = backStackEntry.arguments?.getString("date")
+                DetailScreen(
+                    connectionId = if (connectionId.isBlank()) null else connectionId,
+                    initialDate = date
+                )
+            }
+            
+            // Behalte die alte Detail-Route ohne Argumente für die BottomBar bei
+            composable("detail") {
                 val connection = com.moco.DBNavigatorAlternative.data.SearchStateStore.selectedConnection ?: previewConnection
-                DetailScreen(connection = connection) 
+                DetailScreen(connection = connection)
             }
         }
     }
