@@ -41,7 +41,7 @@ fun DetailOverlayCards(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Kombinierte Karte für Pünktlichkeit und Bewertung
+            // Kombinierte Karte für Pünktlichkeit und Bewertung!
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large
