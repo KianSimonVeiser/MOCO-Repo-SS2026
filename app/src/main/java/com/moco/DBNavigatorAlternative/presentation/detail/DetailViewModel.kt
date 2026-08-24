@@ -190,9 +190,10 @@ class DetailViewModel(
                 favoriteRepository?.deleteFavoriteByChecksum(connection.id)
                 _uiState.update { it.copy(isFavorite = false) }
             } else {
+                val userId = userRepository.currentUser.value?.userId ?: "local_user"
                 val favorite = FavoriteConnection(
                     connectionId = connection.id,
-                    userId = "local_user", // Wir nutzen lokal eine feste ID oder leer
+                    userId = userId,
                     fromStation = firstSeg?.departureStop?.name.orEmpty(),
                     fromId = firstSeg?.departureStop?.id.orEmpty(),
                     toStation = lastSeg?.arrivalStop?.name.orEmpty(),

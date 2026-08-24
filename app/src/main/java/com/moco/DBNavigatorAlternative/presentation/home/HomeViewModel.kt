@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moco.DBNavigatorAlternative.data.UserRepository
 import com.moco.DBNavigatorAlternative.data.api.DBNavApiService
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.data.remote.HttpClientFactory
@@ -56,6 +57,17 @@ class HomeViewModel(
     init {
         setInitialDateAndTime()
         observeSettings()
+        observeUserAndSync()
+    }
+
+    private fun observeUserAndSync() {
+        viewModelScope.launch {
+            UserRepository.currentUser.collect { user ->
+                if (user != null) {
+                    favoriteRepository.syncWithRemote()
+                }
+            }
+        }
     }
 
     private fun observeSettings() {

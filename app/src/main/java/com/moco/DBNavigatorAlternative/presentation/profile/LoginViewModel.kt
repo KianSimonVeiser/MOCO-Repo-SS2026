@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.moco.DBNavigatorAlternative.data.UserRepository
+import com.moco.DBNavigatorAlternative.data.local.AppDatabase
+import com.moco.DBNavigatorAlternative.data.repository.FavoriteRepositoryImpl
 import com.moco.DBNavigatorAlternative.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -96,10 +98,19 @@ class LoginViewModel : ViewModel() {
     }
 
     /**
-     * Meldet den Nutzer ab und löscht die Sitzung.
+     * Meldet den Nutzer ab und löscht die Sitzung sowie lokale Favoriten.
      */
     fun logout() {
-        UserRepository.setUser(null)
-        _uiState.update { LoginUiState() }
+        viewModelScope.launch {
+            UserRepository.setUser(null)
+            
+            // Lokale Favoriten löschen
+            UserRepository.context?.let { ctx ->
+                val database = AppDatabase.getInstance(ctx)
+                FavoriteRepositoryImpl(database.favoriteConnectionDao).clearLocalFavorites()
+            }
+
+            _uiState.update { LoginUiState() }
+        }
     }
 }

@@ -9,4 +9,6 @@ interface FavoriteRepository {
     suspend fun insertFavorite(favorite: FavoriteConnection)
     suspend fun deleteFavoriteByChecksum(connectionId: String)
     fun isFavorite(connectionId: String): Flow<Boolean>
+    suspend fun syncWithRemote()
+    suspend fun clearLocalFavorites()
 }

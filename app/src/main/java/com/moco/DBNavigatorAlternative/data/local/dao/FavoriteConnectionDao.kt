@@ -22,6 +22,9 @@ interface FavoriteConnectionDao {
     @Query("DELETE FROM favorite_connections WHERE connectionId = :connectionId")
     suspend fun deleteFavoriteByChecksum(connectionId: String)
 
+    @Query("DELETE FROM favorite_connections")
+    suspend fun deleteAll()
+
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_connections WHERE connectionId = :connectionId)")
     fun isFavorite(connectionId: String): Flow<Boolean>
 }
