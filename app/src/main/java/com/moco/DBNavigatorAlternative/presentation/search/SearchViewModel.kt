@@ -331,6 +331,28 @@ class SearchViewModel(
         return _uiState.value.stationRatingCache[lineId] as? com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
     }
 
+    /**
+     * Berechnet die Durchschnittsbewertung für eine gesamte Verbindung
+     * basierend auf den Bewertungen aller enthaltenen Linien.
+     */
+    fun getAverageLineRating(connection: Connection): com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary? {
+        val summaries = connection.segments.mapNotNull { segment ->
+            _uiState.value.stationRatingCache[segment.train.line] as? com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
+        }
+
+        if (summaries.isEmpty()) return null
+
+        val totalRating = summaries.sumOf { it.averageRating.toDouble() }
+        val totalReviews = summaries.sumOf { it.reviewCount }
+        val average = totalRating / summaries.size
+
+        return com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary(
+            lineId = "average",
+            averageRating = average.toFloat(),
+            reviewCount = totalReviews
+        )
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

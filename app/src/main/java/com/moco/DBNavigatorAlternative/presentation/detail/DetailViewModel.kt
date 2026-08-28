@@ -45,26 +45,33 @@ class DetailViewModel(
         viewModelScope.launch {
             val punctualityInfo = punctualityRepository.getPunctualityForConnection(connection)
             
+            // Segmente mit den geladenen Scores aktualisieren
+            val updatedSegments = connection.segments.map { segment ->
+                val segmentScore = punctualityInfo.details?.find { it.train == segment.train.line }?.score
+                segment.copy(punctualityScore = segmentScore)
+            }
+            val updatedConnection = connection.copy(segments = updatedSegments)
+
             // Favoriten-Status lokal prüfen
             val isFav = favoriteRepository?.isFavorite(connection.id)?.firstOrNull() ?: false
 
             _uiState.update { currentState ->
-                val nonWalkSegments = connection.segments.filter { it.train.type != TrainType.WALK }
-                val defaultSegmentId = nonWalkSegments.firstOrNull()?.id ?: connection.segments.firstOrNull()?.id.orEmpty()
+                val nonWalkSegments = updatedConnection.segments.filter { it.train.type != TrainType.WALK }
+                val defaultSegmentId = nonWalkSegments.firstOrNull()?.id ?: updatedConnection.segments.firstOrNull()?.id.orEmpty()
                 
                 val selectedId = currentState.selectedSegmentId.ifBlank {
                     defaultSegmentId
                 }
                 
                 currentState.copy(
-                    connection = connection,
+                    connection = updatedConnection,
                     selectedSegmentId = selectedId,
                     punctualityInfo = punctualityInfo,
                     isFavorite = isFav
                 )
             }
             
-            connection.segments.firstOrNull()?.let { segment ->
+            updatedConnection.segments.firstOrNull()?.let { segment ->
                 observeComments(segment.train.line)
                 loadRating(segment.train.line)
             }

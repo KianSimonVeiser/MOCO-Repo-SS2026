@@ -53,10 +53,10 @@ fun ConnectionCard(
                         color = if (isCritical) Color(0xFFBA1A1A) else MaterialTheme.colorScheme.onSurface
                     )
                     
-                    // Anzeige der Linienbewertung
+                    // Anzeige der durchschnittlichen Linienbewertung
                     if (lineRating != null) {
                         Text(
-                            text = "Linienbewertung: %.1f ★ (%d)".format(lineRating.averageRating, lineRating.reviewCount),
+                            text = "Ø Linienbewertung: %.1f ★ (%d)".format(lineRating.averageRating, lineRating.reviewCount),
                             fontSize = 12.sp,
                             color = Color(0xFF6B5E00) // Muted Gold
                         )

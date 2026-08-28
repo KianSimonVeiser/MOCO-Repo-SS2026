@@ -6,5 +6,12 @@ package com.moco.DBNavigatorAlternative.domain.model
  */
 data class PunctualityInfo(
     val score: Float,
-    val bindingLossProbability: Float
+    val bindingLossProbability: Float,
+    val details: List<SegmentPunctuality>? = null
+)
+
+data class SegmentPunctuality(
+    val train: String,
+    val score: Float,
+    val delay: Float
 )

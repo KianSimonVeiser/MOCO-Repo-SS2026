@@ -42,9 +42,11 @@ fun ConnectionSegmentItem(
                 train = connectionSegment.train
             )
 
-            TrainPunctualityCard(
-                punctualityScore = connectionSegment.punctualityScore
-            )
+            if (connectionSegment.punctualityScore != null) {
+                TrainPunctualityCard(
+                    punctualityScore = connectionSegment.punctualityScore
+                )
+            }
         }
 
         ConnectionStop(

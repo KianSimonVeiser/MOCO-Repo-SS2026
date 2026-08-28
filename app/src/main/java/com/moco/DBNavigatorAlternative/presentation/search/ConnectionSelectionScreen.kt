@@ -66,17 +66,16 @@ fun ConnectionSelectionScreen(
                 // Starte das Laden der Pünktlichkeitsdaten und Linienbewertungen
                 LaunchedEffect(connection.id) {
                     viewModel.loadPunctualityInfo(connection)
-                    connection.segments.firstOrNull()?.train?.line?.let {
-                        viewModel.loadLineRating(it)
+                    // Lade Bewertungen für ALLE Linien der Verbindung
+                    connection.segments.forEach { segment ->
+                        viewModel.loadLineRating(segment.train.line)
                     }
                 }
 
                 ConnectionCard(
                     connection = connection,
                     punctualityInfo = viewModel.getPunctualityInfo(connection),
-                    lineRating = connection.segments.firstOrNull()?.train?.line?.let {
-                        viewModel.getLineRating(it)
-                    },
+                    lineRating = viewModel.getAverageLineRating(connection),
                     onClick = {
                         viewModel.onConnectionSelected(connection)
                         onNavigateToDetail()
