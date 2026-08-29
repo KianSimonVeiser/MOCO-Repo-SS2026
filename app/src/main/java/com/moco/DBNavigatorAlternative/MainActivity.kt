@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         UserRepository.context = applicationContext
-        
+
         // Aktiviert Edge-to-Edge Design
         enableEdgeToEdge()
         
