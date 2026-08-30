@@ -20,9 +20,9 @@ import com.moco.DBNavigatorAlternative.presentation.generalUse.SearchSection
 import com.moco.DBNavigatorAlternative.presentation.home.components.TicketOptionSection
 import com.moco.DBNavigatorAlternative.presentation.home.components.DateTimeSection
 
-/**
- * Der SearchHeader bündelt alle UI-Komponenten für die Verbindungssuche.
- */
+// # Such-Header
+// Das ist der obere Bereich der Suchseite. Hier sind alle Felder drin, 
+// um die Suche zu verfeinern (Ort, Datum, Filter).
 @Composable
 fun SearchHeader(
     uiState: SearchUiState,
@@ -43,7 +43,7 @@ fun SearchHeader(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Eingabebereich für Start und Ziel
+        // Hier gibt man Start und Ziel ein
         SearchSection(
             fromTextFieldState = uiState.fromTextFieldState,
             locationNeeded = uiState.locationNeeded,
@@ -58,8 +58,9 @@ fun SearchHeader(
             onLocationDismissed = onLocationDismissed,
             onLocationAccepted = onLocationAccepted
         )
+
         
-        // Auswahl für Datum und Uhrzeit
+        // Datum und Uhrzeit auswählen
         DateTimeSection(
             dateText = uiState.date,
             showDatePicker = uiState.showDatePicker,
@@ -68,13 +69,13 @@ fun SearchHeader(
             onDismiss = { onToggleDatePicker(false) }
         )
 
-        // Ticket Option (D-Ticket Filter)
+        // Nur Verbindungen mit Deutschlandticket anzeigen
         TicketOptionSection(
             onlyDTicket = uiState.onlyDTicket,
             onToggle = onToggleOnlyDTicket
         )
 
-        // Früher / Später Optionen
+        // Knöpfe für frühere oder spätere Züge
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -84,7 +85,7 @@ fun SearchHeader(
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Text(stringResource(id = R.string.earlier))
@@ -94,7 +95,7 @@ fun SearchHeader(
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
                 Text(stringResource(id = R.string.later))
@@ -102,3 +103,4 @@ fun SearchHeader(
         }
     }
 }
+

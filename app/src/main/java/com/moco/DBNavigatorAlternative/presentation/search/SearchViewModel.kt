@@ -27,11 +27,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * ViewModel für die Verbindungssuche.
- * Verwaltet Suchparameter, Standortabfrage, Suchergebnisse, 
- * Pünktlichkeitsinformationen und Bahnhofsbewertungen.
- */
+// # ViewModel für die Suche und Ergebnisse
+// Hier kümmern wir uns um alles rund um die Verbindungssuche.
+// Parameter wie Start/Ziel verwalten, Ergebnisse von der API laden,
+// Pünktlichkeits-Infos cachen und Bewertungen abrufen.
 class SearchViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
@@ -62,7 +61,7 @@ class SearchViewModel(
                     val oldActive = _uiState.value.onlyDTicket
                     _uiState.update { it.copy(onlyDTicket = active) }
                     
-                    // Falls sich der Wert ändert und wir bereits Orte ausgewählt haben, Suche neu triggern
+                    // Wenn sich die Einstellung ändert, Suche neu starten
                     if (oldActive != active) {
                         triggerSearch()
                     }
@@ -71,9 +70,7 @@ class SearchViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Suchparameter
-    // ---------------------------------------------------------
+    // # Suchparameter
 
     private var searchJobFrom: kotlinx.coroutines.Job? = null
     private var searchJobTo: kotlinx.coroutines.Job? = null
@@ -136,9 +133,7 @@ class SearchViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Datum
-    // ---------------------------------------------------------
+    // # Datum
 
     fun toggleDatePicker(show: Boolean) {
         _uiState.update { it.copy(showDatePicker = show) }
@@ -157,9 +152,7 @@ class SearchViewModel(
         } ?: _uiState.update { it.copy(showDatePicker = false) }
     }
 
-    // ---------------------------------------------------------
-    // Standortabfrage
-    // ---------------------------------------------------------
+    // # Standortabfrage
 
     fun onLocationNeeded() {
         _uiState.update { it.copy(locationNeeded = true) }
@@ -231,7 +224,7 @@ class SearchViewModel(
             val currentOnlyDTicket = onlyDTicket ?: _uiState.value.onlyDTicket
             val currentDate = dateStr ?: _uiState.value.date
             
-            // Globalen Store aktualisieren, damit die Werte beim Zurückgehen erhalten bleiben
+            // Globalen Store aktualisieren
             SearchStateStore.date = currentDate
             onlyDTicket?.let { SearchStateStore.onlyDTicket = it }
 
@@ -254,7 +247,7 @@ class SearchViewModel(
     }
 
     private fun performSearch(fromId: String, toId: String, date: String, onlyDTicket: Boolean) {
-        // Umwandlung von dd.MM.yyyy in yyyy-MM-dd für die API
+        // Datum für die API vorbereiten
         val isoDate = try {
             val parts = date.split(".")
             if (parts.size == 3) {
@@ -304,9 +297,7 @@ class SearchViewModel(
         return _uiState.value.punctualityCache[connection.id]
     }
 
-    // ---------------------------------------------------------
-    // Linienbewertungen
-    // ---------------------------------------------------------
+    // # Linienbewertungen
 
     fun loadLineRating(lineId: String) {
         if (_uiState.value.stationRatingCache.containsKey(lineId)) return
@@ -331,10 +322,7 @@ class SearchViewModel(
         return _uiState.value.stationRatingCache[lineId] as? com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
     }
 
-    /**
-     * Berechnet die Durchschnittsbewertung für eine gesamte Verbindung
-     * basierend auf den Bewertungen aller enthaltenen Linien.
-     */
+    // Durchschnittsbewertung für die ganze Verbindung berechnen
     fun getAverageLineRating(connection: Connection): com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary? {
         val summaries = connection.segments.mapNotNull { segment ->
             _uiState.value.stationRatingCache[segment.train.line] as? com.moco.DBNavigatorAlternative.domain.model.LineRatingSummary
@@ -352,6 +340,7 @@ class SearchViewModel(
             reviewCount = totalReviews
         )
     }
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {

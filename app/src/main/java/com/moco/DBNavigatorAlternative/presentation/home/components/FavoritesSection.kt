@@ -11,10 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.domain.model.FavoriteConnection
 
-/**
- * DIE FAVORITEN-LISTE
- * Zeigt gespeicherte Verbindungen dynamisch aus der Cloud an.
- */
+// # Favoriten
+// Hier zeigen wir die gespeicherten Verbindungen an.
 @Composable
 fun FavoritesSection(
     favorites: List<FavoriteConnection>,
@@ -22,7 +20,7 @@ fun FavoritesSection(
     onDeleteFavorite: (FavoriteConnection) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    if (favorites.isEmpty()) return // Zeige nichts an, wenn keine Favoriten da sind
+    if (favorites.isEmpty()) return // Wenn keine Favoriten da sind, zeigen wir nichts an
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -43,6 +41,7 @@ fun FavoritesSection(
                         onDeleteClick = { onDeleteFavorite(favorite) }
                     )
                     
+                    // Trennlinie zwischen den Favoriten
                     if (index < favorites.size - 1) {
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = 16.dp),
@@ -55,9 +54,7 @@ fun FavoritesSection(
     }
 }
 
-/**
- * Ein einzelner klickbarer Favoriten-Eintrag mit Lösch-Button.
- */
+// Ein einzelner Eintrag in der Favoritenliste
 @Composable
 private fun FavoriteItem(
     text: String, 
@@ -74,6 +71,7 @@ private fun FavoriteItem(
     ) {
         Text(text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         
+        // Button zum Löschen des Favoriten
         IconButton(onClick = onDeleteClick) {
             Icon(
                 imageVector = Icons.Default.Delete, 
@@ -83,3 +81,4 @@ private fun FavoriteItem(
         }
     }
 }
+

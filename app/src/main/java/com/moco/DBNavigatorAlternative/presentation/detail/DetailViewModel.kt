@@ -38,21 +38,19 @@ class DetailViewModel(
 
     private var commentsJob: Job? = null
 
-    /**
-     * Initialisiert die Verbindungsinformationen und prüft den Favoritenstatus.
-     */
+    // Verbindungsinfos laden und schauen, ob sie schon ein Favorit ist
     fun setConnection(connection: Connection) {
         viewModelScope.launch {
             val punctualityInfo = punctualityRepository.getPunctualityForConnection(connection)
             
-            // Segmente mit den geladenen Scores aktualisieren
+            // Die einzelnen Abschnitte der Reise mit Pünktlichkeits-Scores füllen
             val updatedSegments = connection.segments.map { segment ->
                 val segmentScore = punctualityInfo.details?.find { it.train == segment.train.line }?.score
                 segment.copy(punctualityScore = segmentScore)
             }
             val updatedConnection = connection.copy(segments = updatedSegments)
 
-            // Favoriten-Status lokal prüfen
+            // Ist das schon einer unserer Favoriten?
             val isFav = favoriteRepository?.isFavorite(connection.id)?.firstOrNull() ?: false
 
             _uiState.update { currentState ->
@@ -78,17 +76,15 @@ class DetailViewModel(
         }
     }
 
-    /**
-     * Lädt eine Verbindung anhand der ID aus den Favoriten und aktualisiert sie via API.
-     */
+    // Eine Verbindung über ihre ID laden und aktualisieren
     fun loadConnectionById(connectionId: String, initialDate: String? = null) {
         viewModelScope.launch {
             val fav = favoriteRepository?.getFavoriteByChecksum(connectionId)
             if (fav != null) {
-                // Versuche die Verbindung aktuell über die API abzurufen
+                // Aktuelle Infos von der API holen
                 
                 val dateToUse = if (!initialDate.isNullOrBlank()) {
-                    // Konvertiere dd.MM.yyyy -> yyyy-MM-dd
+                    // Datum umwandeln
                     try {
                         val parts = initialDate.split(".")
                         "${parts[2]}-${parts[1]}-${parts[0]}T12:00:00+02:00"
@@ -107,13 +103,13 @@ class DetailViewModel(
                         onlyDTicket = false
                     )
                     
-                    // Finde die exakte Verbindung per Checksum/ID wieder
+                    // Schauen, ob wir die Verbindung wiederfinden
                     val liveConnection = connections.find { it.id == connectionId }
                     
                     if (liveConnection != null) {
                         setConnection(liveConnection)
                     } else {
-                        // Falls nicht gefunden (z.B. Zeit zu weit weg), nimm die erste Ähnliche oder Fallback
+                        // Wenn nicht exakt gefunden, die am besten passende nehmen
                         val bestMatch = connections.firstOrNull { it.segments.firstOrNull()?.departureStop?.time == fav.departureTime }
                             ?: connections.firstOrNull()
                         
@@ -130,6 +126,7 @@ class DetailViewModel(
             }
         }
     }
+
 
     private fun showFallback(fav: FavoriteConnection) {
         val fallbackConnection = Connection(

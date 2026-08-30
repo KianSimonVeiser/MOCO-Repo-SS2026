@@ -25,10 +25,8 @@ import com.moco.DBNavigatorAlternative.R
 import com.moco.DBNavigatorAlternative.data.api.dto.NearbyLocationDto
 import com.moco.DBNavigatorAlternative.presentation.generalUse.Location.checkLocationPermission
 
-/**
- * DIE SUCHE-KARTE
- * Komponente für die Auswahl von Start- und Zielbahnhof.
- */
+// # Such-Bereich
+// Hier kann man Start- und Zielbahnhof auswählen.
 @Composable
 fun SearchSection(
     fromTextFieldState: TextFieldState,
@@ -68,7 +66,7 @@ fun SearchSection(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Von
+            // Von-Feld
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -83,6 +81,7 @@ fun SearchSection(
                     modifier = Modifier.weight(1f)
                 )
 
+                // Button um den aktuellen Standort zu nutzen
                 FilledIconButton(
                     onClick = onLocationClick,
                     modifier = Modifier.size(48.dp)
@@ -94,7 +93,7 @@ fun SearchSection(
                 }
             }
 
-            // Zu
+            // Zu-Feld
             SimpleSearchBar(
                 textFieldState = toTextFieldState,
                 onSearch = { onToChange(toTextFieldState) },
@@ -106,6 +105,7 @@ fun SearchSection(
         }
     }
 
+    // Wenn der Standort gebraucht wird, fragen wir nach der Berechtigung
     if (locationNeeded) {
         val hasPermission = checkLocationPermission(context)
         if (hasPermission) {
@@ -116,6 +116,7 @@ fun SearchSection(
             )
 
             if (showRationale) {
+                // Erklären, warum wir den Standort brauchen
                 AlertDialog(
                     onDismissRequest = onLocationDismissed,
                     title = {
@@ -146,3 +147,4 @@ fun SearchSection(
         }
     }
 }
+

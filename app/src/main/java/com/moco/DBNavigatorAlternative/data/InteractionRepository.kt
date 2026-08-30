@@ -113,7 +113,7 @@ class InteractionRepository(
     }
 
     /**
-     * Speichert eine spezifische Verbindung anhand ihrer ID.
+     * Speichert einen neuen Favoriten ab.
      */
     suspend fun addFavorite(favorite: FavoriteConnection) {
         val docId = "${favorite.userId}_${favorite.connectionId}"
@@ -121,7 +121,7 @@ class InteractionRepository(
     }
 
     /**
-     * Entfernt eine Verbindung aus den Favoriten.
+     * Löscht einen Favoriten wieder.
      */
     suspend fun removeFavorite(userId: String, connectionId: String) {
         val docId = "${userId}_${connectionId}"
@@ -129,7 +129,7 @@ class InteractionRepository(
     }
 
     /**
-     * Prüft, ob diese exakte Verbindung favorisiert ist.
+     * Schaut nach, ob eine Verbindung schon in den Favoriten ist.
      */
     suspend fun isFavorite(userId: String, connectionId: String): Boolean {
         val docId = "${userId}_${connectionId}"
@@ -139,6 +139,7 @@ class InteractionRepository(
             false
         }
     }
+
 
     fun getFavorites(userId: String): Flow<List<FavoriteConnection>> = callbackFlow {
         val listener = favoritesCollection.whereEqualTo("userId", userId)

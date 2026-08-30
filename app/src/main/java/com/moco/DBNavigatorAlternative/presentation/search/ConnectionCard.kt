@@ -21,9 +21,9 @@ import com.moco.DBNavigatorAlternative.presentation.theme.*
 import com.moco.DBNavigatorAlternative.presentation.detail.color
 import com.moco.DBNavigatorAlternative.presentation.detail.punctualityColor
 
-/**
- * Eine Karte, die eine einzelne Zugverbindung in der Ergebnisliste darstellt.
- */
+// # Verbindungskarte
+// Eine Karte, die eine Zugverbindung in der Liste anzeigt.
+// Man sieht auf einen Blick die Zeiten, die Linien und wie pünktlich sie sind.
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ConnectionCard(
@@ -40,7 +40,7 @@ fun ConnectionCard(
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            // Kopfzeile mit Abfahrts-/Ankunftszeit und Pünktlichkeits-Score
+            // Oben stehen die Zeiten und der Pünktlichkeits-Wert
             val currentScore = punctualityInfo?.score
             val isCritical = currentScore != null && currentScore < 5.0f
             
@@ -53,26 +53,26 @@ fun ConnectionCard(
                         color = if (isCritical) Color(0xFFBA1A1A) else MaterialTheme.colorScheme.onSurface
                     )
                     
-                    // Anzeige der durchschnittlichen Linienbewertung
+                    // Zeigt die durchschnittliche Bewertung der Linien an
                     if (lineRating != null) {
                         Text(
                             text = "Ø Linienbewertung: %.1f ★ (%d)".format(lineRating.averageRating, lineRating.reviewCount),
                             fontSize = 12.sp,
-                            color = Color(0xFF6B5E00) // Muted Gold
+                            color = Color(0xFF6B5E00) // Dunkles Gold
                         )
                     }
                 }
                 ScoreBadge(currentScore?.toDouble())
             }
 
-            // Auflistung der genutzten Züge/Linien
+            // Alle Züge/Linien für diese Verbindung auflisten
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 connection.segments.forEach { segment ->
                     TrainBadge(segment.train.line, segment.train.type)
                 }
             }
 
-            // Hinweis zur aufgehobenen Zugbindung mit Wahrscheinlichkeit (dynamisch ab 50%)
+            // Ein kleiner Hinweis, falls die Zugbindung aufgehoben wurde
             if (punctualityInfo != null && punctualityInfo.bindingLossProbability >= 0.5f) {
                 val probPercent = (punctualityInfo.bindingLossProbability * 100).toInt()
                 BindingHint(probPercent)
@@ -81,9 +81,7 @@ fun ConnectionCard(
     }
 }
 
-/**
- * Kleines farbiges Abzeichen für den Pünktlichkeits-Score (Ampelsystem).
- */
+// Ein farbiges Abzeichen für den Pünktlichkeits-Wert
 @Composable
 fun ScoreBadge(score: Double?) {
     val color = punctualityColor(score?.toFloat())
@@ -97,6 +95,7 @@ fun ScoreBadge(score: Double?) {
         )
     }
 }
+
 
 @Composable
 fun TrainBadge(name: String, type: TrainType) {

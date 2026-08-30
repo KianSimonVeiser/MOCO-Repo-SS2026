@@ -8,12 +8,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 
+// # Kopfzeile
+// Eine einfache Leiste für oben, die auf jeder Seite den Titel anzeigt.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
     title: String,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
+
     TopAppBar(
         title = {
             Text(text = title)

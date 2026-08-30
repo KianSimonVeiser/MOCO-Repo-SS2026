@@ -17,14 +17,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+// # Navigationsleiste unten
+// Hier kann man schnell zwischen den Hauptseiten der App hin- und herwechseln.
 @Composable
 fun AppBottomBar(
-    selectedItem: Int = -1, // -1 means none selected, 0: Add, 1: Search, 2: Chart, 3: Profile
+    selectedItem: Int = -1, // -1 bedeutet nichts ausgewählt. 0: Home, 1: Suche, 2: Statistik, 3: Profil
     onAddClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onChartClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
 ) {
+
     BottomAppBar(
         actions = {
             Row(

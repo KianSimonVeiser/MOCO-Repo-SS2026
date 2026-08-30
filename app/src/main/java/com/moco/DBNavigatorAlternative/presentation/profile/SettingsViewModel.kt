@@ -24,9 +24,9 @@ data class SettingsUiState(
     val userComments: List<LineComment> = emptyList() // NEU: Liste der eigenen Kommentare
 )
 
-/**
- * ViewModel zur Verwaltung der Benutzereinstellungen in Firebase.
- */
+// # ViewModel für Einstellungen
+// Hier verwalten wir das Benutzerprofil in Firebase.
+// Man kann seinen Namen ändern, Kommentare löschen oder den ganzen Account entfernen.
 class SettingsViewModel(
     private val interactionRepository: InteractionRepository = InteractionRepository()
 ) : ViewModel() {
@@ -36,13 +36,11 @@ class SettingsViewModel(
 
     private var userEmail: String = ""
 
-    /**
-     * Initialisiert das ViewModel mit den aktuellen Nutzerdaten.
-     */
+    // Nutzerdaten laden, wenn die Seite geöffnet wird
     fun initUserData(username: String, email: String) {
         userEmail = email
         _uiState.update { it.copy(username = username) }
-        loadUserComments() // Lädt die Kommentare beim Start
+        loadUserComments() // Auch die eigenen Kommentare direkt mitladen
     }
 
     private fun loadUserComments() {
@@ -61,9 +59,7 @@ class SettingsViewModel(
         _uiState.update { it.copy(password = newPass) }
     }
 
-    /**
-     * Aktualisiert alle geänderten Profildaten in einem Rutsch.
-     */
+    // Alle Änderungen am Profil speichern
     fun saveAllSettings() {
         if (userEmail.isBlank()) return
         
@@ -74,7 +70,7 @@ class SettingsViewModel(
                 val db = Firebase.firestore
                 val updates = mutableMapOf<String, Any>()
                 
-                // Wir aktualisieren nur Felder, die nicht leer sind
+                // Nur Felder updaten, die wir auch wirklich geändert haben
                 updates["username"] = _uiState.value.username
                 if (_uiState.value.password.isNotBlank()) {
                     updates["password"] = _uiState.value.password
@@ -94,9 +90,7 @@ class SettingsViewModel(
         }
     }
 
-    /**
-     * Löscht das Nutzerdokument unwiderruflich aus Firestore.
-     */
+    // Den Account komplett aus der Datenbank löschen
     fun deleteAccount() {
         if (userEmail.isBlank()) return
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
@@ -117,6 +111,7 @@ class SettingsViewModel(
             }
         }
     }
+
 
     /**
      * Löscht alle Kommentare des Nutzers.

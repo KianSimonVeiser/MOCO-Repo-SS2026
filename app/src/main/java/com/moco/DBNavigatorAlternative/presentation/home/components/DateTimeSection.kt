@@ -7,24 +7,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-/**
- * DATUMS-AUSWAHL
- * Zeigt das aktuell gewählte Datum in einer klickbaren Karte an.
- */
+// # Datums-Auswahl
+// Eine Karte, die das gewählte Datum anzeigt und beim Klick den Kalender öffnet.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimeSection(
-    dateText: String,                 // Das aktuell gewählte Datum als Text
-    showDatePicker: Boolean,          // Schalter für die Sichtbarkeit des Kalender-Dialogs
-    onDateClick: () -> Unit,          // Aktion beim Klick auf die Karte (Dialog öffnen)
-    onDateSelected: (Long?) -> Unit,  // Aktion wenn ein Datum im Kalender gewählt wurde
-    onDismiss: () -> Unit,            // Aktion zum Schließen des Kalenders
+    dateText: String,                 // Das aktuell gewählte Datum
+    showDatePicker: Boolean,          // Ob der Kalender gerade offen sein soll
+    onDateClick: () -> Unit,          // Kalender öffnen
+    onDateSelected: (Long?) -> Unit,  // Wenn ein Datum ausgesucht wurde
+    onDismiss: () -> Unit,            // Kalender einfach wieder schließen
     modifier: Modifier = Modifier
 ) {
-    // Merkt sich den Zustand des Material 3 Kalenders
     val datePickerState = rememberDatePickerState()
 
-    // WENN showDatePicker true ist, wird der Kalender-Dialog eingeblendet
+    // Den Kalender-Dialog anzeigen, wenn er gebraucht wird
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = onDismiss,
@@ -37,7 +34,6 @@ fun DateTimeSection(
                 TextButton(onClick = onDismiss) { Text("Abbrechen") }
             }
         ) {
-            // Der eigentliche Kalender-Inhalt (Material 3 Komponente)
             DatePicker(state = datePickerState)
         }
     }
@@ -47,18 +43,16 @@ fun DateTimeSection(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium
     ) {
-        // ListItem sorgt für die perfekte Ausrichtung von Icon, Text und Label
         ListItem(
-            headlineContent = { Text("Datum") }, // Was wird gewählt?
-            supportingContent = { Text(dateText) }, // Welches Datum ist aktuell aktiv?
+            headlineContent = { Text("Datum") },
+            supportingContent = { Text(dateText) },
             leadingContent = {
-                // Ein passendes Kalender-Icon links
                 Icon(Icons.Default.CalendarMonth, contentDescription = null)
             },
             trailingContent = {
-                // Ein kleiner Hinweis-Text rechts
                 Text("Ändern", color = MaterialTheme.colorScheme.primary)
             }
         )
     }
 }
+

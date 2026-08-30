@@ -22,6 +22,9 @@ import com.moco.DBNavigatorAlternative.domain.model.Connection
 import com.moco.DBNavigatorAlternative.presentation.generalUse.AppTopBar
 import com.moco.DBNavigatorAlternative.presentation.profile.ProfilePopup
 
+// # Detailansicht einer Verbindung
+// Hier zeigen wir alle Infos zu einer bestimmten Reise.
+// Pünktlichkeit, Bewertungen und die Möglichkeit, Kommentare zu schreiben.
 @Composable
 fun DetailScreen(
     connectionId: String? = null,
@@ -57,7 +60,8 @@ fun DetailScreen(
         )
     }
 
-    // Authentifizierungs-Warnung
+
+    // Wenn der Nutzer nicht eingeloggt ist, zeigen wir einen Hinweis
     if (uiState.showAuthWarning) {
         ProfilePopup(
             text = "Bitte melde dich an, um Verbindungen zu speichern.",
@@ -65,6 +69,7 @@ fun DetailScreen(
         )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,5 +155,68 @@ fun DetailScreenContent(
                 )
             }
         }
+    }
+}
+
+// --- Vorschau-Daten und Previews ---
+
+val previewConnection = Connection(
+    id = "conn001",
+    totalDurationMinutes = 180,
+    transferCount = 1,
+    segments = listOf(
+        com.moco.DBNavigatorAlternative.domain.model.ConnectionSegment(
+            id = "cs1",
+            departureStop = com.moco.DBNavigatorAlternative.domain.model.Stop(
+                id = "FFM",
+                name = "Frankfurt Hbf",
+                time = "14:30",
+                platform = "7"
+            ),
+            arrivalStop = com.moco.DBNavigatorAlternative.domain.model.Stop(
+                id = "KAS",
+                name = "Kassel-Wilhelmshöhe",
+                time = "15:50",
+                platform = "3"
+            ),
+            train = com.moco.DBNavigatorAlternative.domain.model.Train(
+                id = "ice572",
+                type = com.moco.DBNavigatorAlternative.domain.model.TrainType.ICE,
+                line = "ICE 572"
+            ),
+            currentProgress = 1f,
+            punctualityScore = 9.3f
+        ),
+        com.moco.DBNavigatorAlternative.domain.model.ConnectionSegment(
+            id = "cs2",
+            departureStop = com.moco.DBNavigatorAlternative.domain.model.Stop(
+                id = "KAS",
+                name = "Kassel-Wilhelmshöhe",
+                time = "16:00",
+                platform = "5"
+            ),
+            arrivalStop = com.moco.DBNavigatorAlternative.domain.model.Stop(
+                id = "BER",
+                name = "Berlin Hbf",
+                time = "17:30",
+                platform = "11"
+            ),
+            train = com.moco.DBNavigatorAlternative.domain.model.Train(
+                id = "re21",
+                type = com.moco.DBNavigatorAlternative.domain.model.TrainType.RE,
+                line = "RE 21"
+            ),
+            currentProgress = 0.5f
+        )
+    )
+)
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun DetailScreenPreview() {
+    com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme {
+        DetailScreen(
+            connection = previewConnection
+        )
     }
 }

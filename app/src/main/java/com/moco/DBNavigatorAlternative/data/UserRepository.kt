@@ -7,9 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Singleton Repository zur Verwaltung der aktuellen Nutzersitzung.
- */
+// # Nutzer-Repository
+// Ein einfacher Speicher für die aktuelle Nutzersitzung.
 @SuppressLint("StaticFieldLeak")
 object UserRepository {
     var context: Context? = null
@@ -17,15 +16,12 @@ object UserRepository {
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
-    /**
-     * Setzt den aktuell angemeldeten Nutzer.
-     */
+    // Den angemeldeten Nutzer speichern
     fun setUser(user: User?) {
         _currentUser.value = user
     }
 
-    /**
-     * Prüft, ob ein Nutzer angemeldet ist.
-     */
+    // Kurz nachschauen, ob gerade jemand eingeloggt ist
     fun isLoggedIn(): Boolean = _currentUser.value != null
 }
+

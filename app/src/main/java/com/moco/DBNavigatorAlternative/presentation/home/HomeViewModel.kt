@@ -32,9 +32,9 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-/**
- * Das ViewModel verwaltet die Logik des HomeScreens.
- */
+// # ViewModel für die Startseite
+// Hier verwalten wir alles, was auf dem Home-Bildschirm passiert.
+// Dazu gehört das Laden von Favoriten, die Stationssuche und der Standort.
 class HomeViewModel(
     private val locationRepository: LocationRepository,
     private val dbNavApiService: DBNavApiService,
@@ -83,8 +83,7 @@ class HomeViewModel(
     }
 
     private fun setInitialDateAndTime() {
-        // Wir nutzen die Werte aus dem globalen SearchStateStore, 
-        // damit sie beim Screen-Wechsel erhalten bleiben.
+        // Werte aus dem globalen Speicher laden, damit sie beim Hin- und Herwechseln bleiben
         _uiState.update {
             it.copy(
                 date = SearchStateStore.date,
@@ -107,13 +106,9 @@ class HomeViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Startbahnhof
-    // ---------------------------------------------------------
+    // # Startbahnhof
 
-    /**
-     * Klick auf einen Favoriten triggert die Detailansicht direkt.
-     */
+    // Wenn ein Favorit geklickt wird, gehen wir direkt zur Detailansicht
     fun onFavoriteClicked(favorite: FavoriteConnection, onNavigateToDetail: (connectionId: String, date: String) -> Unit) {
         SearchStateStore.fromLocation = null
         SearchStateStore.toLocation = null
@@ -147,7 +142,7 @@ class HomeViewModel(
 
         searchJobFrom = viewModelScope.launch {
             if (query.isNotBlank()) {
-                kotlinx.coroutines.delay(300) // Debounce
+                kotlinx.coroutines.delay(300) // Kurz warten, um nicht bei jedem Tastendruck zu suchen
             }
             
             val results = if (query.isBlank()) {
@@ -180,9 +175,7 @@ class HomeViewModel(
         _uiState.update { it.copy(toLocation = location, toSearchResult = emptyList()) }
     }
 
-    // ---------------------------------------------------------
-    // Zielbahnhof
-    // ---------------------------------------------------------
+    // # Zielbahnhof
 
     fun onToChanged(newVal: TextFieldState) {
         val query = newVal.text.toString()
@@ -190,7 +183,7 @@ class HomeViewModel(
 
         searchJobTo = viewModelScope.launch {
             if (query.isNotBlank()) {
-                kotlinx.coroutines.delay(300) // Debounce
+                kotlinx.coroutines.delay(300) // Kurz warten
             }
 
             val results = if (query.isBlank()) {
@@ -213,9 +206,7 @@ class HomeViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Datum
-    // ---------------------------------------------------------
+    // # Datum
 
     fun toggleDatePicker(show: Boolean) {
         _uiState.update {
@@ -237,9 +228,7 @@ class HomeViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Uhrzeit
-    // ---------------------------------------------------------
+    // # Uhrzeit
 
     fun toggleTimePicker(show: Boolean) {
         _uiState.update {
@@ -264,9 +253,7 @@ class HomeViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Ankunft oder Abfahrt
-    // ---------------------------------------------------------
+    // # Ankunft oder Abfahrt
 
     fun toggleArrival(arrival: Boolean) {
         SearchStateStore.isArrival = arrival
@@ -275,9 +262,7 @@ class HomeViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Deutschlandticket
-    // ---------------------------------------------------------
+    // # Deutschlandticket
 
     fun toggleOnlyDTicket(active: Boolean) {
         SearchStateStore.onlyDTicket = active
@@ -289,9 +274,7 @@ class HomeViewModel(
         }
     }
 
-    // ---------------------------------------------------------
-    // Standort
-    // ---------------------------------------------------------
+    // # Standort
 
     fun onLocationNeeded() {
         _uiState.update {
@@ -305,9 +288,7 @@ class HomeViewModel(
         }
     }
 
-    /**
-     * Wird aufgerufen, wenn der Benutzer die Standortnutzung bestätigt.
-     */
+    // Wird aufgerufen, wenn der Nutzer seinen Standort freigibt
     fun onLocationAccepted() {
         viewModelScope.launch {
             try {
@@ -363,3 +344,4 @@ class HomeViewModel(
         }
     }
 }
+

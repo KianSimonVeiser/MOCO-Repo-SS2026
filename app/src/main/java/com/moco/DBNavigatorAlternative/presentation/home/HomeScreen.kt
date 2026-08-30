@@ -23,11 +23,9 @@ import com.moco.DBNavigatorAlternative.presentation.home.components.FavoritesSec
 import com.moco.DBNavigatorAlternative.presentation.home.components.TicketOptionSection
 import com.moco.DBNavigatorAlternative.presentation.theme.MyApplicationTheme
 
-/**
- *+ DER HOMESCREEN
- * Dies ist die Hauptseite der App! Sie ist nach dem MVVM-Muster aufgebaut
-
- */
+// # Startseite der App
+// Hier passiert die eigentliche Reiseplanung. Wir haben Felder für Start und Ziel,
+// die Auswahl für Datum und Uhrzeit, Optionen für Tickets und die Favoriten.
 @Composable
 fun HomeScreen(
     onNavigateToSearch: (fromId: String?, toId: String?, date: String, onlyDTicket: Boolean) -> Unit,
@@ -36,31 +34,30 @@ fun HomeScreen(
         factory = HomeViewModelFactory()
     )
 ) {
-    // Wir beobachten den Zustand der Daten (uiState) aus dem ViewModel
+    // Den aktuellen Zustand aus dem ViewModel laden
     val uiState by viewModel.uiState.collectAsState()
-    // Context wird benötigt, um Berechtigungen wie Standort zu prüfen
+    // Den Context holen, um später nach Berechtigungen zu fragen
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
-    // Sicherer Cast, falls wir nicht in einer Activity sind (z.B. Preview)
+    // Falls wir in einer Activity sind, speichern wir uns die Referenz
     val activity = context as? Activity
     MyApplicationTheme {
-        // Scaffold ist das Grundgerüst, das z.B. Platz für die TopBar bietet
+        // Grundgerüst der Seite mit oberer Leiste
         Scaffold(
             topBar = {
-                // Wir nutzen hier wieder die originale AppTopBar aus deinem Projekt
                 AppTopBar(title = "DB-Navigator-Alternative")
             }
         ) { innerPadding ->
-            // Column ordnet alle Sektionen untereinander an
+            // Alle Sektionen schön untereinander auflisten
             Column(
                 modifier = Modifier
-                    .padding(innerPadding) // Verhindert Überlappung mit der TopBar
+                    .padding(innerPadding) // Abstand nach oben zur Leiste
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()) // Macht den gesamten Screen scrollbar
+                    .verticalScroll(rememberScrollState()) // Alles scrollbar machen
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp) // Großer Abstand für ein luftiges Design
+                verticalArrangement = Arrangement.spacedBy(20.dp) // Ein bisschen Platz zwischen den Elementen
             ) {
-                // --- 1. SEKTION: DIE SUCHE (VON/BIS) ---
+                // # Suche (Von / Bis)
                 SearchSection(
                     fromTextFieldState = uiState.fromTextFieldState,
                     toTextFieldState = uiState.toTextFieldState,
@@ -76,7 +73,7 @@ fun HomeScreen(
                     onLocationAccepted = { viewModel.onLocationAccepted() }
                 )
 
-                // --- 2. SEKTION: DAS DATUM ---
+                // # Datum wählen
                 DateTimeSection(
                     dateText = uiState.date,
                     showDatePicker = uiState.showDatePicker,
@@ -85,7 +82,7 @@ fun HomeScreen(
                     onDismiss = { viewModel.toggleDatePicker(false) }
                 )
 
-                // --- 3. SEKTION: UHRZEIT & ABFAHRT/ANKUNFT ---
+                // # Uhrzeit und Abfahrt/Ankunft
                 ArrivalDepartureSection(
                     isArrival = uiState.isArrival,
                     timeText = uiState.time,
@@ -96,13 +93,13 @@ fun HomeScreen(
                     onDismiss = { viewModel.toggleTimePicker(false) }
                 )
 
-                // --- 4. SEKTION: ZUSATZOPTIONEN (D-TICKET) ---
+                // # Ticket-Optionen (z.B. D-Ticket)
                 TicketOptionSection(
                     onlyDTicket = uiState.onlyDTicket,
                     onToggle = { viewModel.toggleOnlyDTicket(it) }
                 )
 
-                // --- 5. SEKTION: DER SUCH-BUTTON ---
+                // # Der Such-Button
                 SearchButton(
                     onClick = {
                         onNavigateToSearch(
@@ -114,7 +111,7 @@ fun HomeScreen(
                     }
                 )
 
-                // --- 6. SEKTION: MEINE FAVORITEN ---
+                // # Favoriten-Liste
                 FavoritesSection(
                     favorites = uiState.favorites,
                     onFavoriteClick = { viewModel.onFavoriteClicked(it, onNavigateToDetail) },
@@ -122,5 +119,17 @@ fun HomeScreen(
                 )
             }
         }
+    }
+}
+
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    MyApplicationTheme {
+        HomeScreen(
+            onNavigateToSearch = { _, _, _, _ -> },
+            onNavigateToDetail = { _, _ -> }
+        )
     }
 }

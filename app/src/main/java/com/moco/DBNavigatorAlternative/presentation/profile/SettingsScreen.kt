@@ -18,9 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moco.DBNavigatorAlternative.R
 
-/**
- * Einstellungen zur Verwaltung des Benutzerprofils und der persönlichen Daten.
- */
+// # Einstellungen
+// Hier kann der Nutzer sein Profil verwalten und seine Daten löschen.
 @Composable
 fun SettingsScreen(
     currentUsername: String,
@@ -52,7 +51,7 @@ fun SettingsScreen(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Profilverwaltung
+        // # Profil bearbeiten
         ProfileSectionCard(title = stringResource(id = R.string.edit_profile)) {
             ProfileInputField(
                 value = uiState.username,
@@ -81,7 +80,7 @@ fun SettingsScreen(
             }
         }
 
-        // Benutzerkommentare
+        // # Kommentare
         ProfileSectionCard(title = stringResource(id = R.string.comments)) {
             if (uiState.userComments.isEmpty()) {
                 Text(
@@ -114,25 +113,25 @@ fun SettingsScreen(
 
             ProfileButton(
                 text = stringResource(id = R.string.delete_comments),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer, // Pastel-Gelb
+                containerColor = MaterialTheme.colorScheme.secondaryContainer, // Pastell-Gelb
                 onClick = { viewModel.deleteUserComments() }
             )
         }
 
-        // Favoritenverwaltung
+        // # Daten verwalten
         ProfileSectionCard(title = stringResource(id = R.string.data_management)) {
             ProfileButton(
                 text = stringResource(id = R.string.delete_favorites),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer, // Pastel-Gelb
+                containerColor = MaterialTheme.colorScheme.secondaryContainer, // Pastell-Gelb
                 onClick = { viewModel.deleteFavoriteConnections() }
             )
         }
 
-        // Accountlöschung
+        // # Gefahrenzone
         ProfileSectionCard(title = stringResource(id = R.string.danger_zone)) {
             ProfileButton(
                 text = stringResource(id = R.string.delete_account),
-                containerColor = MaterialTheme.colorScheme.error, // Pastel-Rot (Danger)
+                containerColor = MaterialTheme.colorScheme.error, // Pastell-Rot (Gefahr)
                 onClick = { viewModel.deleteAccount() }
             )
         }
@@ -146,6 +145,7 @@ fun SettingsScreen(
         
         Spacer(modifier = Modifier.height(32.dp))
     }
+
 
     if (uiState.isSuccess) {
         ProfilePopup(

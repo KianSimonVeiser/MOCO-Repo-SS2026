@@ -11,10 +11,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.moco.DBNavigatorAlternative.R
 
-/**
- * Sektion zur Auswahl von Uhrzeit und Abfahrt/Ankunft.
- * Nutzt das europäische 24h-Zeitformat.
- */
+// # Uhrzeit und Abfahrt/Ankunft
+// Hier kann der Nutzer einstellen, wann er los will oder ankommen möchte.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArrivalDepartureSection(
@@ -69,6 +67,7 @@ fun ArrivalDepartureSection(
 
             Spacer(Modifier.height(8.dp))
 
+            // Schalter für Abfahrt oder Ankunft
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 SegmentedButton(
                     selected = !isArrival,
@@ -88,3 +87,4 @@ fun ArrivalDepartureSection(
         }
     }
 }
+
